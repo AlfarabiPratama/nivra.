@@ -49,10 +49,10 @@ export const ReadingStats = ({ books }) => {
     <Card hover>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="font-mono text-xs uppercase tracking-widest text-[var(--text-muted)]">
+          <h3 className="font-mono text-xs uppercase tracking-widest text-(text-muted)">
             statistik bacaan
           </h3>
-          <TrendingUp size={16} className="text-[var(--accent)]" />
+          <TrendingUp size={16} className="text-(accent)" />
         </div>
         
         <div className="grid grid-cols-2 gap-4">
@@ -61,13 +61,13 @@ export const ReadingStats = ({ books }) => {
             <div className="flex items-center gap-2">
               <Flame 
                 size={20} 
-                className={`transition-colors ${stats.streak > 0 ? 'text-[var(--accent)] glow-pulse' : 'text-[var(--text-muted)]'}`}
+                className={`transition-colors ${stats.streak > 0 ? 'text-(accent) glow-pulse' : 'text-(text-muted)'}`}
               />
-              <span className="text-2xl font-serif text-[var(--text-main)]">
+              <span className="text-2xl font-serif text-(text-main)">
                 {stats.streak}
               </span>
             </div>
-            <p className="font-mono text-xs text-[var(--text-muted)] lowercase">
+            <p className="font-mono text-xs text-(text-muted) lowercase">
               hari beruntun
             </p>
           </div>
@@ -75,12 +75,12 @@ export const ReadingStats = ({ books }) => {
           {/* Pages per Day */}
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <Calendar size={20} className="text-[var(--text-main)]" />
-              <span className="text-2xl font-serif text-[var(--text-main)]">
+              <Calendar size={20} className="text-(text-main)" />
+              <span className="text-2xl font-serif text-(text-main)">
                 {stats.pagesPerDay}
               </span>
             </div>
-            <p className="font-mono text-xs text-[var(--text-muted)] lowercase">
+            <p className="font-mono text-xs text-(text-muted) lowercase">
               halaman/hari
             </p>
           </div>
@@ -88,12 +88,12 @@ export const ReadingStats = ({ books }) => {
           {/* Books Finished */}
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <BookOpen size={20} className="text-[var(--text-main)]" />
-              <span className="text-2xl font-serif text-[var(--text-main)]">
+              <BookOpen size={20} className="text-(text-main)" />
+              <span className="text-2xl font-serif text-(text-main)">
                 {stats.finishedCount}
               </span>
             </div>
-            <p className="font-mono text-xs text-[var(--text-muted)] lowercase">
+            <p className="font-mono text-xs text-(text-muted) lowercase">
               buku selesai
             </p>
           </div>
@@ -101,14 +101,14 @@ export const ReadingStats = ({ books }) => {
           {/* Average Progress */}
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 border border-[var(--border-color)] flex items-center justify-center">
-                <div className="text-xs font-mono text-[var(--text-main)]">%</div>
+              <div className="w-5 h-5 border border-(border-color) flex items-center justify-center">
+                <div className="text-xs font-mono text-(text-main)">%</div>
               </div>
-              <span className="text-2xl font-serif text-[var(--text-main)]">
+              <span className="text-2xl font-serif text-(text-main)">
                 {stats.avgProgress}
               </span>
             </div>
-            <p className="font-mono text-xs text-[var(--text-muted)] lowercase">
+            <p className="font-mono text-xs text-(text-muted) lowercase">
               rata-rata progress
             </p>
           </div>
@@ -116,14 +116,14 @@ export const ReadingStats = ({ books }) => {
         
         {/* Progress Bar Visualization */}
         {stats.readingCount > 0 && (
-          <div className="pt-4 border-t border-dashed border-[var(--border-color)]">
+          <div className="pt-4 border-t border-dashed border-(border-color)">
             <div className="space-y-2">
-              <p className="font-mono text-xs text-[var(--text-muted)] lowercase">
+              <p className="font-mono text-xs text-(text-muted) lowercase">
                 progress keseluruhan
               </p>
-              <div className="w-full h-2 bg-[var(--bg-color)] border border-[var(--border-color)]">
+              <div className="w-full h-2 bg-(bg-color) border border-(border-color)">
                 <div 
-                  className="h-full bg-[var(--accent)] transition-all duration-500"
+                  className="h-full bg-(accent) transition-all duration-500"
                   style={{ width: `${stats.avgProgress}%` }}
                 />
               </div>
@@ -134,7 +134,7 @@ export const ReadingStats = ({ books }) => {
         {/* Total Pages Achievement */}
         {stats.totalPages > 0 && (
           <div className="pt-2">
-            <p className="font-mono text-xs text-[var(--text-muted)] lowercase text-center">
+            <p className="font-mono text-xs text-(text-muted) lowercase text-center">
               total {stats.totalPages.toLocaleString()} halaman dibaca 📚
             </p>
           </div>

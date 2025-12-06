@@ -89,7 +89,7 @@ export const ReadingTimer = ({ onComplete, bookTitle = null }) => {
       
       {/* Background progress */}
       <div 
-        className="absolute inset-0 bg-[var(--accent)] opacity-5 transition-all duration-1000"
+        className="absolute inset-0 bg-(accent) opacity-5 transition-all duration-1000"
         style={{ width: `${progress}%` }}
       />
       
@@ -98,7 +98,7 @@ export const ReadingTimer = ({ onComplete, bookTitle = null }) => {
         <Disc 
           size={40} 
           className={clsx(
-            'text-[var(--text-muted)]',
+            'text-(text-muted)',
             isActive && !isPaused && 'animate-spin-slow'
           )} 
         />
@@ -112,8 +112,8 @@ export const ReadingTimer = ({ onComplete, bookTitle = null }) => {
             className={clsx(
               'flex-1 font-mono text-xs uppercase tracking-widest py-2 border transition-all duration-300',
               sessionType === 'focus'
-                ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--accent)]/10'
-                : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--text-main)]'
+                ? 'border-(accent) text-(accent) bg-(accent)/10'
+                : 'border-(border-color) text-(text-muted) hover:border-(text-main)'
             )}
           >
             fokus
@@ -123,8 +123,8 @@ export const ReadingTimer = ({ onComplete, bookTitle = null }) => {
             className={clsx(
               'flex-1 font-mono text-xs uppercase tracking-widest py-2 border transition-all duration-300',
               sessionType === 'break'
-                ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--accent)]/10'
-                : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--text-main)]'
+                ? 'border-(accent) text-(accent) bg-(accent)/10'
+                : 'border-(border-color) text-(text-muted) hover:border-(text-main)'
             )}
           >
             istirahat
@@ -133,10 +133,10 @@ export const ReadingTimer = ({ onComplete, bookTitle = null }) => {
 
         {/* Session Header with Icon */}
         <div className="text-center space-y-2">
-          <h3 className="font-mono text-xs uppercase tracking-widest text-[var(--text-muted)] flex items-center justify-center gap-2">
+          <h3 className="font-mono text-xs uppercase tracking-widest text-(text-muted) flex items-center justify-center gap-2">
             <Disc 
               className={clsx(
-                'text-[var(--text-muted)]',
+                'text-(text-muted)',
                 isActive && !isPaused && 'animate-spin-slow'
               )} 
               size={14} 
@@ -144,7 +144,7 @@ export const ReadingTimer = ({ onComplete, bookTitle = null }) => {
             mode {sessionType === 'focus' ? 'fokus' : 'istirahat'}
           </h3>
           {bookTitle && (
-            <p className="font-serif italic text-sm text-[var(--text-main)]">
+            <p className="font-serif italic text-sm text-(text-main)">
               "{bookTitle}"
             </p>
           )}
@@ -152,13 +152,13 @@ export const ReadingTimer = ({ onComplete, bookTitle = null }) => {
 
         {/* Timer Display */}
         <div className="text-center">
-          <div className="font-mono text-6xl tracking-tighter text-[var(--text-main)] tabular-nums opacity-90">
+          <div className="font-mono text-6xl tracking-tighter text-(text-main) tabular-nums opacity-90">
             {String(minutes).padStart(2, '0')}
             <span className="animate-pulse-slow">:</span>
             {String(seconds).padStart(2, '0')}
           </div>
           
-          <p className="mt-4 font-mono text-xs text-[var(--text-muted)] uppercase tracking-widest">
+          <p className="mt-4 font-mono text-xs text-(text-muted) uppercase tracking-widest">
             {isActive && !isPaused ? (
               sessionType === 'focus' ? 'fokus membaca...' : 'waktu istirahat...'
             ) : (
@@ -168,9 +168,9 @@ export const ReadingTimer = ({ onComplete, bookTitle = null }) => {
         </div>
 
         {/* Progress Bar */}
-        <div className="h-1 bg-[var(--bg-color)] border border-[var(--border-color)]">
+        <div className="h-1 bg-(bg-color) border border-(border-color)">
           <div 
-            className="h-full bg-[var(--accent)] transition-all duration-1000"
+            className="h-full bg-(accent) transition-all duration-1000"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -206,8 +206,8 @@ export const ReadingTimer = ({ onComplete, bookTitle = null }) => {
         </div>
 
         {/* XP Info */}
-        <div className="text-center pt-4 border-t border-dashed border-[var(--border-color)]">
-          <p className="font-mono text-xs text-[var(--text-muted)]">
+        <div className="text-center pt-4 border-t border-dashed border-(border-color)">
+          <p className="font-mono text-xs text-(text-muted)">
             <Clock size={12} className="inline mr-1" />
             selesaikan sesi untuk mendapat +{sessionType === 'focus' ? '30' : '10'} xp
           </p>

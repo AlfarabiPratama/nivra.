@@ -19,7 +19,7 @@ export const OnboardingModal = ({ onComplete }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-[var(--bg-color)]/95 backdrop-blur-sm z-50 flex items-center justify-center p-8">
+    <div className="fixed inset-0 bg-(bg-color)/95 backdrop-blur-sm z-50 flex items-center justify-center p-8">
       <div className="max-w-xl w-full page-enter">
         <Card>
           <div className="space-y-6 p-6">
@@ -30,21 +30,21 @@ export const OnboardingModal = ({ onComplete }) => {
                 alt="Nivra Logo" 
                 className="w-40 h-auto mx-auto mb-4 opacity-90 transition-opacity duration-300"
               />
-              <p className="font-mono text-xs text-[var(--text-muted)] uppercase tracking-widest">
+              <p className="font-mono text-xs text-(text-muted) uppercase tracking-widest">
                 digital sanctuary
               </p>
             </div>
 
             {/* Divider */}
-            <div className="border-t border-dashed border-[var(--border-color)]" />
+            <div className="border-t border-dashed border-(border-color)" />
 
             {step === 1 && (
               <div className="space-y-6">
                 <div className="text-center space-y-3">
-                  <h2 className="text-2xl font-serif italic text-[var(--text-main)]">
+                  <h2 className="text-2xl font-serif italic text-(text-main)">
                     selamat datang.
                   </h2>
-                  <p className="font-mono text-sm text-[var(--text-muted)]">
+                  <p className="font-mono text-sm text-(text-muted)">
                     nivra adalah ruang digital untuk produktivitas yang tenang.<br />
                     tidak ada hustle, tidak ada rush.<br />
                     hanya kamu dan pertumbuhanmu.
@@ -54,19 +54,19 @@ export const OnboardingModal = ({ onComplete }) => {
                 <div className="grid grid-cols-3 gap-4 py-4">
                   <div className="text-center space-y-2">
                     <div className="text-3xl">📚</div>
-                    <p className="font-mono text-xs text-[var(--text-muted)]">
+                    <p className="font-mono text-xs text-(text-muted)">
                       track bacaanmu
                     </p>
                   </div>
                   <div className="text-center space-y-2">
                     <div className="text-3xl">✍️</div>
-                    <p className="font-mono text-xs text-[var(--text-muted)]">
+                    <p className="font-mono text-xs text-(text-muted)">
                       refleksi harian
                     </p>
                   </div>
                   <div className="text-center space-y-2">
                     <div className="text-3xl">🌱</div>
-                    <p className="font-mono text-xs text-[var(--text-muted)]">
+                    <p className="font-mono text-xs text-(text-muted)">
                       tumbuh perlahan
                     </p>
                   </div>
@@ -85,10 +85,10 @@ export const OnboardingModal = ({ onComplete }) => {
             {step === 2 && (
               <div className="space-y-8">
                 <div className="text-center space-y-2">
-                  <h2 className="text-2xl font-serif italic text-[var(--text-main)]">
+                  <h2 className="text-2xl font-serif italic text-(text-main)">
                     siapa namamu?
                   </h2>
-                  <p className="font-mono text-xs text-[var(--text-muted)]">
+                  <p className="font-mono text-xs text-(text-muted)">
                     atau panggilan yang kamu suka
                   </p>
                 </div>
@@ -133,17 +133,17 @@ export const OnboardingModal = ({ onComplete }) => {
               <div className="space-y-6">
                 <div className="text-center space-y-4">
                   <div className="text-6xl mb-4">🌱</div>
-                  <h2 className="text-2xl font-serif italic text-[var(--text-main)]">
+                  <h2 className="text-2xl font-serif italic text-(text-main)">
                     hai, {name}.
                   </h2>
-                  <p className="font-mono text-sm text-[var(--text-muted)]">
+                  <p className="font-mono text-sm text-(text-muted)">
                     tamanmu dimulai sebagai benih.<br />
                     dengan setiap task selesai, buku dibaca, dan jurnal ditulis,<br />
                     tamanmu akan tumbuh.
                   </p>
                   
-                  <div className="border-t border-dashed border-[var(--border-color)] pt-4 mt-4">
-                    <p className="font-serif italic text-base text-[var(--text-main)]">
+                  <div className="border-t border-dashed border-(border-color) pt-4 mt-4">
+                    <p className="font-serif italic text-base text-(text-main)">
                       "satu langkah pada satu waktu."
                     </p>
                   </div>
