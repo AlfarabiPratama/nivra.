@@ -647,7 +647,7 @@ export const FinanceView = () => {
                           className="flex items-center justify-between p-2 md:p-3 bg-(--bg-color) border border-dashed border-(--border-color) hover:border-(--accent) transition-colors gap-2"
                         >
                           <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
-                            <div className="text-lg md:text-2xl flex-shrink-0">{category?.emoji}</div>
+                            <div className="text-lg md:text-2xl shrink-0">{category?.emoji}</div>
                             <div className="flex-1 min-w-0">
                               <p className="font-mono text-xs md:text-sm text-(--text-main) truncate">
                                 {category?.name}
@@ -677,7 +677,7 @@ export const FinanceView = () => {
                               </div>
                             </div>
                           </div>
-                          <div className="flex flex-col md:flex-row items-end md:items-center gap-1 md:gap-3 flex-shrink-0">
+                          <div className="flex flex-col md:flex-row items-end md:items-center gap-1 md:gap-3 shrink-0">
                             <p
                               className={clsx(
                                 'font-mono text-xs md:text-base whitespace-nowrap',
@@ -781,10 +781,10 @@ export const FinanceView = () => {
                         <div key={cat.id} className="p-3 md:p-4 border border-dashed border-(--border-color)">
                           <div className="flex items-start md:items-center justify-between mb-3 gap-2">
                             <div className="flex items-center gap-2 min-w-0">
-                              <span className="text-base md:text-xl flex-shrink-0">{cat.emoji}</span>
+                              <span className="text-base md:text-xl shrink-0">{cat.emoji}</span>
                               <span className="font-mono text-xs md:text-sm text-(--text-main) truncate">{cat.name}</span>
                             </div>
-                            <div className="text-right flex-shrink-0">
+                            <div className="text-right shrink-0">
                               <p className={clsx(
                                 'font-mono text-[10px] md:text-sm whitespace-nowrap',
                                 budgetStatus.isOverBudget ? 'text-red-500' :
@@ -813,7 +813,7 @@ export const FinanceView = () => {
 
                           {budgetStatus.isNearLimit && !budgetStatus.isOverBudget && (
                             <div className="flex items-center gap-1 md:gap-2 text-yellow-500">
-                              <AlertTriangle size={12} className="md:w-3.5 md:h-3.5 flex-shrink-0" />
+                              <AlertTriangle size={12} className="md:w-3.5 md:h-3.5 shrink-0" />
                               <p className="font-mono text-[10px] md:text-xs">
                                 mendekati batas! sisa {formatCurrency(budgetStatus.remaining)}
                               </p>
@@ -821,7 +821,7 @@ export const FinanceView = () => {
                           )}
                           {budgetStatus.isOverBudget && (
                             <div className="flex items-center gap-1 md:gap-2 text-red-500">
-                              <AlertTriangle size={12} className="md:w-3.5 md:h-3.5 flex-shrink-0" />
+                              <AlertTriangle size={12} className="md:w-3.5 md:h-3.5 shrink-0" />
                               <p className="font-mono text-[10px] md:text-xs">
                                 melebihi budget {formatCurrency(Math.abs(budgetStatus.remaining))}
                               </p>
@@ -967,3 +967,5 @@ export const FinanceView = () => {
     </AnimatedPage>
   );
 };
+
+

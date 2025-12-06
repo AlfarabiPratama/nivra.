@@ -6,11 +6,11 @@ export const Input = ({
   variant = 'underline',
   ...props 
 }) => {
-  const baseStyles = 'font-mono text-sm bg-transparent text-[var(--text-main)] placeholder:text-[var(--text-muted)] focus:outline-none transition-all duration-300';
+  const baseStyles = 'font-mono text-sm bg-transparent text-(text-main) placeholder:text-(text-muted) focus:outline-none transition-all duration-300';
   
   const variants = {
-    underline: 'border-b border-dashed border-[var(--border-color)] focus:border-solid focus:border-[var(--accent)] pb-2',
-    box: 'border border-dashed border-[var(--border-color)] focus:border-solid focus:border-[var(--accent)] p-3',
+    underline: 'border-b border-dashed border-(border-color) focus:border-solid focus:border-(accent) pb-2',
+    box: 'border border-dashed border-(border-color) focus:border-solid focus:border-(accent) p-3',
   };
 
   return (
@@ -21,3 +21,4 @@ export const Input = ({
     />
   );
 };
+

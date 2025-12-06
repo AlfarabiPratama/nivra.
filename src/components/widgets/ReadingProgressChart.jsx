@@ -86,11 +86,11 @@ export const ReadingProgressChart = ({ books }) => {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
         <Card hover>
           <div className="text-center space-y-1 md:space-y-2 p-3 md:p-4">
-            <BookOpen size={20} className="md:w-6 md:h-6 mx-auto text-[var(--accent)]" />
-            <div className="font-mono text-lg md:text-2xl text-[var(--accent)]">
+            <BookOpen size={20} className="md:w-6 md:h-6 mx-auto text-(accent)" />
+            <div className="font-mono text-lg md:text-2xl text-(accent)">
               {analytics.monthlyPages}
             </div>
-            <div className="font-mono text-[10px] md:text-xs text-[var(--text-muted)] uppercase leading-tight">
+            <div className="font-mono text-[10px] md:text-xs text-(text-muted) uppercase leading-tight">
               bulan ini
             </div>
           </div>
@@ -98,10 +98,10 @@ export const ReadingProgressChart = ({ books }) => {
         
         <Card hover>
           <div className="text-center space-y-1 md:space-y-2 p-3 md:p-4">
-            <div className="font-mono text-lg md:text-2xl text-[var(--accent)]">
+            <div className="font-mono text-lg md:text-2xl text-(accent)">
               {analytics.avgDaily}
             </div>
-            <div className="font-mono text-[10px] md:text-xs text-[var(--text-muted)] uppercase leading-tight">
+            <div className="font-mono text-[10px] md:text-xs text-(text-muted) uppercase leading-tight">
               rata-rata/hari
             </div>
           </div>
@@ -109,10 +109,10 @@ export const ReadingProgressChart = ({ books }) => {
         
         <Card hover>
           <div className="text-center space-y-1 md:space-y-2 p-3 md:p-4">
-            <div className="font-mono text-lg md:text-2xl text-[var(--accent)]">
+            <div className="font-mono text-lg md:text-2xl text-(accent)">
               {analytics.consistency}%
             </div>
-            <div className="font-mono text-[10px] md:text-xs text-[var(--text-muted)] uppercase leading-tight">
+            <div className="font-mono text-[10px] md:text-xs text-(text-muted) uppercase leading-tight">
               konsistensi
             </div>
           </div>
@@ -120,10 +120,10 @@ export const ReadingProgressChart = ({ books }) => {
         
         <Card hover>
           <div className="text-center space-y-1 md:space-y-2 p-3 md:p-4">
-            <div className="font-mono text-lg md:text-2xl text-[var(--accent)]">
+            <div className="font-mono text-lg md:text-2xl text-(accent)">
               {analytics.maxDaily}
             </div>
-            <div className="font-mono text-[10px] md:text-xs text-[var(--text-muted)] uppercase leading-tight">
+            <div className="font-mono text-[10px] md:text-xs text-(text-muted) uppercase leading-tight">
               best day
             </div>
           </div>
@@ -134,10 +134,10 @@ export const ReadingProgressChart = ({ books }) => {
       <Card>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-mono text-xs uppercase tracking-widest text-[var(--text-muted)]">
+            <h3 className="font-mono text-xs uppercase tracking-widest text-(text-muted)">
               Halaman Dibaca (7 Hari Terakhir)
             </h3>
-            <TrendingUp size={16} className="text-[var(--accent)]" />
+            <TrendingUp size={16} className="text-(accent)" />
           </div>
           
           <div className="flex items-end justify-between gap-2 h-32">
@@ -150,16 +150,16 @@ export const ReadingProgressChart = ({ books }) => {
                 <div key={day.date} className="flex-1 flex flex-col items-center gap-2">
                   <div className="relative flex-1 w-full flex items-end">
                     <div 
-                      className="w-full bg-[var(--accent)] transition-all duration-500 hover:opacity-80 hover:scale-105 origin-bottom"
+                      className="w-full bg-(accent) transition-all duration-500 hover:opacity-80 hover:scale-105 origin-bottom"
                       style={{ height: `${heightPercent}%` }}
                     />
                     {day.pagesRead > 0 && (
-                      <div className="absolute -top-6 left-1/2 -translate-x-1/2 font-mono text-xs text-[var(--text-muted)]">
+                      <div className="absolute -top-6 left-1/2 -translate-x-1/2 font-mono text-xs text-(text-muted)">
                         {day.pagesRead}
                       </div>
                     )}
                   </div>
-                  <div className="font-mono text-xs text-[var(--text-muted)]">
+                  <div className="font-mono text-xs text-(text-muted)">
                     {day.label}
                   </div>
                 </div>
@@ -172,7 +172,7 @@ export const ReadingProgressChart = ({ books }) => {
       {/* 30 Days Heatmap */}
       <Card>
         <div className="space-y-4">
-          <h3 className="font-mono text-xs uppercase tracking-widest text-[var(--text-muted)]">
+          <h3 className="font-mono text-xs uppercase tracking-widest text-(text-muted)">
             Aktivitas 30 Hari
           </h3>
           
@@ -183,11 +183,11 @@ export const ReadingProgressChart = ({ books }) => {
                 : 0;
               
               const getColor = () => {
-                if (intensity === 0) return 'bg-[var(--bg-color)] border border-[var(--border-color)]';
-                if (intensity < 25) return 'bg-[var(--accent)] opacity-25';
-                if (intensity < 50) return 'bg-[var(--accent)] opacity-50';
-                if (intensity < 75) return 'bg-[var(--accent)] opacity-75';
-                return 'bg-[var(--accent)]';
+                if (intensity === 0) return 'bg-(bg-color) border border-(border-color)';
+                if (intensity < 25) return 'bg-(accent) opacity-25';
+                if (intensity < 50) return 'bg-(accent) opacity-50';
+                if (intensity < 75) return 'bg-(accent) opacity-75';
+                return 'bg-(accent)';
               };
               
               return (
@@ -196,11 +196,11 @@ export const ReadingProgressChart = ({ books }) => {
                   className={`aspect-square ${getColor()} hover:scale-110 transition-transform cursor-pointer group relative`}
                   title={`${day.date}: ${day.pagesRead} halaman`}
                 >
-                  <div className="absolute hidden group-hover:block -top-12 left-1/2 -translate-x-1/2 bg-[var(--bg-elevated)] border border-[var(--border-color)] px-2 py-1 whitespace-nowrap z-10">
-                    <div className="font-mono text-xs text-[var(--text-main)]">
+                  <div className="absolute hidden group-hover:block -top-12 left-1/2 -translate-x-1/2 bg-(bg-elevated) border border-(border-color) px-2 py-1 whitespace-nowrap z-10">
+                    <div className="font-mono text-xs text-(text-main)">
                       {new Date(day.date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })}
                     </div>
-                    <div className="font-mono text-xs text-[var(--text-muted)]">
+                    <div className="font-mono text-xs text-(text-muted)">
                       {day.pagesRead} hal
                     </div>
                   </div>
@@ -210,18 +210,19 @@ export const ReadingProgressChart = ({ books }) => {
           </div>
           
           <div className="flex items-center justify-end gap-2">
-            <span className="font-mono text-xs text-[var(--text-muted)]">Less</span>
+            <span className="font-mono text-xs text-(text-muted)">Less</span>
             <div className="flex gap-1">
-              <div className="w-3 h-3 bg-[var(--bg-color)] border border-[var(--border-color)]" />
-              <div className="w-3 h-3 bg-[var(--accent)] opacity-25" />
-              <div className="w-3 h-3 bg-[var(--accent)] opacity-50" />
-              <div className="w-3 h-3 bg-[var(--accent)] opacity-75" />
-              <div className="w-3 h-3 bg-[var(--accent)]" />
+              <div className="w-3 h-3 bg-(bg-color) border border-(border-color)" />
+              <div className="w-3 h-3 bg-(accent) opacity-25" />
+              <div className="w-3 h-3 bg-(accent) opacity-50" />
+              <div className="w-3 h-3 bg-(accent) opacity-75" />
+              <div className="w-3 h-3 bg-(accent)" />
             </div>
-            <span className="font-mono text-xs text-[var(--text-muted)]">More</span>
+            <span className="font-mono text-xs text-(text-muted)">More</span>
           </div>
         </div>
       </Card>
     </div>
   );
 };
+
