@@ -1,9 +1,9 @@
 import { useEffect } from "react";
-import { useSyncStore } from "../store/useSyncStore";
-import { useTaskStore } from "../store/useTaskStore";
-import { useBookStore } from "../store/useBookStore";
-import { useJournalStore } from "../store/useJournalStore";
-import { useHabitStore } from "../store/useHabitStore";
+import { useSyncStore } from "../../store/useSyncStore";
+import { useTaskStore } from "../../store/useTaskStore";
+import { useBookStore } from "../../store/useBookStore";
+import { useJournalStore } from "../../store/useJournalStore";
+import { useHabitStore } from "../../store/useHabitStore";
 
 /**
  * Firebase Sync Provider Component
