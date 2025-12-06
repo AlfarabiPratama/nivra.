@@ -29,9 +29,9 @@ export const LoadingScreen = ({ onComplete }) => {
           nivra
         </div>
         <div className="flex gap-2 justify-center">
-          <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-pulse" style={{ animationDelay: '0s' }}></div>
-          <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-          <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+          <div className="w-2 h-2 bg-(accent) rounded-full animate-pulse" style={{ animationDelay: '0s' }}></div>
+          <div className="w-2 h-2 bg-(accent) rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+          <div className="w-2 h-2 bg-(accent) rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
         </div>
       </div>
     </div>
