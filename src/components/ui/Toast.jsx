@@ -20,7 +20,7 @@ export const Toast = () => {
         return (
           <div
             key={toast.id}
-            className="pointer-events-auto bg-[var(--card-color)] border border-[var(--border-color)] p-4 min-w-[300px] shadow-lg fade-slide-up hover-scale"
+            className="pointer-events-auto bg-(card-color) border border-(border-color) p-4 min-w-[300px] shadow-lg fade-slide-up hover-scale"
             style={{ 
               animationDelay: `${index * 100}ms`,
               transform: `translateY(${index * 10}px)`
@@ -32,18 +32,18 @@ export const Toast = () => {
                 className={clsx(
                   'transition-transform',
                   toast.type === 'xp' || toast.type === 'levelup' 
-                    ? 'text-[var(--accent)] glow-pulse' 
-                    : 'text-[var(--text-main)]'
+                    ? 'text-(accent) glow-pulse' 
+                    : 'text-(text-main)'
                 )}
               />
               
-              <p className="flex-1 font-mono text-xs text-[var(--text-main)] lowercase">
+              <p className="flex-1 font-mono text-xs text-(text-main) lowercase">
                 {toast.message}
               </p>
               
               <button
                 onClick={() => removeToast(toast.id)}
-                className="text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors hover-scale"
+                className="text-(text-muted) hover:text-(text-main) transition-colors hover-scale"
               >
                 <X size={14} />
               </button>
@@ -54,3 +54,4 @@ export const Toast = () => {
     </div>
   );
 };
+

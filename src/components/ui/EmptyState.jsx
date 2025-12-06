@@ -51,14 +51,14 @@ export const EmptyState = ({
 
         {/* Quote */}
         <div className="space-y-2">
-          <p className="font-serif italic text-base text-[var(--text-main)]">
+          <p className="font-serif italic text-base text-(text-main)">
             "{customMessage || randomQuote}"
           </p>
-          <div className="w-12 h-px bg-[var(--border-color)] mx-auto" />
+          <div className="w-12 h-px bg-(border-color) mx-auto" />
         </div>
 
         {/* Subtle hint */}
-        <p className="font-mono text-xs text-[var(--text-muted)] opacity-60">
+        <p className="font-mono text-xs text-(text-muted) opacity-60">
           • • •
         </p>
 
@@ -79,3 +79,4 @@ export const EmptyState = ({
     </Card>
   );
 };
+
