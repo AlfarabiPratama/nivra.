@@ -1,21 +1,45 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Card } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { AnimatedPage } from '../components/ui/AnimatedPage';
-import { useAppStore } from '../store/useAppStore';
-import { usePomodoroStore } from '../store/usePomodoroStore';
-import { useToastStore } from '../store/useToastStore';
-import { User, Timer, Palette, Download, Upload, Trash2, Sun, Moon, Check, X, ChevronRight, Bell, ArrowUp, ArrowDown, Eye, EyeOff, RotateCcw, Info } from 'lucide-react';
-import { useThemeStore } from '../store/useThemeStore';
-import { buildExportPayload, importData, SCHEMA_VERSION } from '../store/dataExport';
-import { requestNotificationPermission } from '../utils/notifications';
-import { useLayoutStore, PRESETS } from '../store/useLayoutStore';
-import { checkIntegrity, resetStore } from '../utils/schema';
-import { MigrationButton } from '../utils/migrationHelper';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Card } from "../components/ui/Card";
+import { Button } from "../components/ui/Button";
+import { Input } from "../components/ui/Input";
+import { AnimatedPage } from "../components/ui/AnimatedPage";
+import { useAppStore } from "../store/useAppStore";
+import { usePomodoroStore } from "../store/usePomodoroStore";
+import { useToastStore } from "../store/useToastStore";
+import {
+  User,
+  Timer,
+  Palette,
+  Download,
+  Upload,
+  Trash2,
+  Sun,
+  Moon,
+  Check,
+  X,
+  ChevronRight,
+  Bell,
+  ArrowUp,
+  ArrowDown,
+  Eye,
+  EyeOff,
+  RotateCcw,
+  Info,
+} from "lucide-react";
+import { useThemeStore } from "../store/useThemeStore";
+import {
+  buildExportPayload,
+  importData,
+  SCHEMA_VERSION,
+} from "../store/dataExport";
+import { requestNotificationPermission } from "../utils/notifications";
+import { useLayoutStore, PRESETS } from "../store/useLayoutStore";
+import { checkIntegrity, resetStore } from "../utils/schema";
+import { MigrationButton } from "../utils/migrationHelper";
 
 export const SettingsView = () => {
-  const { user, setCurrentView, notifications, toggleNotification } = useAppStore();
+  const { user, setCurrentView, notifications, toggleNotification } =
+    useAppStore();
   const { settings: pomodoroSettings, updateSettings } = usePomodoroStore();
   const { isDarkMode, toggleTheme } = useThemeStore();
   const { addToast } = useToastStore();
@@ -29,26 +53,41 @@ export const SettingsView = () => {
     applyPreset,
   } = useLayoutStore();
 
-  const [focusDuration, setFocusDuration] = useState(pomodoroSettings.focusDuration);
-  const [shortBreak, setShortBreak] = useState(pomodoroSettings.shortBreakDuration);
-  const [longBreak, setLongBreak] = useState(pomodoroSettings.longBreakDuration);
+  const [focusDuration, setFocusDuration] = useState(
+    pomodoroSettings.focusDuration
+  );
+  const [shortBreak, setShortBreak] = useState(
+    pomodoroSettings.shortBreakDuration
+  );
+  const [longBreak, setLongBreak] = useState(
+    pomodoroSettings.longBreakDuration
+  );
   const [isImporting, setIsImporting] = useState(false);
   const fileInputRef = useRef(null);
-  const initialPermission = typeof Notification !== 'undefined' ? Notification.permission : 'default';
-  const [notificationStatus, setNotificationStatus] = useState(initialPermission);
+  const initialPermission =
+    typeof Notification !== "undefined" ? Notification.permission : "default";
+  const [notificationStatus, setNotificationStatus] =
+    useState(initialPermission);
   const [integrityReport, setIntegrityReport] = useState([]);
   const [integrityLoading, setIntegrityLoading] = useState(false);
-  const [reminderTime, setReminderTimeLocal] = useState(useAppStore.getState().reminderTime || '08:00');
+  const [reminderTime, setReminderTimeLocal] = useState(
+    useAppStore.getState().reminderTime || "08:00"
+  );
 
   const widgetLabelMap = {
-    weeklyReview: 'weekly review',
-    weeklyInsights: 'weekly insights',
-    taskAnalytics: 'task analytics',
-    pomodoro: 'pomodoro summary',
+    weeklyReview: "weekly review",
+    weeklyInsights: "weekly insights",
+    taskAnalytics: "task analytics",
+    pomodoro: "pomodoro summary",
   };
 
   const mergedWidgetOrder = useMemo(() => {
-    const required = ['weeklyReview', 'weeklyInsights', 'taskAnalytics', 'pomodoro'];
+    const required = [
+      "weeklyReview",
+      "weeklyInsights",
+      "taskAnalytics",
+      "pomodoro",
+    ];
     return Array.from(new Set([...widgetOrder, ...required]));
   }, [widgetOrder]);
 
@@ -63,39 +102,41 @@ export const SettingsView = () => {
     updateSettings({
       focusDuration: parseInt(focusDuration),
       shortBreakDuration: parseInt(shortBreak),
-      longBreakDuration: parseInt(longBreak)
+      longBreakDuration: parseInt(longBreak),
     });
-    addToast('pengaturan pomodoro disimpan', 'success');
+    addToast("pengaturan pomodoro disimpan", "success");
   };
 
   const handleExportData = () => {
     const data = buildExportPayload();
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json",
+    });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `nivra-backup-${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    
-    addToast('data berhasil diekspor', 'success');
+
+    addToast("data berhasil diekspor", "success");
   };
 
   const handleAskNotificationPermission = async () => {
     const permission = await requestNotificationPermission();
     setNotificationStatus(permission);
-    if (permission === 'granted') {
-      addToast('notifikasi diizinkan', 'success');
+    if (permission === "granted") {
+      addToast("notifikasi diizinkan", "success");
     } else {
-      addToast('notifikasi diblokir atau tidak didukung', 'error');
+      addToast("notifikasi diblokir atau tidak didukung", "error");
     }
   };
 
   const handleUpdateReminderTime = (value) => {
     setReminderTimeLocal(value);
     useAppStore.getState().setReminderTime(value);
-    addToast('waktu pengingat diperbarui', 'success');
+    addToast("waktu pengingat diperbarui", "success");
   };
 
   const handleImport = async (event) => {
@@ -107,13 +148,13 @@ export const SettingsView = () => {
       const text = await file.text();
       const json = JSON.parse(text);
       const applied = importData(json);
-      addToast(`import berhasil (${applied.join(', ')})`, 'success');
+      addToast(`import berhasil (${applied.join(", ")})`, "success");
     } catch (error) {
-      addToast(error.message || 'import gagal, format tidak valid', 'error');
+      addToast(error.message || "import gagal, format tidak valid", "error");
     } finally {
       setIsImporting(false);
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     }
   };
@@ -126,14 +167,20 @@ export const SettingsView = () => {
   };
 
   const handleResetStore = (name) => {
-    const confirmed = window.confirm(`Reset store ${name}? Data lokal akan hilang untuk store ini.`);
+    const confirmed = window.confirm(
+      `Reset store ${name}? Data lokal akan hilang untuk store ini.`
+    );
     if (!confirmed) return;
     resetStore(name);
-    addToast(`store ${name} direset`, 'success');
+    addToast(`store ${name} direset`, "success");
   };
 
   const handleClearData = () => {
-    if (window.confirm('Yakin ingin menghapus semua data? Tindakan ini tidak dapat dibatalkan.')) {
+    if (
+      window.confirm(
+        "Yakin ingin menghapus semua data? Tindakan ini tidak dapat dibatalkan."
+      )
+    ) {
       localStorage.clear();
       window.location.reload();
     }
@@ -155,15 +202,15 @@ export const SettingsView = () => {
         {/* Profile Navigation Card */}
         <Card>
           <button
-            onClick={() => setCurrentView('profile')}
+            onClick={() => setCurrentView("profile")}
             className="w-full p-6 flex items-center justify-between hover:bg-(--bg-color)/50 transition-colors group"
           >
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full border-2 border-dashed border-(--border-color) overflow-hidden bg-(--bg-color) flex items-center justify-center group-hover:border-(--accent) transition-colors">
                 {user.avatar ? (
-                  <img 
-                    src={user.avatar} 
-                    alt="Avatar" 
+                  <img
+                    src={user.avatar}
+                    alt="Avatar"
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -175,11 +222,15 @@ export const SettingsView = () => {
                   profil pengguna
                 </h3>
                 <p className="font-mono text-xs text-(--text-muted)">
-                  {user.name || 'belum ada nama'} • level {user.level} • {user.xp} XP
+                  {user.name || "belum ada nama"} • level {user.level} •{" "}
+                  {user.xp} XP
                 </p>
               </div>
             </div>
-            <ChevronRight size={20} className="text-(--text-muted) group-hover:text-(--accent) transition-colors" />
+            <ChevronRight
+              size={20}
+              className="text-(--text-muted) group-hover:text-(--accent) transition-colors"
+            />
           </button>
         </Card>
 
@@ -236,17 +287,23 @@ export const SettingsView = () => {
               <div className="pt-3 border-t border-dashed border-(--border-color) space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-mono text-xs text-(--text-main) uppercase">auto-start istirahat</p>
+                    <p className="font-mono text-xs text-(--text-main) uppercase">
+                      auto-start istirahat
+                    </p>
                     <p className="font-mono text-xs text-(--text-muted) mt-1">
                       mulai istirahat otomatis setelah fokus
                     </p>
                   </div>
                   <button
-                    onClick={() => updateSettings({ autoStartBreaks: !pomodoroSettings.autoStartBreaks })}
+                    onClick={() =>
+                      updateSettings({
+                        autoStartBreaks: !pomodoroSettings.autoStartBreaks,
+                      })
+                    }
                     className={`p-2 border transition-colors ${
-                      pomodoroSettings.autoStartBreaks 
-                        ? 'border-(--accent) bg-(--accent) bg-opacity-10' 
-                        : 'border-(--border-color) hover:border-(--accent)'
+                      pomodoroSettings.autoStartBreaks
+                        ? "border-(--accent) bg-(--accent) bg-opacity-10"
+                        : "border-(--border-color) hover:border-(--accent)"
                     }`}
                   >
                     {pomodoroSettings.autoStartBreaks ? (
@@ -259,17 +316,24 @@ export const SettingsView = () => {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-mono text-xs text-(--text-main) uppercase">auto-start fokus</p>
+                    <p className="font-mono text-xs text-(--text-main) uppercase">
+                      auto-start fokus
+                    </p>
                     <p className="font-mono text-xs text-(--text-muted) mt-1">
                       mulai fokus otomatis setelah istirahat
                     </p>
                   </div>
                   <button
-                    onClick={() => updateSettings({ autoStartPomodoros: !pomodoroSettings.autoStartPomodoros })}
+                    onClick={() =>
+                      updateSettings({
+                        autoStartPomodoros:
+                          !pomodoroSettings.autoStartPomodoros,
+                      })
+                    }
                     className={`p-2 border transition-colors ${
-                      pomodoroSettings.autoStartPomodoros 
-                        ? 'border-(--accent) bg-(--accent) bg-opacity-10' 
-                        : 'border-(--border-color) hover:border-(--accent)'
+                      pomodoroSettings.autoStartPomodoros
+                        ? "border-(--accent) bg-(--accent) bg-opacity-10"
+                        : "border-(--border-color) hover:border-(--accent)"
                     }`}
                   >
                     {pomodoroSettings.autoStartPomodoros ? (
@@ -282,17 +346,23 @@ export const SettingsView = () => {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-mono text-xs text-(--text-main) uppercase">notifikasi suara</p>
+                    <p className="font-mono text-xs text-(--text-main) uppercase">
+                      notifikasi suara
+                    </p>
                     <p className="font-mono text-xs text-(--text-muted) mt-1">
                       suara lonceng saat sesi selesai
                     </p>
                   </div>
                   <button
-                    onClick={() => updateSettings({ soundEnabled: !pomodoroSettings.soundEnabled })}
+                    onClick={() =>
+                      updateSettings({
+                        soundEnabled: !pomodoroSettings.soundEnabled,
+                      })
+                    }
                     className={`p-2 border transition-colors ${
-                      pomodoroSettings.soundEnabled 
-                        ? 'border-(--accent) bg-(--accent) bg-opacity-10' 
-                        : 'border-(--border-color) hover:border-(--accent)'
+                      pomodoroSettings.soundEnabled
+                        ? "border-(--accent) bg-(--accent) bg-opacity-10"
+                        : "border-(--border-color) hover:border-(--accent)"
                     }`}
                   >
                     {pomodoroSettings.soundEnabled ? (
@@ -327,9 +397,11 @@ export const SettingsView = () => {
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-mono text-sm text-(--text-main)">Mode Gelap</p>
+                <p className="font-mono text-sm text-(--text-main)">
+                  Mode Gelap
+                </p>
                 <p className="font-mono text-xs text-(--text-muted) mt-1">
-                  {isDarkMode ? 'the study room' : 'the archive'}
+                  {isDarkMode ? "the study room" : "the archive"}
                 </p>
               </div>
               <button
@@ -359,36 +431,56 @@ export const SettingsView = () => {
             <div className="space-y-3">
               <div className="flex items-center justify-between border border-dashed border-(--border-color) px-3 py-2">
                 <div>
-                  <p className="font-mono text-xs text-(--text-main) uppercase">pomodoro selesai</p>
-                  <p className="font-mono text-[11px] text-(--text-muted)">kirim notifikasi ketika sesi fokus berakhir</p>
+                  <p className="font-mono text-xs text-(--text-main) uppercase">
+                    pomodoro selesai
+                  </p>
+                  <p className="font-mono text-[11px] text-(--text-muted)">
+                    kirim notifikasi ketika sesi fokus berakhir
+                  </p>
                 </div>
                 <Button
                   variant="ghost"
-                  onClick={() => toggleNotification('pomodoroAlerts')}
+                  onClick={() => toggleNotification("pomodoroAlerts")}
                   className="px-3"
                 >
-                  {notifications?.pomodoroAlerts ? <Check size={14} className="text-(--accent)" /> : <X size={14} className="text-(--text-muted)" />}
+                  {notifications?.pomodoroAlerts ? (
+                    <Check size={14} className="text-(--accent)" />
+                  ) : (
+                    <X size={14} className="text-(--text-muted)" />
+                  )}
                 </Button>
               </div>
 
               <div className="flex items-center justify-between border border-dashed border-(--border-color) px-3 py-2">
                 <div>
-                  <p className="font-mono text-xs text-(--text-main) uppercase">pengingat tugas</p>
-                  <p className="font-mono text-[11px] text-(--text-muted)">pengingat harian untuk tugas jatuh tempo & kebiasaan</p>
+                  <p className="font-mono text-xs text-(--text-main) uppercase">
+                    pengingat tugas
+                  </p>
+                  <p className="font-mono text-[11px] text-(--text-muted)">
+                    pengingat harian untuk tugas jatuh tempo & kebiasaan
+                  </p>
                 </div>
                 <Button
                   variant="ghost"
-                  onClick={() => toggleNotification('taskAlerts')}
+                  onClick={() => toggleNotification("taskAlerts")}
                   className="px-3"
                 >
-                  {notifications?.taskAlerts ? <Check size={14} className="text-(--accent)" /> : <X size={14} className="text-(--text-muted)" />}
+                  {notifications?.taskAlerts ? (
+                    <Check size={14} className="text-(--accent)" />
+                  ) : (
+                    <X size={14} className="text-(--text-muted)" />
+                  )}
                 </Button>
               </div>
 
               <div className="flex items-center justify-between border border-dashed border-(--border-color) px-3 py-2">
                 <div>
-                  <p className="font-mono text-xs text-(--text-main) uppercase">pengingat harian</p>
-                  <p className="font-mono text-[11px] text-(--text-muted)">jam pengingat</p>
+                  <p className="font-mono text-xs text-(--text-main) uppercase">
+                    pengingat harian
+                  </p>
+                  <p className="font-mono text-[11px] text-(--text-muted)">
+                    jam pengingat
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <input
@@ -399,18 +491,26 @@ export const SettingsView = () => {
                   />
                   <Button
                     variant="ghost"
-                    onClick={() => toggleNotification('reminders')}
+                    onClick={() => toggleNotification("reminders")}
                     className="px-3"
                   >
-                    {notifications?.reminders ? <Check size={14} className="text-(--accent)" /> : <X size={14} className="text-(--text-muted)" />}
+                    {notifications?.reminders ? (
+                      <Check size={14} className="text-(--accent)" />
+                    ) : (
+                      <X size={14} className="text-(--text-muted)" />
+                    )}
                   </Button>
                 </div>
               </div>
 
               <div className="flex items-center justify-between border border-dashed border-(--border-color) px-3 py-2">
                 <div>
-                  <p className="font-mono text-xs text-(--text-main) uppercase">izin browser</p>
-                  <p className="font-mono text-[11px] text-(--text-muted)">status: {notificationStatus}</p>
+                  <p className="font-mono text-xs text-(--text-main) uppercase">
+                    izin browser
+                  </p>
+                  <p className="font-mono text-[11px] text-(--text-muted)">
+                    status: {notificationStatus}
+                  </p>
                 </div>
                 <Button
                   variant="ghost"
@@ -429,8 +529,12 @@ export const SettingsView = () => {
           <div className="p-6 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-mono text-[10px] uppercase tracking-widest text-(--text-muted)">tata letak dashboard</p>
-                <p className="font-mono text-xs text-(--text-muted)">atur urutan dan visibilitas widget utama.</p>
+                <p className="font-mono text-[10px] uppercase tracking-widest text-(--text-muted)">
+                  tata letak dashboard
+                </p>
+                <p className="font-mono text-xs text-(--text-muted)">
+                  atur urutan dan visibilitas widget utama.
+                </p>
               </div>
               <div className="flex items-center gap-2">
                 <select
@@ -438,9 +542,13 @@ export const SettingsView = () => {
                   onChange={(e) => applyPreset(e.target.value)}
                   defaultValue=""
                 >
-                  <option value="" disabled>preset</option>
+                  <option value="" disabled>
+                    preset
+                  </option>
                   {Object.keys(PRESETS).map((key) => (
-                    <option key={key} value={key}>{key}</option>
+                    <option key={key} value={key}>
+                      {key}
+                    </option>
                   ))}
                 </select>
                 <Button
@@ -461,13 +569,13 @@ export const SettingsView = () => {
                   key={id}
                   draggable
                   onDragStart={(e) => {
-                    e.dataTransfer.setData('text/widget-id', id);
-                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData("text/widget-id", id);
+                    e.dataTransfer.effectAllowed = "move";
                   }}
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={(e) => {
                     e.preventDefault();
-                    const draggedId = e.dataTransfer.getData('text/widget-id');
+                    const draggedId = e.dataTransfer.getData("text/widget-id");
                     if (!draggedId || draggedId === id) return;
                     const currentOrder = [...mergedWidgetOrder];
                     const from = currentOrder.indexOf(draggedId);
@@ -490,7 +598,7 @@ export const SettingsView = () => {
                   <div className="flex items-center gap-1">
                     <Button
                       variant="ghost"
-                      onClick={() => moveWidget(id, 'up')}
+                      onClick={() => moveWidget(id, "up")}
                       disabled={index === 0}
                       className="px-2 py-1"
                       title="geser ke atas"
@@ -499,7 +607,7 @@ export const SettingsView = () => {
                     </Button>
                     <Button
                       variant="ghost"
-                      onClick={() => moveWidget(id, 'down')}
+                      onClick={() => moveWidget(id, "down")}
                       disabled={index === mergedWidgetOrder.length - 1}
                       className="px-2 py-1"
                       title="geser ke bawah"
@@ -510,9 +618,15 @@ export const SettingsView = () => {
                       variant="ghost"
                       onClick={() => toggleWidgetVisibility(id)}
                       className="px-2 py-1"
-                      title={hiddenWidgets.includes(id) ? 'tampilkan' : 'sembunyikan'}
+                      title={
+                        hiddenWidgets.includes(id) ? "tampilkan" : "sembunyikan"
+                      }
                     >
-                      {hiddenWidgets.includes(id) ? <Eye size={12} /> : <EyeOff size={12} />}
+                      {hiddenWidgets.includes(id) ? (
+                        <Eye size={12} />
+                      ) : (
+                        <EyeOff size={12} />
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -558,7 +672,7 @@ export const SettingsView = () => {
                       className="w-full cursor-pointer"
                     >
                       <Upload size={16} />
-                      <span>{isImporting ? 'memuat...' : 'import data'}</span>
+                      <span>{isImporting ? "memuat..." : "import data"}</span>
                     </Button>
                   </div>
                 </label>
@@ -588,21 +702,27 @@ export const SettingsView = () => {
           <div className="p-6 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-mono text-[10px] uppercase tracking-widest text-(--text-muted)">integritas data</p>
-                <p className="font-mono text-xs text-(--text-muted)">cek konsistensi localStorage per store.</p>
+                <p className="font-mono text-[10px] uppercase tracking-widest text-(--text-muted)">
+                  integritas data
+                </p>
+                <p className="font-mono text-xs text-(--text-muted)">
+                  cek konsistensi localStorage per store.
+                </p>
               </div>
               <Button
                 variant="ghost"
                 onClick={handleIntegrityCheck}
                 className="px-3"
               >
-                <span>{integrityLoading ? 'cek...' : 'run check'}</span>
+                <span>{integrityLoading ? "cek..." : "run check"}</span>
               </Button>
             </div>
 
             <div className="space-y-2">
               {integrityReport.length === 0 ? (
-                <p className="font-mono text-xs text-(--text-muted)">belum ada laporan. klik "run check".</p>
+                <p className="font-mono text-xs text-(--text-muted)">
+                  belum ada laporan. klik "run check".
+                </p>
               ) : (
                 integrityReport.map((item) => (
                   <div
@@ -610,10 +730,15 @@ export const SettingsView = () => {
                     className="flex items-center justify-between border border-dashed border-(--border-color) px-3 py-2"
                   >
                     <div>
-                      <p className="font-mono text-xs text-(--text-main)">{item.name}</p>
+                      <p className="font-mono text-xs text-(--text-main)">
+                        {item.name}
+                      </p>
                       <p className="font-mono text-[11px] text-(--text-muted)">
-                        status: {item.status} {item.size ? `• ${item.size} chars` : ''}
-                        {item.missing?.length ? ` • missing: ${item.missing.join(', ')}` : ''}
+                        status: {item.status}{" "}
+                        {item.size ? `• ${item.size} chars` : ""}
+                        {item.missing?.length
+                          ? ` • missing: ${item.missing.join(", ")}`
+                          : ""}
                       </p>
                     </div>
                     <Button
@@ -650,4 +775,3 @@ export const SettingsView = () => {
     </AnimatedPage>
   );
 };
-

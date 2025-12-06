@@ -25,13 +25,9 @@ export const useTaskStore = create(
         const user = useSyncStore.getState().user;
         if (!user) return;
 
-        const unsubscribe = subscribeToCollection(
-          user.uid,
-          "tasks",
-          (data) => {
-            set({ tasks: data, isSyncActive: true });
-          }
-        );
+        const unsubscribe = subscribeToCollection(user.uid, "tasks", (data) => {
+          set({ tasks: data, isSyncActive: true });
+        });
 
         set({ syncUnsubscribe: unsubscribe });
       },
@@ -116,7 +112,12 @@ export const useTaskStore = create(
           if (isSyncEnabled()) {
             const user = useSyncStore.getState().user;
             if (user) {
-              syncDocToFirestore(user.uid, "tasks", updatedTask.id, updatedTask);
+              syncDocToFirestore(
+                user.uid,
+                "tasks",
+                updatedTask.id,
+                updatedTask
+              );
               syncDocToFirestore(user.uid, "tasks", newTask.id, newTask);
             }
           }
@@ -136,7 +137,12 @@ export const useTaskStore = create(
           if (isSyncEnabled()) {
             const user = useSyncStore.getState().user;
             if (user) {
-              syncDocToFirestore(user.uid, "tasks", updatedTask.id, updatedTask);
+              syncDocToFirestore(
+                user.uid,
+                "tasks",
+                updatedTask.id,
+                updatedTask
+              );
             }
           }
         }
