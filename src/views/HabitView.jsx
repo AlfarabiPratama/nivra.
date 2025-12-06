@@ -297,3 +297,4 @@ export const HabitView = () => {
     </AnimatedPage>
   );
 };
+
