@@ -119,15 +119,15 @@ export const Dashboard = () => {
         {/* Welcome */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-3 md:gap-0">
           <div>
-            <h2 className="text-2xl md:text-4xl font-serif italic text-(text-main) mb-2">
+            <h2 className="text-2xl md:text-4xl font-serif italic text-(--text-main) mb-2">
               {user.name ? `hai, ${user.name}.` : 'selamat datang.'}
             </h2>
-            <p className="font-mono text-xs md:text-sm text-(text-muted) border-l-2 border-(accent) pl-3 md:pl-4 italic">
+            <p className="font-mono text-xs md:text-sm text-(--text-muted) border-l-2 border-(--accent) pl-3 md:pl-4 italic">
               perlahan tapi pasti.
             </p>
           </div>
           <div className="hidden md:block text-right">
-            <p className="font-mono text-xs text-(text-muted) uppercase">Hari Ini</p>
+            <p className="font-mono text-xs text-(--text-muted) uppercase">Hari Ini</p>
             <p className="font-serif text-xl">
               {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })}
             </p>
@@ -140,23 +140,23 @@ export const Dashboard = () => {
         <Card className="md:col-span-2">
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-(text-muted)">
+              <span className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-(--text-muted)">
                 Pertumbuhan
               </span>
-              <span className="font-mono text-[10px] md:text-xs text-(accent)">
+              <span className="font-mono text-[10px] md:text-xs text-(--accent)">
                 Level {user.level} • {user.gardenStage}
               </span>
             </div>
             
             {/* Progress Bar */}
-            <div className="h-2 bg-(bg-color) border border-(border-color)">
+            <div className="h-2 bg-(bg-color) border border-(--border-color)">
               <div 
-                className="h-full bg-(accent) transition-all duration-500"
+                className="h-full bg-(--accent) transition-all duration-500"
                 style={{ width: `${xpProgress}%` }}
               />
             </div>
             
-            <p className="font-mono text-[10px] md:text-xs text-(text-muted)">
+            <p className="font-mono text-[10px] md:text-xs text-(--text-muted)">
               {xpProgress} / 100 XP ke level berikutnya
             </p>
           </div>
@@ -165,29 +165,29 @@ export const Dashboard = () => {
         {/* Quick Stats */}
         <Card variant="dashed" className="border-hover-dashed">
           <div className="space-y-2 md:space-y-3">
-            <div className="flex items-center gap-2 text-(text-main)">
-              <BookOpen size={14} className="md:w-4 md:h-4 text-(accent) shrink-0" />
+            <div className="flex items-center gap-2 text-(--text-main)">
+              <BookOpen size={14} className="md:w-4 md:h-4 text-(--accent) shrink-0" />
               <span className="font-mono text-[10px] md:text-xs">
                 {readingBooks} sedang dibaca
               </span>
             </div>
-            <div className="flex items-center gap-2 text-(text-main)">
-              <CheckCircle2 size={14} className="md:w-4 md:h-4 text-(accent) shrink-0" />
+            <div className="flex items-center gap-2 text-(--text-main)">
+              <CheckCircle2 size={14} className="md:w-4 md:h-4 text-(--accent) shrink-0" />
               <span className="font-mono text-[10px] md:text-xs">
                 {completedToday.length} tugas hari ini
               </span>
             </div>
-            <div className="flex items-center gap-2 text-(text-main)">
-              <BookText size={14} className="md:w-4 md:h-4 text-(accent) shrink-0" />
+            <div className="flex items-center gap-2 text-(--text-main)">
+              <BookText size={14} className="md:w-4 md:h-4 text-(--accent) shrink-0" />
               <span className="font-mono text-[10px] md:text-xs">
                 {finishedBooks} buku selesai
               </span>
             </div>
-            <div className="flex items-center gap-2 text-(text-main) pt-2 border-t border-dashed border-(border-color)">
-              <span className="font-mono text-[10px] md:text-xs text-(text-muted)">
+            <div className="flex items-center gap-2 text-(--text-main) pt-2 border-t border-dashed border-(--border-color)">
+              <span className="font-mono text-[10px] md:text-xs text-(--text-muted)">
                 avg progres
               </span>
-              <span className="font-serif text-xl md:text-2xl text-(accent) ml-auto">
+              <span className="font-serif text-xl md:text-2xl text-(--accent) ml-auto">
                 {avgProgress}%
               </span>
             </div>
@@ -276,10 +276,10 @@ export const Dashboard = () => {
         <Card variant="dashed">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="font-mono text-sm uppercase tracking-widest text-(text-main)">
+            <h3 className="font-mono text-sm uppercase tracking-widest text-(--text-main)">
               Tugas Hari Ini
             </h3>
-            <span className="font-mono text-xs text-(text-muted)">
+            <span className="font-mono text-xs text-(--text-muted)">
               {incompleteTasks.length} tersisa
             </span>
           </div>
@@ -316,10 +316,10 @@ export const Dashboard = () => {
 
             {/* Advanced Options */}
             {showAdvanced && (
-              <div className="space-y-3 p-2 md:p-3 border border-dashed border-(border-color) bg-(bg-color)/50">
+              <div className="space-y-3 p-2 md:p-3 border border-dashed border-(--border-color) bg-(bg-color)/50">
                 {/* Priority Selector */}
                 <div className="space-y-2">
-                  <label className="font-mono text-[10px] md:text-xs text-(text-muted) uppercase">Priority</label>
+                  <label className="font-mono text-[10px] md:text-xs text-(--text-muted) uppercase">Priority</label>
                   <div className="flex gap-1 md:gap-2">
                     {Object.entries(priorityConfig).map(([key, config]) => (
                       <button
@@ -328,8 +328,8 @@ export const Dashboard = () => {
                         className={clsx(
                           'flex-1 px-2 md:px-3 py-1.5 md:py-2 font-mono text-[10px] md:text-xs border transition-all',
                           selectedPriority === key
-                            ? 'border-(accent) bg-(accent)/10 text-(accent)'
-                            : 'border-(border-color) text-(text-muted) hover:border-(text-main)'
+                            ? 'border-(--accent) bg-(--accent)/10 text-(--accent)'
+                            : 'border-(--border-color) text-(--text-muted) hover:border-(text-main)'
                         )}
                       >
                         {config.emoji} {key}
@@ -340,18 +340,18 @@ export const Dashboard = () => {
 
                 {/* Due Date */}
                 <div className="space-y-2">
-                  <label className="font-mono text-xs text-(text-muted) uppercase">Due Date (opsional)</label>
+                  <label className="font-mono text-xs text-(--text-muted) uppercase">Due Date (opsional)</label>
                   <input
                     type="date"
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
-                    className="w-full px-3 py-2 font-mono text-xs bg-transparent text-(text-main) border border-dashed border-(border-color) focus:border-solid focus:outline-none"
+                    className="w-full px-3 py-2 font-mono text-xs bg-transparent text-(--text-main) border border-dashed border-(--border-color) focus:border-solid focus:outline-none"
                   />
                 </div>
 
                 {/* Category */}
                 <div className="space-y-2">
-                  <label className="font-mono text-xs text-(text-muted) uppercase">Category (opsional)</label>
+                  <label className="font-mono text-xs text-(--text-muted) uppercase">Category (opsional)</label>
                   <div className="flex gap-2 flex-wrap">
                     {['work', 'personal', 'study', 'health'].map(cat => (
                       <button
@@ -360,8 +360,8 @@ export const Dashboard = () => {
                         className={clsx(
                           'px-3 py-1 font-mono text-xs border transition-all',
                           selectedCategory === cat
-                            ? 'border-(accent) bg-(accent)/10 text-(accent)'
-                            : 'border-(border-color) text-(text-muted) hover:border-(text-main)'
+                            ? 'border-(--accent) bg-(--accent)/10 text-(--accent)'
+                            : 'border-(--border-color) text-(--text-muted) hover:border-(text-main)'
                         )}
                       >
                         {cat}
@@ -372,7 +372,7 @@ export const Dashboard = () => {
 
                 {/* Recurring Pattern */}
                 <div className="space-y-2">
-                  <label className="font-mono text-[10px] md:text-xs text-(text-muted) uppercase">
+                  <label className="font-mono text-[10px] md:text-xs text-(--text-muted) uppercase">
                     Recurring (opsional)
                   </label>
                   <div className="grid grid-cols-3 gap-1 md:gap-2">
@@ -387,8 +387,8 @@ export const Dashboard = () => {
                         className={clsx(
                           'px-2 md:px-3 py-1.5 md:py-2 font-mono text-[10px] md:text-xs border transition-all',
                           recurring === option.value
-                            ? 'border-(accent) bg-(accent)/10 text-(accent)'
-                            : 'border-(border-color) text-(text-muted) hover:border-(text-main)'
+                            ? 'border-(--accent) bg-(--accent)/10 text-(--accent)'
+                            : 'border-(--border-color) text-(--text-muted) hover:border-(text-main)'
                         )}
                       >
                         {option.emoji} {option.label}
@@ -396,7 +396,7 @@ export const Dashboard = () => {
                     ))}
                   </div>
                   {recurring && (
-                    <p className="font-mono text-xs text-(text-muted) italic">
+                    <p className="font-mono text-xs text-(--text-muted) italic">
                       ↻ Tugas akan dibuat ulang otomatis setelah selesai
                     </p>
                   )}
@@ -426,11 +426,11 @@ export const Dashboard = () => {
                         return (
                           <div
                             key={task.id}
-                            className="flex items-start gap-2 md:gap-3 p-2 md:p-3 border border-dashed border-(border-color) hover:border-(accent) transition-all duration-300 group"
+                            className="flex items-start gap-2 md:gap-3 p-2 md:p-3 border border-dashed border-(--border-color) hover:border-(--accent) transition-all duration-300 group"
                           >
                             <button
                               onClick={() => handleToggleTask(task.id)}
-                              className="text-(text-muted) hover:text-(accent) transition-colors mt-0.5 shrink-0"
+                              className="text-(--text-muted) hover:text-(--accent) transition-colors mt-0.5 shrink-0"
                             >
                               <Circle size={16} className="md:w-5 md:h-5" />
                             </button>
@@ -440,15 +440,15 @@ export const Dashboard = () => {
                                 <span className={clsx('text-[10px] md:text-xs shrink-0', priority.color)}>
                                   {priority.emoji}
                                 </span>
-                                <span className="font-mono text-xs md:text-sm text-(text-main) truncate">
+                                <span className="font-mono text-xs md:text-sm text-(--text-main) truncate">
                                   {task.text}
                                 </span>
                               </div>
                               
                               {/* Task Metadata */}
-                              <div className="flex items-center gap-2 md:gap-3 text-[10px] md:text-xs font-mono text-(text-muted) flex-wrap">
+                              <div className="flex items-center gap-2 md:gap-3 text-[10px] md:text-xs font-mono text-(--text-muted) flex-wrap">
                                 {task.category && (
-                                  <span className="px-1.5 md:px-2 py-0.5 border border-(border-color)">
+                                  <span className="px-1.5 md:px-2 py-0.5 border border-(--border-color)">
                                     {task.category}
                                   </span>
                                 )}
@@ -457,7 +457,7 @@ export const Dashboard = () => {
                                     'px-2 py-0.5 border',
                                     isOverdue 
                                       ? 'border-red-500 text-red-500' 
-                                      : 'border-(border-color)'
+                                      : 'border-(--border-color)'
                                   )}>
                                     📅 {new Date(task.dueDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
                                   </span>
@@ -467,7 +467,7 @@ export const Dashboard = () => {
                             
                             <button
                               onClick={() => deleteTask(task.id)}
-                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-(text-muted) hover:text-(text-main) transition-all shrink-0"
+                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-(--text-muted) hover:text-(--text-main) transition-all shrink-0"
                             >
                               <X size={14} className="md:w-4 md:h-4" />
                             </button>
@@ -479,23 +479,23 @@ export const Dashboard = () => {
 
                 {/* Completed Tasks Today */}
                 {completedToday.length > 0 && (
-                  <div className="pt-3 md:pt-4 mt-3 md:mt-4 border-t border-dashed border-(border-color)">
-                    <p className="font-mono text-[10px] md:text-xs text-(text-muted) mb-2 uppercase tracking-widest">
+                  <div className="pt-3 md:pt-4 mt-3 md:mt-4 border-t border-dashed border-(--border-color)">
+                    <p className="font-mono text-[10px] md:text-xs text-(--text-muted) mb-2 uppercase tracking-widest">
                       Selesai Hari Ini
                     </p>
                     <div className="space-y-2">
                       {completedToday.map(task => (
                         <div
                           key={task.id}
-                          className="flex items-center gap-2 md:gap-3 p-2 md:p-3 bg-(accent)/5 border border-(accent)/20"
+                          className="flex items-center gap-2 md:gap-3 p-2 md:p-3 bg-(--accent)/5 border border-(--accent)/20"
                         >
-                          <CheckCircle2 size={16} className="md:w-5 md:h-5 text-(accent) shrink-0" />
-                          <span className="flex-1 font-mono text-xs md:text-sm text-(text-muted) line-through truncate">
+                          <CheckCircle2 size={16} className="md:w-5 md:h-5 text-(--accent) shrink-0" />
+                          <span className="flex-1 font-mono text-xs md:text-sm text-(--text-muted) line-through truncate">
                             {task.text}
                           </span>
                           <button
                             onClick={() => deleteTask(task.id)}
-                            className="text-(text-muted) hover:text-(text-main) transition-colors shrink-0"
+                            className="text-(--text-muted) hover:text-(--text-main) transition-colors shrink-0"
                           >
                             <X size={14} className="md:w-4 md:h-4" />
                           </button>
@@ -524,3 +524,4 @@ export const Dashboard = () => {
       </div>
     </AnimatedPage>
   );
+
