@@ -105,10 +105,10 @@ export const JournalView = () => {
       <div className="p-4 md:p-8 space-y-4 md:space-y-6 max-w-4xl">
         {/* Header */}
         <div>
-          <h2 className="text-2xl md:text-4xl font-serif italic text-[var(--text-main)] mb-2">
+          <h2 className="text-2xl md:text-4xl font-serif italic text-(text-main) mb-2">
             jurnal.
           </h2>
-          <p className="font-mono text-xs md:text-sm text-[var(--text-muted)] lowercase">
+          <p className="font-mono text-xs md:text-sm text-(text-muted) lowercase">
             refleksi, satu pikiran pada satu waktu.
           </p>
         </div>
@@ -117,7 +117,7 @@ export const JournalView = () => {
         {entries.length > 0 && (
           <Card>
             <div className="space-y-3">
-              <h4 className="font-mono text-xs uppercase tracking-widest text-[var(--text-muted)]">
+              <h4 className="font-mono text-xs uppercase tracking-widest text-(text-muted)">
                 Filter Entri
               </h4>
               
@@ -128,8 +128,8 @@ export const JournalView = () => {
                   className={clsx(
                     'px-3 py-1 font-mono text-xs border transition-all',
                     !filterMood 
-                      ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]'
-                      : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--text-main)]'
+                      ? 'border-(accent) bg-(accent)/10 text-(accent)'
+                      : 'border-(border-color) text-(text-muted) hover:border-(text-main)'
                   )}
                 >
                   semua mood
@@ -141,8 +141,8 @@ export const JournalView = () => {
                     className={clsx(
                       'px-3 py-1 border transition-all',
                       filterMood === mood.value
-                        ? 'border-[var(--accent)] bg-[var(--accent)]/10'
-                        : 'border-[var(--border-color)] hover:border-[var(--text-main)]'
+                        ? 'border-(accent) bg-(accent)/10'
+                        : 'border-(border-color) hover:border-(text-main)'
                     )}
                   >
                     {mood.emoji}
@@ -158,8 +158,8 @@ export const JournalView = () => {
                     className={clsx(
                       'px-3 py-1 font-mono text-xs border transition-all',
                       !filterTag 
-                        ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]'
-                        : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--text-main)]'
+                        ? 'border-(accent) bg-(accent)/10 text-(accent)'
+                        : 'border-(border-color) text-(text-muted) hover:border-(text-main)'
                     )}
                   >
                     semua tags
@@ -171,8 +171,8 @@ export const JournalView = () => {
                       className={clsx(
                         'px-3 py-1 font-mono text-xs border transition-all',
                         filterTag === tag
-                          ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]'
-                          : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--text-main)]'
+                          ? 'border-(accent) bg-(accent)/10 text-(accent)'
+                          : 'border-(border-color) text-(text-muted) hover:border-(text-main)'
                       )}
                     >
                       #{tag}
@@ -188,7 +188,7 @@ export const JournalView = () => {
       <Card variant="dashed">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="font-mono text-sm uppercase tracking-widest text-[var(--text-main)]">
+            <h3 className="font-mono text-sm uppercase tracking-widest text-(text-main)">
               <Feather size={14} className="inline mr-2" />
               Tulis Sekarang
             </h3>
@@ -204,8 +204,8 @@ export const JournalView = () => {
 
           {/* Journal Prompt */}
           {showPrompt && (
-            <div className="p-4 border border-dashed border-[var(--accent)] bg-[var(--accent)]/5">
-              <p className="font-serif italic text-sm text-[var(--text-main)]">
+            <div className="p-4 border border-dashed border-(accent) bg-(accent)/5">
+              <p className="font-serif italic text-sm text-(text-main)">
                 "{currentPrompt}"
               </p>
             </div>
@@ -213,7 +213,7 @@ export const JournalView = () => {
 
           {/* Mood Selector */}
           <div className="space-y-2">
-            <label className="font-mono text-xs text-[var(--text-muted)] uppercase tracking-widest">
+            <label className="font-mono text-xs text-(text-muted) uppercase tracking-widest">
               Bagaimana perasaanmu?
             </label>
             <div className="flex gap-2">
@@ -222,10 +222,10 @@ export const JournalView = () => {
                   key={mood.value}
                   onClick={() => setSelectedMood(mood.value)}
                   className={clsx(
-                    'flex-1 p-2 md:p-3 border transition-all duration-300 hover:border-[var(--accent)]',
+                    'flex-1 p-2 md:p-3 border transition-all duration-300 hover:border-(accent)',
                     selectedMood === mood.value
-                      ? 'border-[var(--accent)] bg-[var(--accent)]/10'
-                      : 'border-[var(--border-color)]'
+                      ? 'border-(accent) bg-(accent)/10'
+                      : 'border-(border-color)'
                   )}
                   title={mood.label}
                 >
@@ -240,12 +240,12 @@ export const JournalView = () => {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="mulai menulis..."
-            className="w-full min-h-[150px] md:min-h-[200px] p-3 md:p-4 font-serif text-sm bg-transparent text-[var(--text-main)] placeholder:text-[var(--text-muted)] placeholder:italic border border-dashed border-[var(--border-color)] focus:border-solid focus:border-[var(--accent)] focus:outline-none resize-none transition-all duration-300"
+            className="w-full min-h-[150px] md:min-h-[200px] p-3 md:p-4 font-serif text-sm bg-transparent text-(text-main) placeholder:text-(text-muted) placeholder:italic border border-dashed border-(border-color) focus:border-solid focus:border-(accent) focus:outline-none resize-none transition-all duration-300"
           />
 
           {/* Tags Input */}
           <div className="space-y-2">
-            <label className="font-mono text-xs text-[var(--text-muted)] uppercase tracking-widest">
+            <label className="font-mono text-xs text-(text-muted) uppercase tracking-widest">
               Tags (opsional)
             </label>
             <div className="flex gap-2">
@@ -260,7 +260,7 @@ export const JournalView = () => {
                   }
                 }}
                 placeholder="tambah tag..."
-                className="flex-1 px-3 py-2 font-mono text-xs bg-transparent text-[var(--text-main)] placeholder:text-[var(--text-muted)] border border-dashed border-[var(--border-color)] focus:border-solid focus:outline-none"
+                className="flex-1 px-3 py-2 font-mono text-xs bg-transparent text-(text-main) placeholder:text-(text-muted) border border-dashed border-(border-color) focus:border-solid focus:outline-none"
               />
               <Button 
                 variant="ghost"
@@ -275,7 +275,7 @@ export const JournalView = () => {
                 {tags.map(tag => (
                   <span 
                     key={tag}
-                    className="inline-flex items-center gap-2 px-3 py-1 font-mono text-xs bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]"
+                    className="inline-flex items-center gap-2 px-3 py-1 font-mono text-xs bg-(accent)/10 text-(accent) border border-(accent)"
                   >
                     #{tag}
                     <button onClick={() => handleRemoveTag(tag)}>
@@ -289,7 +289,7 @@ export const JournalView = () => {
 
           {/* Action Buttons */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-            <span className="font-mono text-xs text-[var(--text-muted)]">
+            <span className="font-mono text-xs text-(text-muted)">
               {content.length} karakter
             </span>
             <div className="flex gap-2 md:gap-3 w-full md:w-auto">
@@ -317,7 +317,7 @@ export const JournalView = () => {
 
       {/* Journal Entries Timeline */}
       <div className="space-y-4">
-        <h3 className="font-mono text-sm uppercase tracking-widest text-[var(--text-muted)]">
+        <h3 className="font-mono text-sm uppercase tracking-widest text-(text-muted)">
           Entri Terdahulu ({filteredEntries.length}/{entries.length})
         </h3>
 
@@ -325,7 +325,7 @@ export const JournalView = () => {
           <EmptyState 
             type="journal" 
             customMessage={entries.length > 0 ? "tidak ada entri sesuai filter" : null}
-            icon={<Feather size={48} className="text-[var(--text-muted)] opacity-50" />}
+            icon={<Feather size={48} className="text-(text-muted) opacity-50" />}
           />
         ) : (
           filteredEntries.map(entry => {
@@ -341,31 +341,31 @@ export const JournalView = () => {
                           {mood.emoji}
                         </span>
                       )}
-                      <span className="font-mono text-xs text-[var(--text-muted)]">
+                      <span className="font-mono text-xs text-(text-muted)">
                         {formatDate(entry.createdAt)}
                       </span>
                     </div>
                     
                     <button
                       onClick={() => deleteEntry(entry.id)}
-                      className="text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors hover-scale"
+                      className="text-(text-muted) hover:text-(text-main) transition-colors hover-scale"
                     >
                       <X size={16} />
                     </button>
                   </div>
 
                   {/* Entry Content */}
-                  <p className="font-serif text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap">
+                  <p className="font-serif text-sm text-(text-main) leading-relaxed whitespace-pre-wrap">
                     {entry.content}
                   </p>
 
                   {/* Entry Tags */}
                   {entry.tags && entry.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 pt-2 border-t border-dashed border-[var(--border-color)]">
+                    <div className="flex flex-wrap gap-2 pt-2 border-t border-dashed border-(border-color)">
                       {entry.tags.map(tag => (
                         <span 
                           key={tag}
-                          className="px-2 py-1 font-mono text-xs bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]"
+                          className="px-2 py-1 font-mono text-xs bg-(accent)/10 text-(accent) border border-(accent)"
                         >
                           #{tag}
                         </span>

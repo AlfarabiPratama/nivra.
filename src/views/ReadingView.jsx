@@ -251,7 +251,7 @@ export const ReadingView = () => {
         {showAddForm && (
         <Card variant="dashed">
           <div className="space-y-4">
-            <h3 className="font-mono text-sm uppercase tracking-widest text-[var(--text-main)]">
+            <h3 className="font-mono text-sm uppercase tracking-widest text-(text-main)">
               Buku Baru
             </h3>
             
@@ -279,7 +279,7 @@ export const ReadingView = () => {
               />
               
               <div>
-                <label className="block text-[var(--text-muted)] font-mono text-xs mb-2 uppercase">Sampul Buku</label>
+                <label className="block text-(text-muted) font-mono text-xs mb-2 uppercase">Sampul Buku</label>
                 <div className="flex gap-2">
                   <Input
                     placeholder="https://..."
@@ -290,13 +290,13 @@ export const ReadingView = () => {
                   />
                   <button 
                     type="button"
-                    className="px-3 border border-dashed border-[var(--border-color)] hover:bg-[var(--border-color)] transition-colors text-[var(--text-muted)]"
+                    className="px-3 border border-dashed border-(border-color) hover:bg-(border-color) transition-colors text-(text-muted)"
                     title="Simulasi Upload"
                   >
                     <Plus size={16} />
                   </button>
                 </div>
-                <p className="text-[10px] mt-1 text-[var(--text-muted)] font-mono">*Tempel link gambar atau biarkan kosong.</p>
+                <p className="text-[10px] mt-1 text-(text-muted) font-mono">*Tempel link gambar atau biarkan kosong.</p>
               </div>
             </div>
             
@@ -321,8 +321,8 @@ export const ReadingView = () => {
               className={clsx(
                 'font-mono text-xs uppercase tracking-widest px-4 py-2 border transition-all duration-300',
                 filter === tab
-                  ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--accent)]/5'
-                  : 'border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)] hover:border-[var(--text-main)]'
+                  ? 'border-(accent) text-(accent) bg-(accent)/5'
+                  : 'border-(border-color) text-(text-muted) hover:text-(text-main) hover:border-(text-main)'
               )}
             >
               {tab === 'all' ? 'semua' : tab === 'reading' ? 'dibaca' : 'selesai'}
@@ -335,7 +335,7 @@ export const ReadingView = () => {
           {filteredBooks.length === 0 ? (
             <EmptyState 
               type="books" 
-              icon={<BookOpen size={48} className="text-[var(--text-muted)] opacity-50" />}
+              icon={<BookOpen size={48} className="text-(text-muted) opacity-50" />}
             />
           ) : (
             filteredBooks.map(book => (
@@ -345,13 +345,13 @@ export const ReadingView = () => {
                   <div className="flex gap-6 items-start">
                     {/* Book Cover */}
                     {book.cover && (
-                      <div className="w-24 h-32 bg-[var(--bg-color)] border border-[var(--border-color)] flex items-center justify-center shadow-lg relative rotate-subtle group overflow-hidden flex-shrink-0">
+                      <div className="w-24 h-32 bg-(bg-color) border border-(border-color) flex items-center justify-center shadow-lg relative rotate-subtle group overflow-hidden shrink-0">
                         <img 
                           src={book.cover} 
                           alt={book.title}
                           onError={(e) => {
                             e.target.style.display = 'none';
-                            e.target.parentElement.innerHTML = '<svg class="w-8 h-8 text-[var(--text-muted)] opacity-30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>';
+                            e.target.parentElement.innerHTML = '<svg class="w-8 h-8 text-(text-muted) opacity-30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>';
                           }}
                           className="w-full h-full object-cover grayscale group-hover:grayscale-0 mix-blend-multiply group-hover:mix-blend-normal transition-all duration-500"
                         />
@@ -360,17 +360,17 @@ export const ReadingView = () => {
                     )}
                     
                     <div className="flex-1">
-                      <h3 className="text-xl font-serif text-[var(--text-main)] mb-1">
+                      <h3 className="text-xl font-serif text-(text-main) mb-1">
                         {book.title}
                       </h3>
-                      <p className="font-mono text-xs text-[var(--text-muted)]">
+                      <p className="font-mono text-xs text-(text-muted)">
                         oleh {book.author}
                       </p>
                     </div>
                     
                     <button
                       onClick={() => deleteBook(book.id)}
-                      className="text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
+                      className="text-(text-muted) hover:text-(text-main) transition-colors"
                     >
                       <X size={18} />
                     </button>
@@ -380,18 +380,18 @@ export const ReadingView = () => {
                   {book.status === 'reading' && (
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <span className="font-mono text-xs text-[var(--text-muted)]">
+                        <span className="font-mono text-xs text-(text-muted)">
                           halaman {book.progress} / {book.total}
                         </span>
-                        <span className="font-mono text-xs text-[var(--accent)]">
+                        <span className="font-mono text-xs text-(accent)">
                           {Math.round((book.progress / book.total) * 100)}%
                         </span>
                       </div>
                       
                       {/* Progress Bar */}
-                      <div className="h-2 bg-[var(--bg-color)] border border-[var(--border-color)]">
+                      <div className="h-2 bg-(bg-color) border border-(border-color)">
                         <div 
-                          className="h-full bg-[var(--accent)] transition-all duration-500"
+                          className="h-full bg-(accent) transition-all duration-500"
                           style={{ width: `${(book.progress / book.total) * 100}%` }}
                         />
                       </div>
@@ -423,9 +423,9 @@ export const ReadingView = () => {
 
                   {/* Rating for finished books */}
                   {book.status === 'finished' && (
-                    <div className="border-t border-dashed border-[var(--border-color)] pt-4 space-y-2">
+                    <div className="border-t border-dashed border-(border-color) pt-4 space-y-2">
                       <div className="flex justify-between items-center">
-                        <span className="font-mono text-xs text-[var(--text-muted)]">
+                        <span className="font-mono text-xs text-(text-muted)">
                           selesai: {book.finishedDate}
                         </span>
                         
@@ -441,8 +441,8 @@ export const ReadingView = () => {
                                 size={16}
                                 className={clsx(
                                   book.rating >= star
-                                    ? 'fill-[var(--accent)] text-[var(--accent)]'
-                                    : 'text-[var(--text-muted)]'
+                                    ? 'fill-(accent) text-(accent)'
+                                    : 'text-(text-muted)'
                                 )}
                               />
                             </button>
@@ -453,13 +453,13 @@ export const ReadingView = () => {
                   )}
 
                   {/* Notes & Quotes Section */}
-                  <div className="border-t border-dashed border-[var(--border-color)] pt-4 space-y-3">
+                  <div className="border-t border-dashed border-(border-color) pt-4 space-y-3">
                     <button
                       onClick={() => toggleNotesSection(book.id)}
-                      className="w-full flex items-center justify-between font-mono text-xs text-[var(--text-muted)] uppercase tracking-widest hover:text-[var(--text-main)] transition-colors"
+                      className="w-full flex items-center justify-between font-mono text-xs text-(text-muted) uppercase tracking-widest hover:text-(text-main) transition-colors"
                     >
                       <span>catatan & kutipan</span>
-                      <span className="text-[var(--accent)]">
+                      <span className="text-(accent)">
                         {((book.notes || []).length + (book.quotes || []).length) || '+'}
                       </span>
                     </button>
@@ -469,20 +469,20 @@ export const ReadingView = () => {
                         {/* Notes Section */}
                         <div className="space-y-2">
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="font-mono text-xs text-[var(--text-muted)] uppercase">📝 Catatan</span>
+                            <span className="font-mono text-xs text-(text-muted) uppercase">📝 Catatan</span>
                           </div>
                           
                           {/* Notes List */}
                           {(book.notes || []).map(note => (
-                            <div key={note.id} className="p-3 border border-dashed border-[var(--border-color)] bg-[var(--bg-color)]/50 space-y-1">
-                              <p className="font-mono text-sm text-[var(--text-main)]">{note.text}</p>
+                            <div key={note.id} className="p-3 border border-dashed border-(border-color) bg-(bg-color)/50 space-y-1">
+                              <p className="font-mono text-sm text-(text-main)">{note.text}</p>
                               <div className="flex items-center justify-between">
-                                <span className="font-mono text-xs text-[var(--text-muted)]">
+                                <span className="font-mono text-xs text-(text-muted)">
                                   hal. {note.page}
                                 </span>
                                 <button
                                   onClick={() => deleteNote(book.id, note.id)}
-                                  className="text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
+                                  className="text-(text-muted) hover:text-(text-main) transition-colors"
                                 >
                                   <X size={14} />
                                 </button>
@@ -513,20 +513,20 @@ export const ReadingView = () => {
                         {/* Quotes Section */}
                         <div className="space-y-2">
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="font-mono text-xs text-[var(--text-muted)] uppercase">💭 Kutipan</span>
+                            <span className="font-mono text-xs text-(text-muted) uppercase">💭 Kutipan</span>
                           </div>
                           
                           {/* Quotes List */}
                           {(book.quotes || []).map(quote => (
-                            <div key={quote.id} className="p-3 border-l-2 border-[var(--accent)] bg-[var(--accent)]/5 space-y-1">
-                              <p className="font-serif italic text-sm text-[var(--text-main)]">"{quote.text}"</p>
+                            <div key={quote.id} className="p-3 border-l-2 border-(accent) bg-(accent)/5 space-y-1">
+                              <p className="font-serif italic text-sm text-(text-main)">"{quote.text}"</p>
                               <div className="flex items-center justify-between">
-                                <span className="font-mono text-xs text-[var(--text-muted)]">
+                                <span className="font-mono text-xs text-(text-muted)">
                                   hal. {quote.page}
                                 </span>
                                 <button
                                   onClick={() => deleteQuote(book.id, quote.id)}
-                                  className="text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
+                                  className="text-(text-muted) hover:text-(text-main) transition-colors"
                                 >
                                   <X size={14} />
                                 </button>
@@ -564,10 +564,10 @@ export const ReadingView = () => {
           {/* Empty Slot Placeholder */}
           <button
             onClick={() => setShowAddForm(true)}
-            className="w-full p-8 border border-dashed border-[var(--border-color)] hover:bg-[var(--card-color)] transition-all opacity-50 hover:opacity-100 group flex flex-col items-center justify-center gap-3"
+            className="w-full p-8 border border-dashed border-(border-color) hover:bg-(card-color) transition-all opacity-50 hover:opacity-100 group flex flex-col items-center justify-center gap-3"
           >
-            <Plus size={32} className="text-[var(--text-muted)] group-hover:text-[var(--accent)] transition-colors" />
-            <span className="font-hand text-sm text-[var(--text-muted)] -rotate-2">slot kosong, tambah buku baru?</span>
+            <Plus size={32} className="text-(text-muted) group-hover:text-(accent) transition-colors" />
+            <span className="font-hand text-sm text-(text-muted) -rotate-2">slot kosong, tambah buku baru?</span>
           </button>
         </div>
       </div>

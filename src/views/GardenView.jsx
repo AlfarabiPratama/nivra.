@@ -136,10 +136,10 @@ export const GardenView = () => {
       <div className="p-4 md:p-8 space-y-4 md:space-y-6 max-w-5xl mx-auto">
         {/* Header */}
         <div>
-          <h2 className="text-4xl font-serif italic text-[var(--text-main)] mb-2">
+          <h2 className="text-4xl font-serif italic text-(text-main) mb-2">
             taman zen.
           </h2>
-          <p className="font-mono text-xs text-[var(--text-muted)] lowercase">
+          <p className="font-mono text-xs text-(text-muted) lowercase">
             pertumbuhan organik, satu hari pada satu waktu.
           </p>
         </div>
@@ -148,15 +148,15 @@ export const GardenView = () => {
         <Card variant="dashed">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="font-mono text-xs text-[var(--text-muted)] uppercase">Season:</span>
-              <span className="font-mono text-sm text-[var(--text-main)]">{season}</span>
+              <span className="font-mono text-xs text-(text-muted) uppercase">Season:</span>
+              <span className="font-mono text-sm text-(text-main)">{season}</span>
             </div>
             <div className="flex items-center gap-2">
               {React.createElement(weatherConfig[weather].icon, { 
                 size: 20, 
                 className: clsx('transition-colors duration-500', weatherConfig[weather].color) 
               })}
-              <span className="font-mono text-xs text-[var(--text-muted)]">{weather}</span>
+              <span className="font-mono text-xs text-(text-muted)">{weather}</span>
             </div>
           </div>
         </Card>
@@ -182,16 +182,16 @@ export const GardenView = () => {
               
               {/* Decorative elements */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-48 h-48 border border-dashed border-[var(--border-color)] rounded-full opacity-20" />
+                <div className="w-48 h-48 border border-dashed border-(border-color) rounded-full opacity-20" />
               </div>
             </div>
 
             {/* Stage Info */}
             <div className="space-y-2">
-              <h3 className="text-2xl font-serif italic text-[var(--text-main)]">
+              <h3 className="text-2xl font-serif italic text-(text-main)">
                 {currentStage.name}
               </h3>
-              <p className="font-mono text-sm text-[var(--text-muted)] max-w-md mx-auto">
+              <p className="font-mono text-sm text-(text-muted) max-w-md mx-auto">
                 {currentStage.description}
               </p>
             </div>
@@ -199,21 +199,21 @@ export const GardenView = () => {
             {/* Level & XP */}
             <div className="flex items-center justify-center gap-8 pt-4">
               <div className="text-center">
-                <div className="font-mono text-3xl text-[var(--accent)]">
+                <div className="font-mono text-3xl text-(accent)">
                   {user.level}
                 </div>
-                <div className="font-mono text-xs text-[var(--text-muted)] uppercase tracking-widest mt-1">
+                <div className="font-mono text-xs text-(text-muted) uppercase tracking-widest mt-1">
                   level
                 </div>
               </div>
               
-              <div className="w-px h-12 bg-[var(--border-color)]" />
+              <div className="w-px h-12 bg-(border-color)" />
               
               <div className="text-center">
-                <div className="font-mono text-3xl text-[var(--accent)]">
+                <div className="font-mono text-3xl text-(accent)">
                   {user.xp}
                 </div>
-                <div className="font-mono text-xs text-[var(--text-muted)] uppercase tracking-widest mt-1">
+                <div className="font-mono text-xs text-(text-muted) uppercase tracking-widest mt-1">
                   total xp
                 </div>
               </div>
@@ -221,20 +221,20 @@ export const GardenView = () => {
 
             {/* Progress to Next Stage */}
             {currentStage.nextStage && (
-              <div className="pt-6 border-t border-dashed border-[var(--border-color)] max-w-md mx-auto">
+              <div className="pt-6 border-t border-dashed border-(border-color) max-w-md mx-auto">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="font-mono text-xs text-[var(--text-muted)]">
+                    <span className="font-mono text-xs text-(text-muted)">
                       menuju {currentStage.nextStage}
                     </span>
-                    <span className="font-mono text-xs text-[var(--accent)]">
+                    <span className="font-mono text-xs text-(accent)">
                       {user.xp} / {currentStage.nextXP} xp
                     </span>
                   </div>
                   
-                  <div className="h-2 bg-[var(--bg-color)] border border-[var(--border-color)]">
+                  <div className="h-2 bg-(bg-color) border border-(border-color)">
                     <div 
-                      className="h-full bg-[var(--accent)] transition-all duration-1000"
+                      className="h-full bg-(accent) transition-all duration-1000"
                       style={{ width: `${progressToNext}%` }}
                     />
                   </div>
@@ -244,8 +244,8 @@ export const GardenView = () => {
 
             {/* Achievement Unlocked */}
             {!currentStage.nextStage && (
-              <div className="pt-6 border-t border-dashed border-[var(--border-color)]">
-                <div className="flex items-center justify-center gap-2 text-[var(--accent)]">
+              <div className="pt-6 border-t border-dashed border-(border-color)">
+                <div className="flex items-center justify-center gap-2 text-(accent)">
                   <Sparkles size={16} />
                   <span className="font-mono text-xs uppercase tracking-widest">
                     tahap tertinggi tercapai
@@ -268,11 +268,11 @@ export const GardenView = () => {
                 className={clsx('card-enter', `stagger-${index + 1}`)}
               >
                 <div className="text-center space-y-3">
-                  <Icon size={24} className="mx-auto text-[var(--accent)]" />
-                  <div className="font-mono text-2xl text-[var(--text-main)]">
+                  <Icon size={24} className="mx-auto text-(accent)" />
+                  <div className="font-mono text-2xl text-(text-main)">
                     {stat.value}
                   </div>
-                  <div className="font-mono text-xs text-[var(--text-muted)] uppercase tracking-widest">
+                  <div className="font-mono text-xs text-(text-muted) uppercase tracking-widest">
                     {stat.label}
                   </div>
                 </div>
@@ -284,7 +284,7 @@ export const GardenView = () => {
         {/* Growth Journey */}
         <Card variant="dashed">
           <div className="space-y-4">
-            <h3 className="font-mono text-sm uppercase tracking-widest text-[var(--text-main)]">
+            <h3 className="font-mono text-sm uppercase tracking-widest text-(text-main)">
               Perjalanan Pertumbuhan
             </h3>
             
@@ -299,22 +299,22 @@ export const GardenView = () => {
                     className={clsx(
                       'flex items-center gap-4 p-3 border transition-all duration-300',
                       isCurrent 
-                        ? 'border-[var(--accent)] bg-[var(--accent)]/5' 
-                        : 'border-[var(--border-color)]',
+                        ? 'border-(accent) bg-(accent)/5' 
+                        : 'border-(border-color)',
                       !isCompleted && 'opacity-50'
                     )}
                   >
                     <div className="text-3xl">{stage.emoji}</div>
                     <div className="flex-1">
-                      <div className="font-mono text-sm text-[var(--text-main)]">
+                      <div className="font-mono text-sm text-(text-main)">
                         {stage.name}
                       </div>
-                      <div className="font-mono text-xs text-[var(--text-muted)]">
+                      <div className="font-mono text-xs text-(text-muted)">
                         {stage.minXP} xp
                       </div>
                     </div>
                     {isCompleted && (
-                      <div className="text-[var(--accent)]">
+                      <div className="text-(accent)">
                         {isCurrent ? <TrendingUp size={18} /> : '✓'}
                       </div>
                     )}
@@ -328,11 +328,11 @@ export const GardenView = () => {
         {/* Inspirational Quote */}
         <Card>
           <div className="text-center py-6">
-            <p className="font-serif italic text-lg text-[var(--text-main)] mb-4">
+            <p className="font-serif italic text-lg text-(text-main) mb-4">
               "pertumbuhan sejati tidak terlihat,<br />
               tapi dirasakan dalam setiap langkah kecil."
             </p>
-            <div className="w-12 h-px bg-[var(--border-color)] mx-auto" />
+            <div className="w-12 h-px bg-(border-color) mx-auto" />
           </div>
         </Card>
       </div>
