@@ -181,6 +181,13 @@ cp .env.example .env.local
 
 Lihat [SECURITY.md](SECURITY.md) untuk detail lengkap tentang security practices.
 
+## 📖 Documentation
+
+- **[Development Guidelines](docs/DEVELOPMENT_GUIDELINES.md)** - Coding standards dan best practices
+- **[Tailwind CSS Best Practices](docs/TAILWIND_BEST_PRACTICES.md)** - Panduan syntax Tailwind v4
+- **[Security Policy](SECURITY.md)** - Security guidelines dan vulnerability reporting
+- **[Tailwind Warnings Info](TAILWIND_WARNINGS.md)** - Context tentang Tailwind CSS warnings
+
 ## 📄 License
 
 MIT License - see [LICENSE](LICENSE) file for details
@@ -190,9 +197,11 @@ MIT License - see [LICENSE](LICENSE) file for details
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 **Before contributing:**
-1. Read [SECURITY.md](SECURITY.md) untuk security guidelines
-2. Jangan commit file dengan sensitive data (API keys, passwords, dll)
-3. Gunakan environment variables untuk konfigurasi sensitif
+1. **WAJIB** baca [Development Guidelines](docs/DEVELOPMENT_GUIDELINES.md)
+2. **WAJIB** gunakan Tailwind syntax yang benar: `text-(--variable)` bukan `text-[var(--variable)]`
+3. Read [SECURITY.md](SECURITY.md) untuk security guidelines
+4. Jangan commit file dengan sensitive data (API keys, passwords, dll)
+5. Test di mobile dan desktop sebelum commit
 
 ## 👤 Author
 
