@@ -1,0 +1,422 @@
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=Homemade+Apple&display=swap');
+
+@import "tailwindcss";
+
+@layer base {
+  body {
+    @apply font-sans antialiased;
+    transition: background-color 0.5s ease, color 0.5s ease;
+  }
+
+  /* Smooth scrolling */
+  * {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  /* Lo-Fi Utilities */
+  .dashed-border {
+    border: 1px dashed;
+  }
+  
+  .solid-border {
+    border: 1px solid;
+  }
+  
+  .lofi-input {
+    background: transparent;
+    border-bottom: 1px dashed;
+    @apply font-mono;
+  }
+  
+  .lofi-input:focus {
+    outline: none;
+    border-bottom: 1px solid;
+  }
+  
+  /* Noise Overlay Effect */
+  .bg-noise {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 50;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+  
+  .bg-noise-dark {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 50;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.04;
+  }
+  
+  .bg-noise-light {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 50;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.06;
+  }
+
+  /* Page Transition Animations */
+  @keyframes pageEnter {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes cardEnter {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  .page-enter {
+    animation: pageEnter 0.8s ease-out forwards;
+  }
+
+  .card-enter {
+    animation: cardEnter 0.6s ease-out forwards;
+  }
+
+  .slide-in {
+    animation: slideIn 0.5s ease-out forwards;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 3s ease-in-out infinite;
+  }
+
+  /* Stagger animation delays for lists */
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
+
+  /* Smooth transitions for interactive elements */
+  button, a, input, textarea {
+    transition: all 0.3s ease;
+  }
+
+  /* Glow effect for focus states */
+  .glow-accent:focus {
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+
+  /* Book Cover Effects */
+  .book-spine {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.3), transparent);
+  }
+
+  .mix-blend-multiply {
+    mix-blend-mode: multiply;
+  }
+
+  /* Typography Effects */
+  .tracking-tighter {
+    letter-spacing: -0.05em;
+  }
+
+  /* Backdrop Effects */
+  .backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+  }
+
+  .backdrop-blur {
+    backdrop-filter: blur(8px);
+  }
+
+  /* Spin Animation */
+  @keyframes spin-slow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-spin-slow {
+    animation: spin-slow 8s linear infinite;
+  }
+
+  /* Book Hover Effects */
+  .book-hover-lift {
+    transition: transform 0.5s ease, filter 0.5s ease;
+  }
+
+  .book-hover-lift:hover {
+    transform: translateY(-8px) rotate(-1deg);
+  }
+
+  /* Grain Lines Decorative */
+  .grain-line-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--border-color);
+    opacity: 0.3;
+  }
+
+  .grain-line-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--border-color);
+    opacity: 0.3;
+  }
+
+  /* Rotate Effect */
+  .rotate-subtle {
+    transform: rotate(1deg);
+    transition: transform 0.3s ease;
+  }
+
+  .rotate-subtle:hover {
+    transform: rotate(0deg);
+  }
+
+  /* Border Hover Transition */
+  .border-hover-dashed {
+    transition: border-style 0.3s ease;
+  }
+
+  .border-hover-dashed:hover {
+    border-style: dashed;
+  }
+
+  /* Ripple Effect for Buttons */
+  @keyframes ripple {
+    0% {
+      transform: scale(0);
+      opacity: 0.6;
+    }
+    100% {
+      transform: scale(2.5);
+      opacity: 0;
+    }
+  }
+
+  .ripple {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ripple::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  .ripple:active::after {
+    width: 200px;
+    height: 200px;
+    animation: ripple 0.6s ease-out;
+  }
+
+  /* Scale Hover for Interactive Elements */
+  .hover-scale {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.05);
+  }
+
+  .hover-scale:active {
+    transform: scale(0.95);
+  }
+
+  /* Loading Skeleton */
+  @keyframes skeleton-loading {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--card-bg) 25%,
+      var(--border-color) 50%,
+      var(--card-bg) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+    border-radius: 4px;
+  }
+
+  /* Smooth Page Transition with Blur */
+  @keyframes pageEnterBlur {
+    from {
+      opacity: 0;
+      transform: translateY(30px) scale(0.95);
+      filter: blur(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
+  }
+
+  .page-enter-blur {
+    animation: pageEnterBlur 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  /* Fade Slide from Bottom */
+  @keyframes fadeSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .fade-slide-up {
+    animation: fadeSlideUp 0.6s ease-out forwards;
+  }
+
+  /* Haptic Feedback Visual */
+  @keyframes haptic-pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+  }
+
+  .haptic-feedback:active {
+    animation: haptic-pulse 0.3s ease;
+  }
+
+  /* Smooth Card Hover */
+  .card-hover {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Glow Effect */
+  @keyframes glow {
+    0%, 100% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  .glow-pulse {
+    animation: glow 2s ease-in-out infinite;
+  }
+
+  /* Weather Effects */
+  @keyframes rain {
+    0% {
+      background-position: 0% 0%;
+    }
+    100% {
+      background-position: 10% 100%;
+    }
+  }
+
+  .rain-effect {
+    background-image: 
+      linear-gradient(transparent 50%, rgba(147, 197, 253, 0.5) 50%),
+      linear-gradient(90deg, transparent 50%, rgba(147, 197, 253, 0.5) 50%);
+    background-size: 2px 10px, 10px 2px;
+    animation: rain 0.5s linear infinite;
+  }
+
+  @keyframes snow {
+    0% {
+      background-position: 0% 0%, 0% 0%, 0% 0%;
+    }
+    100% {
+      background-position: 10% 100%, 20% 100%, 15% 100%;
+    }
+  }
+
+  .snow-effect {
+    background-image: 
+      radial-gradient(circle, white 20%, transparent 20%),
+      radial-gradient(circle, white 20%, transparent 20%),
+      radial-gradient(circle, white 20%, transparent 20%);
+    background-size: 10px 10px, 15px 15px, 20px 20px;
+    background-position: 0% 0%, 10% 20%, 20% 40%;
+    animation: snow 3s linear infinite;
+    opacity: 0.6;
+  }
+}
+
