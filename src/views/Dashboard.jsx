@@ -84,18 +84,6 @@ export const Dashboard = () => {
     return null;
   };
 
-  const mergedWidgetOrder = useMemo(() => {
-    const required = ['weeklyReview', 'weeklyInsights', 'taskAnalytics', 'pomodoro'];
-    return Array.from(new Set([...widgetOrder, ...required]));
-  }, [widgetOrder]);
-
-  useEffect(() => {
-    const missing = mergedWidgetOrder.filter((id) => !widgetOrder.includes(id));
-    if (missing.length > 0) {
-      setWidgetOrder(mergedWidgetOrder);
-    }
-  }, [mergedWidgetOrder, widgetOrder, setWidgetOrder]);
-
   const handleAddTask = () => {
     if (newTaskText.trim()) {
       addTask({
