@@ -1,4 +1,4 @@
-import { Home, BookOpen, BookText, Sprout, Sun, Moon, CheckCircle, Wallet, Timer, Settings, Keyboard, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Home, BookOpen, BookText, Sprout, Sun, Moon, CheckCircle, Wallet, Timer, Settings, Keyboard, ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { useThemeStore } from '../../store/useThemeStore';
 import { useState } from 'react';
@@ -9,12 +9,14 @@ export const Navigation = ({ isCollapsed = false, onToggle, isMobile = false, on
   const navItems = [
     { id: 'dashboard', label: 'beranda', icon: Home },
     { id: 'reading', label: 'bacaan', icon: BookOpen },
+    { id: 'calendar', label: 'kalender', icon: CalendarDays },
     { id: 'journal', label: 'jurnal', icon: BookText },
     { id: 'habits', label: 'kebiasaan', icon: CheckCircle },
     { id: 'finance', label: 'keuangan', icon: Wallet },
     { id: 'pomodoro', label: 'pomodoro', icon: Timer },
     { id: 'settings', label: 'pengaturan', icon: Settings },
     { id: 'garden', label: 'taman', icon: Sprout },
+    { id: 'digest', label: 'digest', icon: BookText },
   ];
   const { currentView, setCurrentView } = useAppStore();
   const { isDarkMode, toggleTheme } = useThemeStore();

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -6,18 +6,58 @@ import { AnimatedPage } from '../components/ui/AnimatedPage';
 import { useAppStore } from '../store/useAppStore';
 import { usePomodoroStore } from '../store/usePomodoroStore';
 import { useToastStore } from '../store/useToastStore';
-import { User, Timer, Palette, Download, Upload, Trash2, Sun, Moon, Check, X, ChevronRight } from 'lucide-react';
+import { User, Timer, Palette, Download, Upload, Trash2, Sun, Moon, Check, X, ChevronRight, Bell, ArrowUp, ArrowDown, Eye, EyeOff, RotateCcw, Info } from 'lucide-react';
 import { useThemeStore } from '../store/useThemeStore';
+import { buildExportPayload, importData, SCHEMA_VERSION } from '../store/dataExport';
+import { requestNotificationPermission } from '../utils/notifications';
+import { useLayoutStore, PRESETS } from '../store/useLayoutStore';
+import { checkIntegrity, resetStore } from '../utils/schema';
+import { MigrationButton } from '../utils/migrationHelper';
 
 export const SettingsView = () => {
-  const { user, setCurrentView } = useAppStore();
+  const { user, setCurrentView, notifications, toggleNotification } = useAppStore();
   const { settings: pomodoroSettings, updateSettings } = usePomodoroStore();
   const { isDarkMode, toggleTheme } = useThemeStore();
   const { addToast } = useToastStore();
+  const {
+    widgetOrder,
+    hiddenWidgets,
+    moveWidget,
+    toggleWidgetVisibility,
+    resetLayout,
+    setWidgetOrder,
+    applyPreset,
+  } = useLayoutStore();
 
   const [focusDuration, setFocusDuration] = useState(pomodoroSettings.focusDuration);
   const [shortBreak, setShortBreak] = useState(pomodoroSettings.shortBreakDuration);
   const [longBreak, setLongBreak] = useState(pomodoroSettings.longBreakDuration);
+  const [isImporting, setIsImporting] = useState(false);
+  const fileInputRef = useRef(null);
+  const initialPermission = typeof Notification !== 'undefined' ? Notification.permission : 'default';
+  const [notificationStatus, setNotificationStatus] = useState(initialPermission);
+  const [integrityReport, setIntegrityReport] = useState([]);
+  const [integrityLoading, setIntegrityLoading] = useState(false);
+  const [reminderTime, setReminderTimeLocal] = useState(useAppStore.getState().reminderTime || '08:00');
+
+  const widgetLabelMap = {
+    weeklyReview: 'weekly review',
+    weeklyInsights: 'weekly insights',
+    taskAnalytics: 'task analytics',
+    pomodoro: 'pomodoro summary',
+  };
+
+  const mergedWidgetOrder = useMemo(() => {
+    const required = ['weeklyReview', 'weeklyInsights', 'taskAnalytics', 'pomodoro'];
+    return Array.from(new Set([...widgetOrder, ...required]));
+  }, [widgetOrder]);
+
+  useEffect(() => {
+    const missing = mergedWidgetOrder.filter((id) => !widgetOrder.includes(id));
+    if (missing.length > 0) {
+      setWidgetOrder(mergedWidgetOrder);
+    }
+  }, [mergedWidgetOrder, widgetOrder, setWidgetOrder]);
 
   const handleSavePomodoroSettings = () => {
     updateSettings({
@@ -29,11 +69,7 @@ export const SettingsView = () => {
   };
 
   const handleExportData = () => {
-    const data = {
-      user,
-      timestamp: new Date().toISOString(),
-      // Add other store data as needed
-    };
+    const data = buildExportPayload();
     
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -44,6 +80,56 @@ export const SettingsView = () => {
     URL.revokeObjectURL(url);
     
     addToast('data berhasil diekspor', 'success');
+  };
+
+  const handleAskNotificationPermission = async () => {
+    const permission = await requestNotificationPermission();
+    setNotificationStatus(permission);
+    if (permission === 'granted') {
+      addToast('notifikasi diizinkan', 'success');
+    } else {
+      addToast('notifikasi diblokir atau tidak didukung', 'error');
+    }
+  };
+
+  const handleUpdateReminderTime = (value) => {
+    setReminderTimeLocal(value);
+    useAppStore.getState().setReminderTime(value);
+    addToast('waktu pengingat diperbarui', 'success');
+  };
+
+  const handleImport = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setIsImporting(true);
+
+    try {
+      const text = await file.text();
+      const json = JSON.parse(text);
+      const applied = importData(json);
+      addToast(`import berhasil (${applied.join(', ')})`, 'success');
+    } catch (error) {
+      addToast(error.message || 'import gagal, format tidak valid', 'error');
+    } finally {
+      setIsImporting(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleIntegrityCheck = () => {
+    setIntegrityLoading(true);
+    const report = checkIntegrity();
+    setIntegrityReport(report);
+    setIntegrityLoading(false);
+  };
+
+  const handleResetStore = (name) => {
+    const confirmed = window.confirm(`Reset store ${name}? Data lokal akan hilang untuk store ini.`);
+    if (!confirmed) return;
+    resetStore(name);
+    addToast(`store ${name} direset`, 'success');
   };
 
   const handleClearData = () => {
@@ -260,6 +346,181 @@ export const SettingsView = () => {
           </div>
         </Card>
 
+        {/* Notifications */}
+        <Card>
+          <div className="p-6 space-y-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Bell size={20} className="text-(--accent)" />
+              <h3 className="font-mono text-sm uppercase tracking-wider text-(--text-muted)">
+                notifikasi
+              </h3>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between border border-dashed border-(--border-color) px-3 py-2">
+                <div>
+                  <p className="font-mono text-xs text-(--text-main) uppercase">pomodoro selesai</p>
+                  <p className="font-mono text-[11px] text-(--text-muted)">kirim notifikasi ketika sesi fokus berakhir</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  onClick={() => toggleNotification('pomodoroAlerts')}
+                  className="px-3"
+                >
+                  {notifications?.pomodoroAlerts ? <Check size={14} className="text-(--accent)" /> : <X size={14} className="text-(--text-muted)" />}
+                </Button>
+              </div>
+
+              <div className="flex items-center justify-between border border-dashed border-(--border-color) px-3 py-2">
+                <div>
+                  <p className="font-mono text-xs text-(--text-main) uppercase">pengingat tugas</p>
+                  <p className="font-mono text-[11px] text-(--text-muted)">pengingat harian untuk tugas jatuh tempo & kebiasaan</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  onClick={() => toggleNotification('taskAlerts')}
+                  className="px-3"
+                >
+                  {notifications?.taskAlerts ? <Check size={14} className="text-(--accent)" /> : <X size={14} className="text-(--text-muted)" />}
+                </Button>
+              </div>
+
+              <div className="flex items-center justify-between border border-dashed border-(--border-color) px-3 py-2">
+                <div>
+                  <p className="font-mono text-xs text-(--text-main) uppercase">pengingat harian</p>
+                  <p className="font-mono text-[11px] text-(--text-muted)">jam pengingat</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="time"
+                    value={reminderTime}
+                    onChange={(e) => handleUpdateReminderTime(e.target.value)}
+                    className="border border-(--border-color) bg-transparent px-2 py-1 font-mono text-xs text-(--text-main)"
+                  />
+                  <Button
+                    variant="ghost"
+                    onClick={() => toggleNotification('reminders')}
+                    className="px-3"
+                  >
+                    {notifications?.reminders ? <Check size={14} className="text-(--accent)" /> : <X size={14} className="text-(--text-muted)" />}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between border border-dashed border-(--border-color) px-3 py-2">
+                <div>
+                  <p className="font-mono text-xs text-(--text-main) uppercase">izin browser</p>
+                  <p className="font-mono text-[11px] text-(--text-muted)">status: {notificationStatus}</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  onClick={handleAskNotificationPermission}
+                  className="px-3"
+                >
+                  minta izin
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Dashboard Layout */}
+        <Card variant="dashed" className="border-hover-dashed">
+          <div className="p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-widest text-(--text-muted)">tata letak dashboard</p>
+                <p className="font-mono text-xs text-(--text-muted)">atur urutan dan visibilitas widget utama.</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <select
+                  className="font-mono text-xs border border-(--border-color) bg-transparent px-2 py-1 text-(--text-main)"
+                  onChange={(e) => applyPreset(e.target.value)}
+                  defaultValue=""
+                >
+                  <option value="" disabled>preset</option>
+                  {Object.keys(PRESETS).map((key) => (
+                    <option key={key} value={key}>{key}</option>
+                  ))}
+                </select>
+                <Button
+                  variant="ghost"
+                  onClick={resetLayout}
+                  className="px-3"
+                  title="kembalikan urutan default"
+                >
+                  <RotateCcw size={14} />
+                  <span>reset</span>
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              {mergedWidgetOrder.map((id, index) => (
+                <div
+                  key={id}
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData('text/widget-id', id);
+                    e.dataTransfer.effectAllowed = 'move';
+                  }}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const draggedId = e.dataTransfer.getData('text/widget-id');
+                    if (!draggedId || draggedId === id) return;
+                    const currentOrder = [...mergedWidgetOrder];
+                    const from = currentOrder.indexOf(draggedId);
+                    const to = currentOrder.indexOf(id);
+                    if (from === -1 || to === -1) return;
+                    currentOrder.splice(from, 1);
+                    currentOrder.splice(to, 0, draggedId);
+                    setWidgetOrder(currentOrder);
+                  }}
+                  className="flex items-center justify-between gap-2 border border-dashed border-(--border-color) px-3 py-2 bg-(--bg-color)/60 cursor-move"
+                >
+                  <div>
+                    <p className="font-mono text-xs text-(--text-main) uppercase">
+                      {widgetLabelMap[id] || id}
+                    </p>
+                    <p className="font-mono text-[10px] text-(--text-muted)">
+                      posisi #{index + 1}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      onClick={() => moveWidget(id, 'up')}
+                      disabled={index === 0}
+                      className="px-2 py-1"
+                      title="geser ke atas"
+                    >
+                      <ArrowUp size={12} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => moveWidget(id, 'down')}
+                      disabled={index === mergedWidgetOrder.length - 1}
+                      className="px-2 py-1"
+                      title="geser ke bawah"
+                    >
+                      <ArrowDown size={12} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => toggleWidgetVisibility(id)}
+                      className="px-2 py-1"
+                      title={hiddenWidgets.includes(id) ? 'tampilkan' : 'sembunyikan'}
+                    >
+                      {hiddenWidgets.includes(id) ? <Eye size={12} /> : <EyeOff size={12} />}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+
         {/* Data Management */}
         <Card>
           <div className="p-6 space-y-4">
@@ -271,14 +532,40 @@ export const SettingsView = () => {
             </div>
 
             <div className="space-y-3">
-              <Button
-                variant="ghost"
-                onClick={handleExportData}
-                className="w-full"
-              >
-                <Download size={16} />
-                <span>ekspor data</span>
-              </Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Button
+                  variant="ghost"
+                  onClick={handleExportData}
+                  className="w-full"
+                >
+                  <Download size={16} />
+                  <span>ekspor data (v{SCHEMA_VERSION})</span>
+                </Button>
+
+                <label className="w-full">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="application/json"
+                    className="hidden"
+                    onChange={handleImport}
+                    disabled={isImporting}
+                  />
+                  <div className="h-full">
+                    <Button
+                      variant="ghost"
+                      type="button"
+                      className="w-full cursor-pointer"
+                    >
+                      <Upload size={16} />
+                      <span>{isImporting ? 'memuat...' : 'import data'}</span>
+                    </Button>
+                  </div>
+                </label>
+              </div>
+
+              {/* Firebase Sync Migration */}
+              <MigrationButton />
 
               <Button
                 variant="ghost"
@@ -292,6 +579,53 @@ export const SettingsView = () => {
               <p className="font-mono text-xs text-(--text-muted) italic text-center pt-2 border-t border-dashed border-(--border-color)">
                 backup datamu secara berkala untuk menghindari kehilangan.
               </p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Integrity Checker */}
+        <Card variant="dashed" className="border-hover-dashed">
+          <div className="p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-widest text-(--text-muted)">integritas data</p>
+                <p className="font-mono text-xs text-(--text-muted)">cek konsistensi localStorage per store.</p>
+              </div>
+              <Button
+                variant="ghost"
+                onClick={handleIntegrityCheck}
+                className="px-3"
+              >
+                <span>{integrityLoading ? 'cek...' : 'run check'}</span>
+              </Button>
+            </div>
+
+            <div className="space-y-2">
+              {integrityReport.length === 0 ? (
+                <p className="font-mono text-xs text-(--text-muted)">belum ada laporan. klik "run check".</p>
+              ) : (
+                integrityReport.map((item) => (
+                  <div
+                    key={item.name}
+                    className="flex items-center justify-between border border-dashed border-(--border-color) px-3 py-2"
+                  >
+                    <div>
+                      <p className="font-mono text-xs text-(--text-main)">{item.name}</p>
+                      <p className="font-mono text-[11px] text-(--text-muted)">
+                        status: {item.status} {item.size ? `• ${item.size} chars` : ''}
+                        {item.missing?.length ? ` • missing: ${item.missing.join(', ')}` : ''}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleResetStore(item.name)}
+                      className="px-2 py-1"
+                    >
+                      <Trash2 size={14} />
+                    </Button>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </Card>

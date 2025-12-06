@@ -1,4 +1,4 @@
-# Development Guidelines - Nivra App
+B# Development Guidelines - Nivra App
 
 ## 🎯 Coding Standards
 
@@ -118,12 +118,88 @@ export const MyComponent = ({ title, onAction }) => {
 };
 ```
 
+## 🔄 Firebase Sync Development
+
+### Adding Sync to New Stores
+
+Jika menambahkan store baru yang perlu sync:
+
+```js
+// 1. Import Firebase utilities
+import { isSyncEnabled, syncDocToFirestore, deleteDocFromFirestore, subscribeToCollection } from '../services/firestoreService';
+import { useSyncStore } from './useSyncStore';
+
+// 2. Add initialization method
+initializeSync: () => {
+  if (!isSyncEnabled()) return;
+
+  const user = useSyncStore.getState().user;
+  if (!user) return;
+
+  const unsubscribe = subscribeToCollection(
+    user.uid,
+    'yourCollection',
+    (data) => {
+      set({ items: data });
+    }
+  );
+
+  set({ syncUnsubscribe: unsubscribe });
+},
+
+// 3. Add cleanup method
+stopSync: () => {
+  const { syncUnsubscribe } = get();
+  if (syncUnsubscribe) {
+    syncUnsubscribe();
+    set({ syncUnsubscribe: null });
+  }
+},
+
+// 4. Add sync calls in CRUD methods
+addItem: (item) => {
+  const newItem = { ...item, id: Date.now().toString() };
+  set((state) => ({ items: [...state.items, newItem] }));
+
+  // Sync to Firebase
+  if (isSyncEnabled()) {
+    const user = useSyncStore.getState().user;
+    if (user) {
+      syncDocToFirestore(user.uid, 'yourCollection', newItem.id, newItem);
+    }
+  }
+},
+```
+
+Lihat `FIREBASE_SYNC_INSTRUCTIONS.md` untuk contoh lengkap.
+
+### FirebaseSyncProvider Integration
+
+Tambahkan store baru ke `FirebaseSyncProvider.jsx`:
+
+```jsx
+useEffect(() => {
+  if (isAuthenticated) {
+    setTimeout(() => useTaskStore.getState().initializeSync(), 100);
+    setTimeout(() => useYourNewStore.getState().initializeSync(), 500); // Add here
+  }
+}, [isAuthenticated]);
+```
+
+### Testing Sync
+
+1. **Local Development**: Enable sync di `.env.local`
+2. **Multi-Device Test**: Login di 2+ devices, verify data sync
+3. **Offline Test**: Disconnect internet, make changes, reconnect
+4. **Migration Test**: Populate local data, run migration, verify Firestore
+
 ## 🔒 Security Reminders
 
-- **NEVER** commit `.env` files dengan credentials
-- **NEVER** expose API keys di client-side code
-- **ALWAYS** validate user input
+- **NEVER** commit `.env` atau `.env.local` files
+- **NEVER** expose Firebase credentials di public code
+- **ALWAYS** validate user input before sync
 - **ALWAYS** sanitize data sebelum display
+- **ALWAYS** test Firestore security rules di Console
 
 ## 🐛 Debugging Tips
 

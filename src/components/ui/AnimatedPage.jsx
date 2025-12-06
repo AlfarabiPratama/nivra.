@@ -1,14 +1,6 @@
 import { useEffect, useState } from 'react';
 
 export const AnimatedPage = ({ children, className = '' }) => {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    // Trigger animation after mount
-    const timer = setTimeout(() => setIsVisible(true), 50);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <div className={`page-enter-blur ${className}`}>
       {children}

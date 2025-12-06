@@ -15,6 +15,7 @@ export const ShortcutsModal = ({ isOpen, onClose }) => {
         { keys: ['6'], description: 'pergi ke pomodoro' },
         { keys: ['7'], description: 'pergi ke pengaturan' },
         { keys: ['8'], description: 'pergi ke taman' },
+        { keys: ['9'], description: 'pergi ke kalender' },
       ]
     },
     {
@@ -28,6 +29,7 @@ export const ShortcutsModal = ({ isOpen, onClose }) => {
         { keys: ['G', 'P'], description: 'pomodoro' },
         { keys: ['G', 'S'], description: 'settings / pengaturan' },
         { keys: ['G', 'G'], description: 'garden / taman' },
+        { keys: ['G', 'C'], description: 'calendar / kalender' },
       ]
     },
     {

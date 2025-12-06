@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useAppStore } from './useAppStore';
+import { sendNotification } from '../utils/notifications';
 
 const FOCUS_DURATION = 25 * 60; // 25 minutes
 const SHORT_BREAK = 5 * 60; // 5 minutes
@@ -99,6 +101,15 @@ export const usePomodoroStore = create(
           const isLongBreak = nextCount % settings.sessionsUntilLongBreak === 0;
           
           get().switchSession(isLongBreak ? 'longBreak' : 'shortBreak');
+
+          // Notify if enabled
+          const notifyPrefs = useAppStore.getState().notifications;
+          if (notifyPrefs?.pomodoroAlerts) {
+            sendNotification({
+              title: 'Sesi fokus selesai',
+              body: currentActivity ? `${currentActivity} tuntas` : 'Saatnya istirahat',
+            });
+          }
           
           // Auto-start break if enabled
           if (settings.autoStartBreaks) {

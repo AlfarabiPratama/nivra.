@@ -1,21 +1,25 @@
-import { useEffect, useState } from 'react';
-import { useThemeStore } from './store/useThemeStore';
-import { useAppStore } from './store/useAppStore';
-import { AppShell } from './components/ui/AppShell';
-import { Toast } from './components/ui/Toast';
-import { AchievementNotification } from './components/ui/AchievementNotification';
-import { OnboardingModal } from './components/modals/OnboardingModal';
-import { Dashboard } from './views/Dashboard';
-import { ReadingView } from './views/ReadingView';
-import { JournalView } from './views/JournalView';
-import { GardenView } from './views/GardenView';
-import { HabitView } from './views/HabitView';
-import { FinanceView } from './views/FinanceView';
-import { PomodoroView } from './views/PomodoroView';
-import { SettingsView } from './views/SettingsView';
-import { ProfileView } from './views/ProfileView';
-import { SearchModal } from './components/modals/SearchModal';
-import { ShortcutsModal } from './components/modals/ShortcutsModal';
+import { useEffect, useState } from "react";
+import { useThemeStore } from "./store/useThemeStore";
+import { useAppStore } from "./store/useAppStore";
+import { AppShell } from "./components/ui/AppShell";
+import { Toast } from "./components/ui/Toast";
+import { AchievementNotification } from "./components/ui/AchievementNotification";
+import { OnboardingModal } from "./components/modals/OnboardingModal";
+import { Dashboard } from "./views/Dashboard";
+import { ReadingView } from "./views/ReadingView";
+import { JournalView } from "./views/JournalView";
+import { GardenView } from "./views/GardenView";
+import { HabitView } from "./views/HabitView";
+import { FinanceView } from "./views/FinanceView";
+import { PomodoroView } from "./views/PomodoroView";
+import { SettingsView } from "./views/SettingsView";
+import { ProfileView } from "./views/ProfileView";
+import { SearchModal } from "./components/modals/SearchModal";
+import { ShortcutsModal } from "./components/modals/ShortcutsModal";
+import { CalendarView } from "./views/CalendarView";
+import { WeeklyDigest } from "./views/WeeklyDigest";
+import { useReminder } from "./hooks/useReminder";
+import { FirebaseSyncProvider } from "./components/sync/FirebaseSyncProvider";
 
 function App() {
   const { theme, isDarkMode } = useThemeStore();
@@ -23,17 +27,18 @@ function App() {
   const [showOnboarding, setShowOnboarding] = useState(!user.name);
   const [showSearch, setShowSearch] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  useReminder();
 
   // Apply theme CSS variables
   useEffect(() => {
     const root = document.documentElement;
-    root.style.setProperty('--bg-color', theme.bg);
-    root.style.setProperty('--card-color', theme.card);
-    root.style.setProperty('--border-color', theme.border);
-    root.style.setProperty('--text-main', theme.textMain);
-    root.style.setProperty('--text-muted', theme.textMuted);
-    root.style.setProperty('--accent', theme.accent);
-    
+    root.style.setProperty("--bg-color", theme.bg);
+    root.style.setProperty("--card-color", theme.card);
+    root.style.setProperty("--border-color", theme.border);
+    root.style.setProperty("--text-main", theme.textMain);
+    root.style.setProperty("--text-muted", theme.textMuted);
+    root.style.setProperty("--accent", theme.accent);
+
     // Update body background
     document.body.style.backgroundColor = theme.bg;
     document.body.style.color = theme.textMain;
@@ -43,25 +48,27 @@ function App() {
   useEffect(() => {
     const handleKeyPress = (e) => {
       // Ctrl/Cmd + K for search (works anywhere)
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
         e.preventDefault();
         setShowSearch(true);
         return;
       }
 
       // Only trigger other shortcuts if not typing in input/textarea
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")
+        return;
 
       // Number keys for navigation (1-8)
       const keyMap = {
-        '1': 'dashboard',
-        '2': 'reading',
-        '3': 'journal',
-        '4': 'habits',
-        '5': 'finance',
-        '6': 'pomodoro',
-        '7': 'settings',
-        '8': 'garden'
+        1: "dashboard",
+        2: "reading",
+        3: "journal",
+        4: "habits",
+        5: "finance",
+        6: "pomodoro",
+        7: "settings",
+        8: "garden",
+        9: "calendar",
       };
 
       if (keyMap[e.key]) {
@@ -70,114 +77,119 @@ function App() {
       }
 
       // G + D for Dashboard (GitHub style)
-      if (e.key === 'g') {
+      if (e.key === "g") {
         const handleSecondKey = (e2) => {
-          if (e2.key === 'd') {
+          if (e2.key === "d") {
             e2.preventDefault();
-            useAppStore.getState().setCurrentView('dashboard');
-          } else if (e2.key === 'r') {
+            useAppStore.getState().setCurrentView("dashboard");
+          } else if (e2.key === "r") {
             e2.preventDefault();
-            useAppStore.getState().setCurrentView('reading');
-          } else if (e2.key === 'j') {
+            useAppStore.getState().setCurrentView("reading");
+          } else if (e2.key === "j") {
             e2.preventDefault();
-            useAppStore.getState().setCurrentView('journal');
-          } else if (e2.key === 'h') {
+            useAppStore.getState().setCurrentView("journal");
+          } else if (e2.key === "h") {
             e2.preventDefault();
-            useAppStore.getState().setCurrentView('habits');
-          } else if (e2.key === 'f') {
+            useAppStore.getState().setCurrentView("habits");
+          } else if (e2.key === "f") {
             e2.preventDefault();
-            useAppStore.getState().setCurrentView('finance');
-          } else if (e2.key === 'p') {
+            useAppStore.getState().setCurrentView("finance");
+          } else if (e2.key === "p") {
             e2.preventDefault();
-            useAppStore.getState().setCurrentView('pomodoro');
-          } else if (e2.key === 's') {
+            useAppStore.getState().setCurrentView("pomodoro");
+          } else if (e2.key === "s") {
             e2.preventDefault();
-            useAppStore.getState().setCurrentView('settings');
-          } else if (e2.key === 'g') {
+            useAppStore.getState().setCurrentView("settings");
+          } else if (e2.key === "g") {
             e2.preventDefault();
-            useAppStore.getState().setCurrentView('garden');
+            useAppStore.getState().setCurrentView("garden");
+          } else if (e2.key === "c") {
+            e2.preventDefault();
+            useAppStore.getState().setCurrentView("calendar");
           }
-          document.removeEventListener('keydown', handleSecondKey);
+          document.removeEventListener("keydown", handleSecondKey);
         };
-        document.addEventListener('keydown', handleSecondKey, { once: true });
+        document.addEventListener("keydown", handleSecondKey, { once: true });
       }
 
       // Theme toggle with T
-      if (e.key === 't' || e.key === 'T') {
+      if (e.key === "t" || e.key === "T") {
         e.preventDefault();
         useThemeStore.getState().toggleTheme();
       }
 
       // Show shortcuts with ?
-      if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+      if (e.key === "?" || (e.shiftKey && e.key === "/")) {
         e.preventDefault();
         setShowShortcuts(true);
       }
     };
 
-    document.addEventListener('keydown', handleKeyPress);
-    return () => document.removeEventListener('keydown', handleKeyPress);
+    document.addEventListener("keydown", handleKeyPress);
+    return () => document.removeEventListener("keydown", handleKeyPress);
   }, []);
 
   // View routing
   const renderView = () => {
     switch (currentView) {
-      case 'dashboard':
+      case "dashboard":
         return <Dashboard />;
-      case 'reading':
+      case "reading":
         return <ReadingView />;
-      case 'journal':
+      case "journal":
         return <JournalView />;
-      case 'garden':
+      case "garden":
         return <GardenView />;
-      case 'habits':
+      case "habits":
         return <HabitView />;
-      case 'finance':
+      case "finance":
         return <FinanceView />;
-      case 'pomodoro':
+      case "pomodoro":
         return <PomodoroView />;
-      case 'settings':
+      case "settings":
         return <SettingsView />;
-      case 'profile':
+      case "profile":
         return <ProfileView />;
+      case "calendar":
+        return <CalendarView />;
+      case "digest":
+        return <WeeklyDigest />;
       default:
         return <Dashboard />;
     }
   };
 
   return (
-    <div className="min-h-screen font-sans selection:bg-(--accent) selection:text-white">
-      {/* Noise Overlay */}
-      <div className={isDarkMode ? 'bg-noise-dark' : 'bg-noise-light'}></div>
-      
-      {/* App Content */}
-      <div className="relative z-10">
-        <AppShell>
-          {renderView()}
-        </AppShell>
+    <FirebaseSyncProvider>
+      <div className="min-h-screen font-sans selection:bg-(--accent) selection:text-white">
+        {/* Noise Overlay */}
+        <div className={isDarkMode ? "bg-noise-dark" : "bg-noise-light"}></div>
+
+        {/* App Content */}
+        <div className="relative z-10">
+          <AppShell>{renderView()}</AppShell>
+        </div>
+
+        {/* Toast Notifications */}
+        <Toast />
+
+        {/* Achievement Notifications */}
+        <AchievementNotification />
+
+        {/* Onboarding Modal */}
+        {showOnboarding && (
+          <OnboardingModal onComplete={() => setShowOnboarding(false)} />
+        )}
+
+        {/* Search Modal */}
+        {showSearch && <SearchModal onClose={() => setShowSearch(false)} />}
+
+        {/* Shortcuts Modal */}
+        {showShortcuts && (
+          <ShortcutsModal onClose={() => setShowShortcuts(false)} />
+        )}
       </div>
-
-      {/* Toast Notifications */}
-      <Toast />
-
-      {/* Achievement Notifications */}
-      <AchievementNotification />
-
-      {/* Onboarding Modal */}
-      {showOnboarding && (
-        <OnboardingModal onComplete={() => setShowOnboarding(false)} />
-      )}
-
-      {/* Search Modal */}
-      {showSearch && (
-        <SearchModal onClose={() => setShowSearch(false)} />
-      )}
-
-      {/* Shortcuts Modal */}
-      {showShortcuts && (
-        <ShortcutsModal onClose={() => setShowShortcuts(false)} />
-      )}
-    </div>
+    </FirebaseSyncProvider>
   );
 }
 

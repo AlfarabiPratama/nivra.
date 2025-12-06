@@ -16,6 +16,14 @@ export const useAppStore = create(
         avatar: null, // base64 image or URL
       },
       
+      // Notifications preferences
+      notifications: {
+        pomodoroAlerts: false,
+        taskAlerts: false,
+        reminders: false,
+      },
+      reminderTime: '08:00',
+
       // Actions
       setCurrentView: (view) => set({ currentView: view }),
       
@@ -72,6 +80,17 @@ export const useAppStore = create(
       setUserAvatar: (avatar) => set({
         user: { ...get().user, avatar }
       }),
+
+      toggleNotification: (key) => {
+        set((state) => ({
+          notifications: {
+            ...state.notifications,
+            [key]: !state.notifications?.[key],
+          },
+        }));
+      },
+
+      setReminderTime: (time) => set({ reminderTime: time }),
     }),
     {
       name: 'nivra-app-storage',

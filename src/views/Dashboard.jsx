@@ -20,11 +20,6 @@ import {
   X,
   BookOpen,
   BookText,
-  ArrowUp,
-  ArrowDown,
-  Eye,
-  EyeOff,
-  RotateCcw,
 } from "lucide-react";
 import clsx from "clsx";
 
@@ -42,9 +37,6 @@ export const Dashboard = () => {
   const {
     widgetOrder,
     hiddenWidgets,
-    moveWidget,
-    toggleWidgetVisibility,
-    resetLayout,
     setWidgetOrder,
   } = useLayoutStore();
   const [newTaskText, setNewTaskText] = useState("");
@@ -78,13 +70,6 @@ export const Dashboard = () => {
           ) / readingBooksWithProgress.length
         )
       : 0;
-
-  const widgetLabelMap = {
-    weeklyReview: "weekly review",
-    weeklyInsights: "weekly insights",
-    taskAnalytics: "task analytics",
-    pomodoro: "pomodoro summary",
-  };
 
   const mergedWidgetOrder = useMemo(() => {
     const required = [
@@ -241,91 +226,6 @@ export const Dashboard = () => {
             </div>
           </Card>
         </div>
-
-        {/* Widget Layout */}
-        <Card variant="dashed" className="border-hover-dashed">
-          <div className="p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-mono text-[10px] uppercase tracking-widest text-(--text-muted)">
-                  tata letak widget
-                </p>
-                <p className="font-mono text-xs text-(--text-muted)">
-                  atur urutan dan visibilitas komponen dashboard.
-                </p>
-              </div>
-              <Button variant="ghost" onClick={resetLayout} className="px-3">
-                <RotateCcw size={14} />
-                <span>reset</span>
-              </Button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-              {mergedWidgetOrder.map((id, index) => (
-                <div
-                  key={id}
-                  draggable
-                  onDragStart={(e) => {
-                    e.dataTransfer.setData("text/widget-id", id);
-                    e.dataTransfer.effectAllowed = "move";
-                  }}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    const draggedId = e.dataTransfer.getData("text/widget-id");
-                    if (!draggedId || draggedId === id) return;
-                    const currentOrder = [...mergedWidgetOrder];
-                    const from = currentOrder.indexOf(draggedId);
-                    const to = currentOrder.indexOf(id);
-                    if (from === -1 || to === -1) return;
-                    currentOrder.splice(from, 1);
-                    currentOrder.splice(to, 0, draggedId);
-                    setWidgetOrder(currentOrder);
-                  }}
-                  className="flex items-center justify-between gap-2 border border-dashed border-(--border-color) px-3 py-2 bg-(--bg-color)/60 cursor-move"
-                >
-                  <div>
-                    <p className="font-mono text-xs text-(--text-main) uppercase">
-                      {widgetLabelMap[id] || id}
-                    </p>
-                    <p className="font-mono text-[10px] text-(--text-muted)">
-                      posisi #{index + 1}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      onClick={() => moveWidget(id, "up")}
-                      disabled={index === 0}
-                      className="px-2 py-1"
-                    >
-                      <ArrowUp size={12} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      onClick={() => moveWidget(id, "down")}
-                      disabled={index === widgetOrder.length - 1}
-                      className="px-2 py-1"
-                    >
-                      <ArrowDown size={12} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      onClick={() => toggleWidgetVisibility(id)}
-                      className="px-2 py-1"
-                    >
-                      {hiddenWidgets.includes(id) ? (
-                        <Eye size={12} />
-                      ) : (
-                        <EyeOff size={12} />
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Card>
 
         {/* Task Management */}
         <Card variant="dashed">

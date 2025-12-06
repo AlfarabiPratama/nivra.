@@ -1,9 +1,9 @@
-import { Trophy } from 'lucide-react';
-import { achievementList } from '../../store/useAchievementStore';
+import { Trophy } from "lucide-react";
+import { achievementList } from "../../store/useAchievementStore";
 
 export const AchievementUnlockedNotification = ({ achievementId }) => {
   const achievement = achievementList[achievementId];
-  
+
   if (!achievement) return null;
 
   return (
@@ -14,7 +14,7 @@ export const AchievementUnlockedNotification = ({ achievementId }) => {
           <div className="flex justify-center">
             <Trophy size={48} className="text-(accent) glow-pulse" />
           </div>
-          
+
           {/* Achievement Title */}
           <div className="space-y-2">
             <div className="text-5xl mb-2">{achievement.emoji}</div>
@@ -28,7 +28,7 @@ export const AchievementUnlockedNotification = ({ achievementId }) => {
               {achievement.description}
             </p>
           </div>
-          
+
           {/* XP Reward */}
           <div className="pt-4 border-t border-dashed border-(border-color)">
             <p className="font-mono text-sm text-(accent)">
@@ -40,4 +40,3 @@ export const AchievementUnlockedNotification = ({ achievementId }) => {
     </div>
   );
 };
-

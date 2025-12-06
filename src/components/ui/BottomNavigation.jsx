@@ -1,4 +1,4 @@
-import { Home, BookOpen, Wallet, Timer, Sprout } from 'lucide-react';
+import { Home, BookOpen, Wallet, Timer, Sprout, CalendarDays, BookText } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import clsx from 'clsx';
 
@@ -10,6 +10,8 @@ export const BottomNavigation = () => {
     { id: 'reading', label: 'bacaan', icon: BookOpen },
     { id: 'finance', label: 'keuangan', icon: Wallet },
     { id: 'pomodoro', label: 'timer', icon: Timer },
+    { id: 'calendar', label: 'kalender', icon: CalendarDays },
+    { id: 'digest', label: 'digest', icon: BookText },
     { id: 'garden', label: 'taman', icon: Sprout },
   ];
 

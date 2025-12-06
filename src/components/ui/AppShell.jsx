@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
-import { Navigation } from '../ui/Navigation';
-import { BottomNavigation } from '../ui/BottomNavigation';
-import { useAppStore } from '../../store/useAppStore';
-import { useAchievementStore } from '../../store/useAchievementStore';
-import { useTaskStore } from '../../store/useTaskStore';
-import { useBookStore } from '../../store/useBookStore';
-import { useJournalStore } from '../../store/useJournalStore';
-import { AchievementModal } from '../modals/AchievementModal';
-import { User, Trophy, Menu, X } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Navigation } from "../ui/Navigation";
+import { BottomNavigation } from "../ui/BottomNavigation";
+import { useAppStore } from "../../store/useAppStore";
+import { useAchievementStore } from "../../store/useAchievementStore";
+import { useTaskStore } from "../../store/useTaskStore";
+import { useBookStore } from "../../store/useBookStore";
+import { useJournalStore } from "../../store/useJournalStore";
+import { AchievementModal } from "../modals/AchievementModal";
+import { SyncStatusBadge } from "../sync/SyncStatusIndicator";
+import { User, Trophy, Menu, X } from "lucide-react";
 
 export const AppShell = ({ children }) => {
   const { user } = useAppStore();
@@ -29,10 +30,10 @@ export const AppShell = ({ children }) => {
         setSidebarOpen(false);
       }
     };
-    
+
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   // Update time every second
@@ -46,14 +47,14 @@ export const AppShell = ({ children }) => {
   // Calculate stats for achievements
   const stats = {
     level: user.level || 0,
-    booksFinished: books.filter(b => b.status === 'finished').length,
-    tasksCompleted: tasks.filter(t => t.completed).length,
+    booksFinished: books.filter((b) => b.status === "finished").length,
+    tasksCompleted: tasks.filter((t) => t.completed).length,
     journalEntries: entries.length,
     maxTasksInDay: 0, // Could be calculated from task completedAt dates
     taskStreak: 0, // Could be calculated from consecutive days
     journalStreak: 0, // Could be calculated from consecutive days
   };
-  
+
   const quotes = [
     "bacalah dengan hatimu.",
     "perlahan tapi pasti.",
@@ -61,31 +62,36 @@ export const AppShell = ({ children }) => {
     "satu halaman pada satu waktu.",
     "belajar tanpa berpikir sia-sia.",
   ];
-  
+
   const dailyQuote = quotes[new Date().getDate() % quotes.length];
 
   return (
     <div className="min-h-screen flex">
       {/* Mobile Overlay */}
       {isMobile && mobileMenuOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 md:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
 
       {/* Sidebar Navigation */}
-      <aside 
+      <aside
         className="shrink-0 fixed left-0 top-0 h-screen transition-all duration-300 z-50"
-        style={{ 
-          width: isMobile ? '16rem' : (sidebarOpen ? '16rem' : '5rem'),
-          transform: isMobile && !mobileMenuOpen ? 'translateX(-100%)' : 'translateX(0)'
+        style={{
+          width: isMobile ? "16rem" : sidebarOpen ? "16rem" : "5rem",
+          transform:
+            isMobile && !mobileMenuOpen ? "translateX(-100%)" : "translateX(0)",
         }}
       >
         <div className="w-full h-full">
-          <Navigation 
-            isCollapsed={!sidebarOpen && !isMobile} 
-            onToggle={() => isMobile ? setMobileMenuOpen(!mobileMenuOpen) : setSidebarOpen(!sidebarOpen)}
+          <Navigation
+            isCollapsed={!sidebarOpen && !isMobile}
+            onToggle={() =>
+              isMobile
+                ? setMobileMenuOpen(!mobileMenuOpen)
+                : setSidebarOpen(!sidebarOpen)
+            }
             isMobile={isMobile}
             onClose={() => setMobileMenuOpen(false)}
           />
@@ -93,11 +99,11 @@ export const AppShell = ({ children }) => {
       </aside>
 
       {/* Main Content */}
-      <main 
+      <main
         className="flex-1 overflow-auto transition-all duration-300"
-        style={{ 
-          marginLeft: isMobile ? '0' : (sidebarOpen ? '16rem' : '5rem'),
-          paddingBottom: isMobile ? '5rem' : '0'
+        style={{
+          marginLeft: isMobile ? "0" : sidebarOpen ? "16rem" : "5rem",
+          paddingBottom: isMobile ? "5rem" : "0",
         }}
       >
         {/* Header with Search and User Info */}
@@ -116,10 +122,19 @@ export const AppShell = ({ children }) => {
             {/* Clock & Date */}
             <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
               <div className="font-mono text-sm md:text-lg text-(--text-main) tabular-nums">
-                {currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                {currentTime.toLocaleTimeString("id-ID", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })}
               </div>
               <div className="font-mono text-[10px] md:text-xs text-(--text-muted) uppercase tracking-wider">
-                {currentTime.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+                {currentTime.toLocaleDateString("id-ID", {
+                  weekday: "short",
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}
               </div>
             </div>
 
@@ -130,6 +145,9 @@ export const AppShell = ({ children }) => {
           </div>
 
           <div className="flex items-center gap-2 md:gap-4">
+            {/* Firebase Sync Status */}
+            <SyncStatusBadge />
+
             <button
               onClick={() => setShowAchievements(true)}
               className="relative hover-scale"
@@ -142,34 +160,35 @@ export const AppShell = ({ children }) => {
               )}
             </button>
             <button
-              onClick={() => useAppStore.getState().setCurrentView('profile')}
+              onClick={() => useAppStore.getState().setCurrentView("profile")}
               className="w-7 h-7 md:w-8 md:h-8 bg-(--card-color) border border-(--border-color) flex items-center justify-center rounded-full hover:border-(--accent) transition-colors overflow-hidden hover-scale"
               title="Profil"
             >
               {user.avatar ? (
-                <img 
-                  src={user.avatar} 
-                  alt="Avatar" 
+                <img
+                  src={user.avatar}
+                  alt="Avatar"
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <User size={12} className="md:w-3.5 md:h-3.5 text-(--text-muted)" />
+                <User
+                  size={12}
+                  className="md:w-3.5 md:h-3.5 text-(--text-muted)"
+                />
               )}
             </button>
           </div>
         </header>
 
         {/* Page Content */}
-        <div>
-          {children}
-        </div>
+        <div>{children}</div>
       </main>
 
       {/* Mobile Bottom Navigation */}
       {isMobile && <BottomNavigation />}
 
       {/* Achievement Modal */}
-      <AchievementModal 
+      <AchievementModal
         isOpen={showAchievements}
         onClose={() => setShowAchievements(false)}
         unlockedAchievements={unlockedAchievements}
