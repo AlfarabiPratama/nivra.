@@ -30,7 +30,7 @@ export const AchievementNotification = () => {
 
   return (
     <div className="fixed z-50 transform -translate-x-1/2 pointer-events-none bottom-6 left-1/2">
-      <div className="pointer-events-auto bg-[var(--card-color)] border-2 border-[var(--accent)] p-6 min-w-[400px] shadow-2xl fade-slide-up">
+      <div className="pointer-events-auto bg-(card-color) border-2 border-(accent) p-6 min-w-[400px] shadow-2xl fade-slide-up">
         <div className="flex items-center gap-4">
           {/* Achievement Icon */}
           <div className="relative">
@@ -38,29 +38,29 @@ export const AchievementNotification = () => {
               {achievement.emoji}
             </div>
             <div className="absolute -top-2 -right-2">
-              <Sparkles size={20} className="text-[var(--accent)] animate-spin-slow" />
+              <Sparkles size={20} className="text-(accent) animate-spin-slow" />
             </div>
           </div>
 
           {/* Achievement Info */}
           <div className="flex-1 space-y-2">
             <div className="flex items-center gap-2">
-              <Award size={18} className="text-[var(--accent)]" />
-              <h3 className="font-mono text-xs uppercase tracking-widest text-[var(--accent)]">
+              <Award size={18} className="text-(accent)" />
+              <h3 className="font-mono text-xs uppercase tracking-widest text-(accent)">
                 Pencapaian Terbuka!
               </h3>
             </div>
             
-            <h4 className="text-xl font-serif italic text-[var(--text-main)]">
+            <h4 className="text-xl font-serif italic text-(text-main)">
               {achievement.title}
             </h4>
             
-            <p className="font-mono text-xs text-[var(--text-muted)]">
+            <p className="font-mono text-xs text-(text-muted)">
               {achievement.description}
             </p>
             
             <div className="flex items-center gap-2 pt-2">
-              <span className="px-3 py-1 border border-[var(--accent)] font-mono text-xs text-[var(--accent)]">
+              <span className="px-3 py-1 border border-(accent) font-mono text-xs text-(accent)">
                 +{achievement.xp} XP
               </span>
             </div>
@@ -69,11 +69,12 @@ export const AchievementNotification = () => {
 
         {/* Decorative sparkles */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-2 left-2 text-[var(--accent)] opacity-50 glow-pulse">✨</div>
-          <div className="absolute bottom-2 right-2 text-[var(--accent)] opacity-50 glow-pulse" style={{ animationDelay: '0.5s' }}>✨</div>
-          <div className="absolute top-1/2 right-4 text-[var(--accent)] opacity-30 glow-pulse" style={{ animationDelay: '1s' }}>⭐</div>
+          <div className="absolute top-2 left-2 text-(accent) opacity-50 glow-pulse">✨</div>
+          <div className="absolute bottom-2 right-2 text-(accent) opacity-50 glow-pulse" style={{ animationDelay: '0.5s' }}>✨</div>
+          <div className="absolute top-1/2 right-4 text-(accent) opacity-30 glow-pulse" style={{ animationDelay: '1s' }}>⭐</div>
         </div>
       </div>
     </div>
   );
 };
+

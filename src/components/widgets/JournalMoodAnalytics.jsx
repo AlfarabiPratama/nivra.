@@ -82,10 +82,10 @@ export const JournalMoodAnalytics = ({ entries }) => {
             <div className="text-3xl">
               {moodEmojis[Math.round(analytics.avgMood)] || '😐'}
             </div>
-            <div className="font-mono text-2xl text-[var(--accent)]">
+            <div className="font-mono text-2xl text-(accent)">
               {analytics.avgMood}
             </div>
-            <div className="font-mono text-xs text-[var(--text-muted)] uppercase">
+            <div className="font-mono text-xs text-(text-muted) uppercase">
               avg mood
             </div>
           </div>
@@ -96,10 +96,10 @@ export const JournalMoodAnalytics = ({ entries }) => {
             <div className="text-3xl">
               {moodEmojis[analytics.mostCommonMood] || '😐'}
             </div>
-            <div className="font-mono text-sm text-[var(--text-main)]">
+            <div className="font-mono text-sm text-(text-main)">
               {moodLabels[analytics.mostCommonMood] || 'N/A'}
             </div>
-            <div className="font-mono text-xs text-[var(--text-muted)] uppercase">
+            <div className="font-mono text-xs text-(text-muted) uppercase">
               most common
             </div>
           </div>
@@ -107,10 +107,10 @@ export const JournalMoodAnalytics = ({ entries }) => {
         
         <Card hover>
           <div className="text-center space-y-2">
-            <div className="font-mono text-2xl text-[var(--accent)]">
+            <div className="font-mono text-2xl text-(accent)">
               {analytics.totalWithMood}
             </div>
-            <div className="font-mono text-xs text-[var(--text-muted)] uppercase">
+            <div className="font-mono text-xs text-(text-muted) uppercase">
               tracked moods
             </div>
           </div>
@@ -121,10 +121,10 @@ export const JournalMoodAnalytics = ({ entries }) => {
       <Card>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-mono text-xs uppercase tracking-widest text-[var(--text-muted)]">
+            <h3 className="font-mono text-xs uppercase tracking-widest text-(text-muted)">
               Mood Trend (7 Hari)
             </h3>
-            <TrendingUp size={16} className="text-[var(--accent)]" />
+            <TrendingUp size={16} className="text-(accent)" />
           </div>
           
           <div className="relative h-32">
@@ -132,7 +132,7 @@ export const JournalMoodAnalytics = ({ entries }) => {
             {[1, 2, 3, 4, 5].map(level => (
               <div 
                 key={level}
-                className="absolute w-full border-t border-dashed border-[var(--border-color)] opacity-30"
+                className="absolute w-full border-t border-dashed border-(border-color) opacity-30"
                 style={{ bottom: `${(level - 1) * 25}%` }}
               />
             ))}
@@ -188,7 +188,7 @@ export const JournalMoodAnalytics = ({ entries }) => {
           {/* Day labels */}
           <div className="flex justify-between pt-2">
             {analytics.last7Days.map(day => (
-              <div key={day.date} className="font-mono text-xs text-[var(--text-muted)]">
+              <div key={day.date} className="font-mono text-xs text-(text-muted)">
                 {day.label}
               </div>
             ))}
@@ -199,7 +199,7 @@ export const JournalMoodAnalytics = ({ entries }) => {
       {/* Mood Distribution */}
       <Card>
         <div className="space-y-4">
-          <h3 className="font-mono text-xs uppercase tracking-widest text-[var(--text-muted)]">
+          <h3 className="font-mono text-xs uppercase tracking-widest text-(text-muted)">
             Mood Distribution
           </h3>
           
@@ -215,16 +215,16 @@ export const JournalMoodAnalytics = ({ entries }) => {
                   <span className="text-2xl">{moodEmojis[mood]}</span>
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-xs text-[var(--text-main)]">
+                      <span className="font-mono text-xs text-(text-main)">
                         {moodLabels[mood]}
                       </span>
-                      <span className="font-mono text-xs text-[var(--text-muted)]">
+                      <span className="font-mono text-xs text-(text-muted)">
                         {count}x
                       </span>
                     </div>
-                    <div className="w-full h-1.5 bg-[var(--bg-color)] border border-[var(--border-color)]">
+                    <div className="w-full h-1.5 bg-(bg-color) border border-(border-color)">
                       <div 
-                        className="h-full bg-[var(--accent)] transition-all duration-500"
+                        className="h-full bg-(accent) transition-all duration-500"
                         style={{ width: `${percentage}%` }}
                       />
                     </div>
@@ -238,3 +238,4 @@ export const JournalMoodAnalytics = ({ entries }) => {
     </div>
   );
 };
+
