@@ -20,10 +20,17 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  // Skip non-GET requests and chrome-extension/devtools requests
-  if (event.request.method !== "GET") return;
-  if (event.request.url.startsWith("chrome-extension://")) return;
-  if (event.request.url.startsWith("devtools://")) return;
+  const url = event.request.url;
+
+  // Skip non-HTTP(S) schemes (chrome-extension, devtools, data, blob, etc.)
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    return;
+  }
+
+  // Skip non-GET requests
+  if (event.request.method !== "GET") {
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request).then((cached) => {
