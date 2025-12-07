@@ -266,13 +266,162 @@ git pull origin main
    - Firebase Console (Firestore data)
 
 5. Commit & push:
+
    ```bash
    git add .
    git commit -m "feat: descriptive message"
    git push origin main
    ```
 
-### 3. File Organization
+6. **Deploy to production** (if changes are production-ready):
+   ```bash
+   npm run deploy
+   ```
+
+### 3. Complete Change & Deploy Workflow
+
+**CRITICAL**: Setiap perubahan yang ingin di-publish ke production HARUS follow workflow ini!
+
+#### Step 1: Development & Testing (Local)
+
+```powershell
+# 1. Start dev server
+npm run dev
+
+# 2. Make changes to code
+
+# 3. Test in browser (http://localhost:5173)
+#    - Check functionality works
+#    - Check console for errors (F12)
+#    - Test Firebase sync (login, add data, refresh)
+#    - Test on different screen sizes (mobile/desktop)
+
+# 4. Stop dev server (Ctrl+C) when testing done
+```
+
+#### Step 2: Code Quality Check
+
+```powershell
+# 1. Check for linting errors
+npm run lint
+
+# 2. Fix any errors found
+#    - Follow error messages
+#    - Maintain code standards
+
+# 3. Test build (ensure no build errors)
+npm run build
+
+# 4. Preview production build locally (optional)
+npm run preview
+```
+
+#### Step 3: Git Commit
+
+```powershell
+# 1. Check what changed
+git status
+git diff
+
+# 2. Verify NO sensitive files (.env.local)
+#    If .env.local appears in git status, DON'T commit!
+
+# 3. Stage all changes
+git add .
+
+# 4. Commit with descriptive message
+git commit -m "type: detailed description of changes"
+
+# Examples:
+# git commit -m "feat: add dark mode toggle to settings"
+# git commit -m "fix: resolve authentication loop in LoginView"
+# git commit -m "refactor: optimize Firebase sync performance"
+# git commit -m "style: update card shadows for better contrast"
+```
+
+#### Step 4: Push to GitHub
+
+```powershell
+# 1. Push to remote
+git push origin main
+
+# 2. Verify push successful
+#    - Check terminal output for errors
+#    - Verify at https://github.com/AlfarabiPratama/nivra
+```
+
+#### Step 5: Deploy to Firebase Hosting
+
+**CRITICAL**: Only deploy after successful testing & GitHub push!
+
+```powershell
+# Option A: One-line command (recommended)
+npm run deploy
+
+# Option B: Using PowerShell script
+.\deploy.ps1
+
+# Option C: Manual steps
+npm run build
+firebase deploy --only hosting
+```
+
+**What happens during deployment**:
+
+1. ✅ Build production bundle (`npm run build`)
+2. ✅ Optimize & minify code
+3. ✅ Upload to Firebase Hosting
+4. ✅ Deploy to CDN globally
+5. ✅ Live at https://nivra-app-581be.web.app
+
+**Deployment time**: ~2-3 minutes
+
+#### Step 6: Post-Deployment Verification
+
+**CRITICAL**: Always verify deployment worked!
+
+```powershell
+# 1. Open live URL in browser
+# https://nivra-app-581be.web.app
+
+# 2. Hard refresh to clear cache
+#    - Windows: Ctrl + Shift + R
+#    - Or: Ctrl + F5
+
+# 3. Verify checklist:
+#    ✅ App loads without errors
+#    ✅ Login works (Google Sign-In)
+#    ✅ Firebase sync active
+#    ✅ New feature/fix visible
+#    ✅ No console errors (F12)
+#    ✅ Mobile responsive (test on phone or DevTools)
+#    ✅ Service Worker registered (check Application tab)
+
+# 4. Test on different devices (if critical change)
+#    - Desktop browser
+#    - Mobile browser
+#    - Different network (WiFi vs mobile data)
+```
+
+#### Step 7: Rollback (if deployment failed)
+
+**If live app has critical bugs**:
+
+```powershell
+# Option A: Quick rollback via Firebase Console
+# 1. Go to https://console.firebase.google.com/project/nivra-app-581be/hosting
+# 2. Click "Hosting" → "View all releases"
+# 3. Find previous working version
+# 4. Click three dots → "Rollback to this version"
+
+# Option B: Deploy previous commit
+git log --oneline -10  # Find previous commit hash
+git checkout <previous-commit-hash>
+npm run deploy
+git checkout main  # Return to latest
+```
+
+### 4. File Organization
 
 **JANGAN** create random files di root! Structure:
 
@@ -1059,6 +1208,354 @@ useEffect(() => {
 # Run: npm run build
 # Fix ESLint errors shown
 ```
+
+---
+
+## 🔄 Change Scenarios & Workflows
+
+**Comprehensive guide untuk berbagai jenis perubahan dan apa yang harus dilakukan setelahnya**
+
+### Scenario 1: Bug Fix (Production Critical)
+
+**Example**: Login button tidak berfungsi, users tidak bisa masuk
+
+**Workflow**:
+
+```powershell
+# 1. URGENT: Test locally first
+npm run dev
+# → Fix bug
+# → Test di browser
+# → Verify bug solved
+
+# 2. Quick commit
+git add .
+git commit -m "fix: resolve login button not responding"
+git push origin main
+
+# 3. IMMEDIATE DEPLOY
+npm run deploy
+
+# 4. VERIFY LIVE
+# Open https://nivra-app-581be.web.app
+# Hard refresh (Ctrl+Shift+R)
+# Test login button works
+
+# ⏱️ Total time: 5-10 minutes
+```
+
+**Priority**: 🔴 CRITICAL - Deploy immediately
+
+---
+
+### Scenario 2: New Feature (Non-Critical)
+
+**Example**: Add new "Reading Stats" widget
+
+**Workflow**:
+
+```powershell
+# 1. Development (take your time)
+npm run dev
+# → Implement feature
+# → Test thoroughly
+# → Check responsive design
+# → Test Firebase sync
+
+# 2. Commit with detailed description
+git add .
+git commit -m "feat: add Reading Stats widget with weekly progress chart"
+git push origin main
+
+# 3. Deploy when ready (not urgent)
+npm run deploy
+
+# 4. Test live version
+# Verify widget appears
+# Test on mobile
+# Check analytics data displays correctly
+
+# ⏱️ Total time: 30-60 minutes
+```
+
+**Priority**: 🟡 NORMAL - Deploy after thorough testing
+
+---
+
+### Scenario 3: UI/Style Changes
+
+**Example**: Update card shadow, change accent color
+
+**Workflow**:
+
+```powershell
+# 1. Test styles locally
+npm run dev
+# → Change CSS/Tailwind classes
+# → Test in light & dark mode
+# → Check all components affected
+
+# 2. Commit style changes
+git add .
+git commit -m "style: update card shadows and accent color for better contrast"
+git push origin main
+
+# 3. Deploy (low risk)
+npm run deploy
+
+# 4. Visual verification
+# Open live site
+# Hard refresh to clear CSS cache
+# Check all pages look correct
+# Test both light/dark themes
+
+# ⏱️ Total time: 10-20 minutes
+```
+
+**Priority**: 🟢 LOW - Deploy anytime, low impact
+
+---
+
+### Scenario 4: Firebase/Backend Changes
+
+**Example**: Add new Firestore collection, update security rules
+
+**Workflow**:
+
+```powershell
+# 1. Update code locally
+npm run dev
+# → Add new store (e.g., useGoalsStore.js)
+# → Add sync subscription in useSyncStore
+# → Test data saves to Firestore
+
+# 2. Update Firebase Security Rules
+# Go to Firebase Console → Firestore → Rules
+# Add rules for new collection:
+match /users/{userId}/goals/{goalId} {
+  allow read, write: if request.auth.uid == userId;
+}
+# → Click "Publish"
+
+# 3. Commit code changes
+git add .
+git commit -m "feat: add Goals tracking with Firebase sync"
+git push origin main
+
+# 4. Deploy code
+npm run deploy
+
+# 5. CRITICAL: Test full sync flow
+# - Login to live app
+# - Add goal → Check Firestore Console (data saved?)
+# - Refresh page → Check goal still there
+# - Login from different device → Check goal synced
+
+# ⏱️ Total time: 30-45 minutes
+```
+
+**Priority**: 🟠 MEDIUM-HIGH - Test thoroughly before deploy
+
+---
+
+### Scenario 5: Configuration Changes
+
+**Example**: Update `vite.config.js`, `tailwind.config.js`
+
+**Workflow**:
+
+```powershell
+# 1. Change config locally
+# Edit config file
+npm run dev  # Restart dev server
+# → Test changes work
+
+# 2. Test production build
+npm run build
+npm run preview
+# → Ensure build works
+# → Check preview at http://localhost:4173
+
+# 3. Commit config
+git add .
+git commit -m "chore: update Vite config for better chunk splitting"
+git push origin main
+
+# 4. Deploy
+npm run deploy
+
+# 5. Monitor build output
+# Check for:
+# - Build errors
+# - Bundle size changes
+# - Warning messages
+
+# ⏱️ Total time: 15-25 minutes
+```
+
+**Priority**: 🟡 NORMAL - Deploy after build verification
+
+---
+
+### Scenario 6: Environment Variables Update
+
+**Example**: Change Firebase API key, add new feature flag
+
+**Workflow**:
+
+```powershell
+# 1. Update .env.local (local machine)
+# Edit .env.local with new values
+# DO NOT COMMIT .env.local!
+
+# 2. Test locally
+npm run dev
+# → Verify new env vars work
+
+# 3. Commit code changes (if any)
+# If you added code that uses new env var:
+git add .
+git commit -m "feat: add feature flag for experimental mode"
+git push origin main
+
+# 4. CRITICAL: Update production env vars
+# Firebase Hosting uses env vars from build time!
+# The .env.local values are BUNDLED into production build
+
+# 5. Rebuild & Deploy
+npm run build  # Rebuilds with current .env.local values
+npm run deploy
+
+# 6. Verify env vars in production
+# Open browser console:
+# console.log(import.meta.env.VITE_NEW_VAR)
+
+# ⏱️ Total time: 10-15 minutes
+```
+
+**Priority**: 🟠 MEDIUM - Ensure .env.local correct before deploy
+
+---
+
+### Scenario 7: Refactoring (No Behavior Change)
+
+**Example**: Optimize code, improve performance, clean up
+
+**Workflow**:
+
+```powershell
+# 1. Refactor locally
+npm run dev
+# → Restructure code
+# → Test EVERYTHING still works
+# → Check no regressions
+
+# 2. Run tests (if available)
+npm run lint
+npm run build
+
+# 3. Commit refactor
+git add .
+git commit -m "refactor: optimize Firestore subscription performance"
+git push origin main
+
+# 4. Deploy (low urgency)
+# Since no behavior change, can batch with other changes
+npm run deploy
+
+# 5. Monitor for issues
+# Check Firebase Console for errors
+# Monitor user reports (if shared)
+
+# ⏱️ Total time: 20-40 minutes
+```
+
+**Priority**: 🟢 LOW - Can defer deployment
+
+---
+
+### Scenario 8: Dependency Update
+
+**Example**: Update React, Vite, Firebase SDK
+
+**Workflow**:
+
+```powershell
+# 1. Update package.json
+npm update react react-dom
+# Or: npm install react@latest react-dom@latest
+
+# 2. Test locally THOROUGHLY
+npm run dev
+# → Test ALL features
+# → Check for deprecation warnings
+# → Test Firebase sync
+# → Test authentication
+
+# 3. Test production build
+npm run build
+npm run preview
+
+# 4. Commit updates
+git add package.json package-lock.json
+git commit -m "chore: update React to v19.2.0"
+git push origin main
+
+# 5. Deploy with caution
+npm run deploy
+
+# 6. CRITICAL: Monitor production
+# Test all major features:
+# - Login/logout
+# - Data sync
+# - All views load
+# - No console errors
+
+# 7. Rollback if issues
+# If critical bug found:
+firebase hosting:clone nivra-app-581be:previous nivra-app-581be:live
+
+# ⏱️ Total time: 45-90 minutes
+```
+
+**Priority**: 🔴 HIGH-RISK - Thorough testing required
+
+---
+
+### Quick Reference: When to Deploy
+
+| Change Type | Deploy Priority | Testing Level | Est. Time |
+|-------------|----------------|---------------|-----------|
+| **Critical Bug** | 🔴 Immediate | Quick verify | 5-10 min |
+| **Security Issue** | 🔴 Immediate | Essential only | 5-15 min |
+| **New Feature** | 🟡 Normal | Thorough | 30-60 min |
+| **UI/Style** | 🟢 Low | Visual check | 10-20 min |
+| **Refactoring** | 🟢 Can defer | Regression test | 20-40 min |
+| **Config Change** | 🟡 Normal | Build verify | 15-25 min |
+| **Dependencies** | 🔴 High-risk | Extensive | 45-90 min |
+| **Firebase Backend** | 🟠 Medium-high | Full sync test | 30-45 min |
+| **Env Variables** | 🟠 Medium | Env verify | 10-15 min |
+
+---
+
+### Post-Deploy Monitoring Checklist
+
+**After EVERY deployment**, check:
+
+```markdown
+✅ Live URL loads: https://nivra-app-581be.web.app
+✅ No console errors (F12)
+✅ Login/logout works
+✅ Firebase sync active (add/edit/delete data)
+✅ Service Worker registered (Application tab)
+✅ Mobile responsive (DevTools mobile view)
+✅ PWA installable (check install prompt)
+✅ All navigation works
+✅ No broken images/assets
+✅ Theme switching works (light/dark)
+```
+
+**If ANY fails**: Rollback immediately!
 
 ---
 
