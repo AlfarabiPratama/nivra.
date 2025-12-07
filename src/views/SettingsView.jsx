@@ -34,8 +34,8 @@ import {
 } from "../store/dataExport";
 import { requestNotificationPermission } from "../utils/notifications";
 import { useLayoutStore, PRESETS } from "../store/useLayoutStore";
-import { checkIntegrity, resetStore } from '../utils/schema';
-import { MigrationButton } from '../utils/migrationHelper.jsx';
+import { checkIntegrity, resetStore } from "../utils/schema";
+import { MigrationButton } from "../utils/migrationHelper.jsx";
 
 export const SettingsView = () => {
   const { user, setCurrentView, notifications, toggleNotification } =
