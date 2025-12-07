@@ -42,23 +42,6 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Show login if not authenticated
-  if (isCheckingAuth) {
-    return (
-      <FirebaseSyncProvider>
-        <LoadingScreen />
-      </FirebaseSyncProvider>
-    );
-  }
-
-  if (!isAuthenticated || !firebaseUser) {
-    return (
-      <FirebaseSyncProvider>
-        <LoginView />
-      </FirebaseSyncProvider>
-    );
-  }
-
   // Apply theme CSS variables
   useEffect(() => {
     const root = document.documentElement;
@@ -74,7 +57,7 @@ function App() {
     document.body.style.color = theme.textMain;
   }, [theme]);
 
-  // Keyboard shortcuts
+  // Keyboard shortcuts (MUST be before conditional returns)
   useEffect(() => {
     const handleKeyPress = (e) => {
       // Ctrl/Cmd + K for search (works anywhere)
@@ -158,6 +141,24 @@ function App() {
     document.addEventListener("keydown", handleKeyPress);
     return () => document.removeEventListener("keydown", handleKeyPress);
   }, []);
+
+  // Show loading screen while checking auth
+  if (isCheckingAuth) {
+    return (
+      <FirebaseSyncProvider>
+        <LoadingScreen />
+      </FirebaseSyncProvider>
+    );
+  }
+
+  // Show login if not authenticated
+  if (!isAuthenticated || !firebaseUser) {
+    return (
+      <FirebaseSyncProvider>
+        <LoginView />
+      </FirebaseSyncProvider>
+    );
+  }
 
   // View routing
   const renderView = () => {

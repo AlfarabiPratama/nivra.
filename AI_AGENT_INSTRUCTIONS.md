@@ -1524,17 +1524,17 @@ firebase hosting:clone nivra-app-581be:previous nivra-app-581be:live
 
 ### Quick Reference: When to Deploy
 
-| Change Type | Deploy Priority | Testing Level | Est. Time |
-|-------------|----------------|---------------|-----------|
-| **Critical Bug** | 🔴 Immediate | Quick verify | 5-10 min |
-| **Security Issue** | 🔴 Immediate | Essential only | 5-15 min |
-| **New Feature** | 🟡 Normal | Thorough | 30-60 min |
-| **UI/Style** | 🟢 Low | Visual check | 10-20 min |
-| **Refactoring** | 🟢 Can defer | Regression test | 20-40 min |
-| **Config Change** | 🟡 Normal | Build verify | 15-25 min |
-| **Dependencies** | 🔴 High-risk | Extensive | 45-90 min |
-| **Firebase Backend** | 🟠 Medium-high | Full sync test | 30-45 min |
-| **Env Variables** | 🟠 Medium | Env verify | 10-15 min |
+| Change Type          | Deploy Priority | Testing Level   | Est. Time |
+| -------------------- | --------------- | --------------- | --------- |
+| **Critical Bug**     | 🔴 Immediate    | Quick verify    | 5-10 min  |
+| **Security Issue**   | 🔴 Immediate    | Essential only  | 5-15 min  |
+| **New Feature**      | 🟡 Normal       | Thorough        | 30-60 min |
+| **UI/Style**         | 🟢 Low          | Visual check    | 10-20 min |
+| **Refactoring**      | 🟢 Can defer    | Regression test | 20-40 min |
+| **Config Change**    | 🟡 Normal       | Build verify    | 15-25 min |
+| **Dependencies**     | 🔴 High-risk    | Extensive       | 45-90 min |
+| **Firebase Backend** | 🟠 Medium-high  | Full sync test  | 30-45 min |
+| **Env Variables**    | 🟠 Medium       | Env verify      | 10-15 min |
 
 ---
 
