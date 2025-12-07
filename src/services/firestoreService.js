@@ -120,12 +120,11 @@ export const getCollectionFromFirestore = async (collectionName) => {
 /**
  * Subscribe to real-time updates for a collection
  */
-export const subscribeToCollection = (collectionName, callback) => {
+export const subscribeToCollection = (userId, collectionName, callback) => {
   if (!db) return () => {};
 
   try {
-    const userPath = getUserPath();
-    const colRef = collection(db, userPath, collectionName);
+    const colRef = collection(db, "users", userId, collectionName);
     const q = query(colRef);
 
     const unsubscribe = onSnapshot(
