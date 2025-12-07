@@ -25,6 +25,8 @@ import {
   EyeOff,
   RotateCcw,
   Info,
+  LogOut,
+  UserCog,
 } from "lucide-react";
 import { useThemeStore } from "../store/useThemeStore";
 import {
@@ -36,6 +38,8 @@ import { requestNotificationPermission } from "../utils/notifications";
 import { useLayoutStore, PRESETS } from "../store/useLayoutStore";
 import { checkIntegrity, resetStore } from "../utils/schema";
 import { MigrationButton } from "../utils/migrationHelper.jsx";
+import { useSyncStore } from "../store/useSyncStore";
+import { signOut } from "../services/authService";
 
 export const SettingsView = () => {
   const { user, setCurrentView, notifications, toggleNotification } =
@@ -43,6 +47,7 @@ export const SettingsView = () => {
   const { settings: pomodoroSettings, updateSettings } = usePomodoroStore();
   const { isDarkMode, toggleTheme } = useThemeStore();
   const { addToast } = useToastStore();
+  const { user: firebaseUser, isAuthenticated } = useSyncStore();
   const {
     widgetOrder,
     hiddenWidgets,
@@ -185,6 +190,22 @@ export const SettingsView = () => {
       window.location.reload();
     }
   };
+
+  const handleLogout = async () => {
+    if (window.confirm("Yakin ingin keluar?")) {
+      try {
+        await signOut();
+        addToast("Berhasil keluar", "success");
+        window.location.reload();
+      } catch (error) {
+        console.error("Logout error:", error);
+        addToast("Gagal keluar. Coba lagi.", "error");
+      }
+    }
+  };
+
+  const isAnonymous = firebaseUser?.isAnonymous;
+  const userEmail = firebaseUser?.email || "Guest";
 
   return (
     <AnimatedPage>
@@ -694,6 +715,64 @@ export const SettingsView = () => {
                 backup datamu secara berkala untuk menghindari kehilangan.
               </p>
             </div>
+          </div>
+        </Card>
+
+        {/* Account Management */}
+        <Card>
+          <div className="p-6 space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <UserCog size={20} className="text-(--accent)" />
+              <h3 className="font-mono text-sm uppercase tracking-wider text-(--text-muted)">
+                akun
+              </h3>
+            </div>
+
+            {/* Account Info Display */}
+            <div className="p-4 bg-(--bg-color) border border-dashed border-(--border-color) rounded space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-xs text-(--text-muted)">
+                  Status:
+                </span>
+                <span className="font-mono text-sm text-(--text-main)">
+                  {isAnonymous ? "🔒 Guest Mode" : "✅ Signed In"}
+                </span>
+              </div>
+              {!isAnonymous && (
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs text-(--text-muted)">
+                    Email:
+                  </span>
+                  <span className="font-mono text-sm text-(--text-main)">
+                    {userEmail}
+                  </span>
+                </div>
+              )}
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-xs text-(--text-muted)">
+                  Sync:
+                </span>
+                <span className="font-mono text-sm text-(--text-main)">
+                  {isAuthenticated ? "☁️ Enabled" : "⚠️ Disabled"}
+                </span>
+              </div>
+            </div>
+
+            {/* Logout Button */}
+            <Button
+              variant="ghost"
+              onClick={handleLogout}
+              className="w-full text-red-500 hover:text-red-600"
+            >
+              <LogOut size={16} />
+              <span>Keluar</span>
+            </Button>
+
+            <p className="font-mono text-xs text-(--text-muted) italic text-center pt-2 border-t border-dashed border-(--border-color)">
+              {isAnonymous
+                ? "💡 Masuk dengan Google untuk sync di semua device"
+                : "Data kamu aman dan ter-sync di cloud"}
+            </p>
           </div>
         </Card>
 

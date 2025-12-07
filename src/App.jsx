@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { useThemeStore } from "./store/useThemeStore";
 import { useAppStore } from "./store/useAppStore";
+import { useSyncStore } from "./store/useSyncStore";
 import { AppShell } from "./components/ui/AppShell";
 import { Toast } from "./components/ui/Toast";
+import { LoadingScreen } from "./components/ui/LoadingScreen";
 import { AchievementNotification } from "./components/ui/AchievementNotification";
 import { OnboardingModal } from "./components/modals/OnboardingModal";
+import { LoginView } from "./views/LoginView";
 import { Dashboard } from "./views/Dashboard";
 import { ReadingView } from "./views/ReadingView";
 import { JournalView } from "./views/JournalView";
@@ -24,10 +27,37 @@ import { FirebaseSyncProvider } from "./components/sync/FirebaseSyncProvider";
 function App() {
   const { theme, isDarkMode } = useThemeStore();
   const { currentView, user } = useAppStore();
+  const { isAuthenticated, user: firebaseUser } = useSyncStore();
   const [showOnboarding, setShowOnboarding] = useState(!user.name);
   const [showSearch, setShowSearch] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   useReminder();
+
+  // Wait for auth to initialize
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsCheckingAuth(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Show login if not authenticated
+  if (isCheckingAuth) {
+    return (
+      <FirebaseSyncProvider>
+        <LoadingScreen />
+      </FirebaseSyncProvider>
+    );
+  }
+
+  if (!isAuthenticated || !firebaseUser) {
+    return (
+      <FirebaseSyncProvider>
+        <LoginView />
+      </FirebaseSyncProvider>
+    );
+  }
 
   // Apply theme CSS variables
   useEffect(() => {
