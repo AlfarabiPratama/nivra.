@@ -1,24 +1,13 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { signInWithGoogle, signInAnonymous } from "../services/authService";
 import { useToastStore } from "../store/useToastStore";
-import { useSyncStore } from "../store/useSyncStore";
 import { Sprout, User, LogIn } from "lucide-react";
 
 export const LoginView = () => {
-  const navigate = useNavigate();
   const { addToast } = useToastStore();
-  const { user, isAuthenticated } = useSyncStore();
   const [isLoading, setIsLoading] = useState(false);
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      navigate("/");
-    }
-  }, [isAuthenticated, user, navigate]);
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
@@ -26,7 +15,7 @@ export const LoginView = () => {
       const result = await signInWithGoogle();
       if (result) {
         addToast("Berhasil masuk dengan Google!", "success");
-        navigate("/");
+        // No need to navigate - App.jsx will auto-render main app when authenticated
       }
     } catch (error) {
       console.error("Google sign-in error:", error);
@@ -42,7 +31,7 @@ export const LoginView = () => {
       const result = await signInAnonymous();
       if (result) {
         addToast("Masuk sebagai guest", "success");
-        navigate("/");
+        // No need to navigate - App.jsx will auto-render main app when authenticated
       }
     } catch (error) {
       console.error("Anonymous sign-in error:", error);
