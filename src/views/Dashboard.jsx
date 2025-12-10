@@ -22,6 +22,8 @@ import {
   BookText,
 } from "lucide-react";
 import clsx from "clsx";
+import { AnimatePresence } from "framer-motion";
+import { useAudioStore } from "../store/useAudioStore";
 
 const priorityConfig = {
   high: { color: "text-red-500", label: "!!!", emoji: "🔴" },
@@ -30,15 +32,14 @@ const priorityConfig = {
 };
 
 export const Dashboard = () => {
+  console.log("🎯 Dashboard component executing!");
+
   const { user, addXP } = useAppStore();
   const { tasks, addTask, toggleTask, deleteTask } = useTaskStore();
   const { books } = useBookStore();
   const { addToast } = useToastStore();
-  const {
-    widgetOrder,
-    hiddenWidgets,
-    setWidgetOrder,
-  } = useLayoutStore();
+  const { playSound } = useAudioStore();
+  const { widgetOrder, hiddenWidgets, setWidgetOrder } = useLayoutStore();
   const [newTaskText, setNewTaskText] = useState("");
   const [selectedPriority, setSelectedPriority] = useState("medium");
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -123,10 +124,17 @@ export const Dashboard = () => {
 
   const handleToggleTask = (taskId) => {
     const task = tasks.find((t) => t.id === taskId);
-    toggleTask(taskId);
+
     if (!task.completed) {
-      addXP(15, useToastStore.getState());
-      addToast("tugas selesai! 🎉", "success");
+      // Deliberate Interaction: Slow animation + celebration
+      setTimeout(() => {
+        toggleTask(taskId);
+        addXP(15, useToastStore.getState());
+        addToast("tugas selesai! 🎉", "success");
+        playSound("taskComplete");
+      }, 300);
+    } else {
+      toggleTask(taskId);
     }
   };
 

@@ -23,26 +23,33 @@ import { CalendarView } from "./views/CalendarView";
 import { WeeklyDigest } from "./views/WeeklyDigest";
 import { useReminder } from "./hooks/useReminder";
 import { FirebaseSyncProvider } from "./components/sync/FirebaseSyncProvider";
+import { MonkModeOverlay } from "./components/ui/MonkModeOverlay";
 
 function App() {
   const { theme, isDarkMode } = useThemeStore();
-  const { currentView, user } = useAppStore();
-  const { isAuthenticated, user: firebaseUser } = useSyncStore();
+  const { currentView, user, toggleMonkMode } = useAppStore();
+  const { isAuthenticated } = useSyncStore();
   const [showOnboarding, setShowOnboarding] = useState(!user.name);
   const [showSearch, setShowSearch] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
+
   useReminder();
 
-  // Wait for auth to initialize
+  // Subscribe to Firebase auth changes
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsCheckingAuth(false);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, []);
+    const { subscribeToAuth, initializeSync } = useSyncStore.getState();
 
-  // Apply theme CSS variables
+    // Initialize sync (handles redirect result) then subscribe
+    const init = async () => {
+      await initializeSync();
+      setInitialLoad(false);
+    };
+    init();
+
+    const unsubscribe = subscribeToAuth();
+    return () => unsubscribe();
+  }, []); // Apply theme CSS variables
   useEffect(() => {
     const root = document.documentElement;
     root.style.setProperty("--bg-color", theme.bg);
@@ -82,11 +89,18 @@ function App() {
         7: "settings",
         8: "garden",
         9: "calendar",
+        0: "digest",
       };
 
       if (keyMap[e.key]) {
         e.preventDefault();
         useAppStore.getState().setCurrentView(keyMap[e.key]);
+      }
+
+      // Escape to close modals
+      if (e.key === "Escape") {
+        setShowSearch(false);
+        setShowShortcuts(false);
       }
 
       // G + D for Dashboard (GitHub style)
@@ -134,30 +148,35 @@ function App() {
       // Show shortcuts with ?
       if (e.key === "?" || (e.shiftKey && e.key === "/")) {
         e.preventDefault();
-        setShowShortcuts(true);
+        setShowShortcuts((prev) => !prev);
+      }
+
+      // Toggle Monk Mode with M
+      if (e.key === "m" || e.key === "M") {
+        e.preventDefault();
+        toggleMonkMode();
       }
     };
 
     document.addEventListener("keydown", handleKeyPress);
     return () => document.removeEventListener("keydown", handleKeyPress);
+  }, [toggleMonkMode]);
+
+  // Show loading screen only on initial load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setInitialLoad(false);
+    }, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
-  // Show loading screen while checking auth
-  if (isCheckingAuth) {
-    return (
-      <FirebaseSyncProvider>
-        <LoadingScreen />
-      </FirebaseSyncProvider>
-    );
+  if (initialLoad) {
+    return <LoadingScreen />;
   }
 
   // Show login if not authenticated
-  if (!isAuthenticated || !firebaseUser) {
-    return (
-      <FirebaseSyncProvider>
-        <LoginView />
-      </FirebaseSyncProvider>
-    );
+  if (!isAuthenticated) {
+    return <LoginView />;
   }
 
   // View routing
@@ -191,8 +210,11 @@ function App() {
   };
 
   return (
-    <FirebaseSyncProvider>
-      <div className="min-h-screen font-sans selection:bg-(--accent) selection:text-white">
+    <>
+      {/* Monk Mode Overlay - only shows when active */}
+      <MonkModeOverlay />
+
+      <div className="min-h-screen font-serif selection:bg-(--accent) selection:text-white">
         {/* Noise Overlay */}
         <div className={isDarkMode ? "bg-noise-dark" : "bg-noise-light"}></div>
 
@@ -217,10 +239,14 @@ function App() {
 
         {/* Shortcuts Modal */}
         {showShortcuts && (
-          <ShortcutsModal onClose={() => setShowShortcuts(false)} />
+          <ShortcutsModal
+            onClose={() => {
+              setShowShortcuts(false);
+            }}
+          />
         )}
       </div>
-    </FirebaseSyncProvider>
+    </>
   );
 }
 

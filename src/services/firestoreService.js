@@ -199,6 +199,34 @@ export const getUserProfile = async () => {
 };
 
 /**
+ * Subscribe to real-time user profile updates
+ */
+export const subscribeToUserProfile = (userId, callback) => {
+  if (!db) return () => {};
+
+  try {
+    const userDocRef = doc(db, "users", userId);
+
+    const unsubscribe = onSnapshot(
+      userDocRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          callback(docSnap.data());
+        }
+      },
+      (error) => {
+        console.error("User profile snapshot error:", error);
+      }
+    );
+
+    return unsubscribe;
+  } catch (error) {
+    console.error("Subscribe to user profile error:", error);
+    return () => {};
+  }
+};
+
+/**
  * Check sync status
  */
 export const checkSyncStatus = () => {

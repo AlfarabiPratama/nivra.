@@ -233,6 +233,8 @@ Lihat [SECURITY.md](SECURITY.md) untuk detail lengkap tentang security practices
 - **[Development Guidelines](docs/DEVELOPMENT_GUIDELINES.md)** - Coding standards dan best practices
 - **[Firebase Setup Guide](docs/FIREBASE_SETUP.md)** - Step-by-step Firebase sync setup
 - **[Tailwind CSS Best Practices](docs/TAILWIND_BEST_PRACTICES.md)** - Panduan syntax Tailwind v4
+- **[Troubleshooting Guide](docs/TROUBLESHOOTING.md)** - Solusi untuk bugs dan errors umum
+- **[Changelog](docs/CHANGELOG.md)** - Riwayat perubahan proyek
 - **[Security Policy](SECURITY.md)** - Security guidelines dan vulnerability reporting
 - **[Tailwind Warnings Info](TAILWIND_WARNINGS.md)** - Context tentang Tailwind CSS warnings
 

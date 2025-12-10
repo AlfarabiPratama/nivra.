@@ -103,7 +103,9 @@ export const AppShell = ({ children }) => {
         className="flex-1 overflow-auto transition-all duration-300"
         style={{
           marginLeft: isMobile ? "0" : sidebarOpen ? "16rem" : "5rem",
-          paddingBottom: isMobile ? "5rem" : "0",
+          paddingBottom: isMobile
+            ? "calc(5rem + env(safe-area-inset-bottom, 0px))"
+            : "0",
         }}
       >
         {/* Header with Search and User Info */}

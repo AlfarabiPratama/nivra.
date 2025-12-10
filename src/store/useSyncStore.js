@@ -4,7 +4,7 @@ import { isSyncEnabled } from "../config/firebaseConfig";
 import {
   getCurrentUser,
   onAuthChange,
-  signInAnonymous,
+  handleRedirectResult,
 } from "../services/authService";
 import { checkSyncStatus } from "../services/firestoreService";
 
@@ -22,7 +22,7 @@ export const useSyncStore = create(
       autoSync: true,
       syncEnabled: isSyncEnabled(),
 
-      // Initialize sync (auto sign-in)
+      // Initialize sync (check if already signed in)
       initializeSync: async () => {
         if (!isSyncEnabled()) {
           console.log("ℹ️ Firebase sync is disabled");
@@ -30,6 +30,21 @@ export const useSyncStore = create(
         }
 
         try {
+          // Check for redirect result first (for mobile Google sign-in)
+          const redirectUser = await handleRedirectResult();
+          if (redirectUser) {
+            set({
+              user: {
+                uid: redirectUser.uid,
+                email: redirectUser.email,
+                isAnonymous: redirectUser.isAnonymous || false,
+              },
+              isAuthenticated: true,
+            });
+            console.log("✅ Logged in via redirect:", redirectUser.email);
+            return;
+          }
+
           // Check if already signed in
           const currentUser = getCurrentUser();
 
@@ -42,19 +57,14 @@ export const useSyncStore = create(
               },
               isAuthenticated: true,
             });
-            console.log("✅ Already authenticated:", currentUser.uid);
+            console.log(
+              "✅ Already authenticated:",
+              currentUser.email || currentUser.uid
+            );
           } else {
-            // Auto sign-in anonymously
-            const user = await signInAnonymous();
-            set({
-              user: {
-                uid: user.uid,
-                email: user.email,
-                isAnonymous: user.isAnonymous,
-              },
-              isAuthenticated: true,
-            });
-            console.log("✅ Auto signed in anonymously");
+            // User not authenticated - they need to login via LoginView
+            console.log("ℹ️ User not authenticated yet");
+            set({ isAuthenticated: false, user: null });
           }
         } catch (error) {
           console.error("Initialize sync error:", error);
@@ -66,7 +76,14 @@ export const useSyncStore = create(
       subscribeToAuth: () => {
         if (!isSyncEnabled()) return () => {};
 
+        console.log("👂 Subscribing to auth changes...");
+
         return onAuthChange((user) => {
+          console.log(
+            "🔔 Auth state changed:",
+            user ? user.email || user.uid : "null"
+          );
+
           if (user) {
             set({
               user: {

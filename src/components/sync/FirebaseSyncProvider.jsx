@@ -4,6 +4,7 @@ import { useTaskStore } from "../../store/useTaskStore";
 import { useBookStore } from "../../store/useBookStore";
 import { useJournalStore } from "../../store/useJournalStore";
 import { useHabitStore } from "../../store/useHabitStore";
+import { useAppStore } from "../../store/useAppStore";
 
 /**
  * Firebase Sync Provider Component
@@ -15,6 +16,7 @@ export const FirebaseSyncProvider = ({ children }) => {
   const initBooksSync = useBookStore((state) => state.initializeSync);
   const initJournalSync = useJournalStore((state) => state.initializeSync);
   const initHabitsSync = useHabitStore((state) => state.initializeSync);
+  const initUserProfileSync = useAppStore((state) => state.initializeSync);
 
   useEffect(() => {
     // Initialize Firebase authentication
@@ -34,6 +36,7 @@ export const FirebaseSyncProvider = ({ children }) => {
       console.log("🔄 Initializing sync for all stores...");
 
       // Initialize with small delays to avoid overwhelming Firestore
+      setTimeout(() => initUserProfileSync?.(), 50); // User profile first
       setTimeout(() => initTasksSync?.(), 100);
       setTimeout(() => initBooksSync?.(), 200);
       setTimeout(() => initJournalSync?.(), 300);
@@ -41,6 +44,7 @@ export const FirebaseSyncProvider = ({ children }) => {
     }
   }, [
     isAuthenticated,
+    initUserProfileSync,
     initTasksSync,
     initBooksSync,
     initJournalSync,

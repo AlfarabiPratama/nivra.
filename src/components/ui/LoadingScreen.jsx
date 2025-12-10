@@ -1,38 +1,61 @@
-import { useEffect, useState } from 'react';
-import { Sprout } from 'lucide-react';
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { useThemeStore } from "../../store/useThemeStore";
 
 export const LoadingScreen = ({ onComplete }) => {
+  const { isDarkMode } = useThemeStore();
+  const [dots, setDots] = useState("");
   const [isVisible, setIsVisible] = useState(true);
 
+  // Typewriter effect for dots
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDots((prev) => (prev.length >= 3 ? "" : prev + "."));
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Handle completion
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(false);
       if (onComplete) onComplete();
     }, 2000);
-
     return () => clearTimeout(timer);
   }, [onComplete]);
 
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-(--bg-color) transition-opacity duration-500">
-      <div className="text-center space-y-6 animate-slow-fade">
-        <div className="flex justify-center">
-          <Sprout 
-            size={120} 
-            className="text-(--accent) animate-pulse"
-            strokeWidth={1.5}
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-1000 ${
+        isDarkMode
+          ? "bg-warm-charcoal text-ivory-white"
+          : "bg-old-paper text-faded-ink"
+      }`}
+    >
+      {/* Noise Overlay */}
+      <div className={isDarkMode ? "bg-noise-dark" : "bg-noise-light"}></div>
+
+      <div className="relative z-10 flex flex-col items-center">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="font-mono text-xl tracking-widest mb-6"
+        >
+          <span className="opacity-70">LOADING</span>
+          <span>{dots}</span>
+          <motion.span
+            animate={{ opacity: [0, 1, 0] }}
+            transition={{ duration: 0.8, repeat: Infinity }}
+            className="ml-1 inline-block w-2.5 h-4 bg-current align-middle"
           />
-        </div>
-        <div className="font-display text-4xl font-light text-(--text-main) tracking-wider">
-          nivra
-        </div>
-        <div className="flex gap-2 justify-center">
-          <div className="w-2 h-2 bg-(accent) rounded-full animate-pulse" style={{ animationDelay: '0s' }}></div>
-          <div className="w-2 h-2 bg-(accent) rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-          <div className="w-2 h-2 bg-(accent) rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
-        </div>
+        </motion.div>
+
+        <p className="font-serif italic text-sm opacity-60">
+          "Patience is a form of wisdom."
+        </p>
       </div>
     </div>
   );

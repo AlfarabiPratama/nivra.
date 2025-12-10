@@ -1,22 +1,42 @@
-import { Home, BookOpen, BookText, Sprout, Sun, Moon, CheckCircle, Wallet, Timer, Settings, Keyboard, ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
-import { useAppStore } from '../../store/useAppStore';
-import { useThemeStore } from '../../store/useThemeStore';
-import { useState } from 'react';
-import { ShortcutsModal } from '../modals/ShortcutsModal';
-import clsx from 'clsx';
+import {
+  Home,
+  BookOpen,
+  BookText,
+  Sprout,
+  Sun,
+  Moon,
+  CheckCircle,
+  Wallet,
+  Timer,
+  Settings,
+  Keyboard,
+  ChevronLeft,
+  ChevronRight,
+  CalendarDays,
+} from "lucide-react";
+import { useAppStore } from "../../store/useAppStore";
+import { useThemeStore } from "../../store/useThemeStore";
+import { useState } from "react";
+import { ShortcutsModal } from "../modals/ShortcutsModal";
+import clsx from "clsx";
 
-export const Navigation = ({ isCollapsed = false, onToggle, isMobile = false, onClose }) => {
+export const Navigation = ({
+  isCollapsed = false,
+  onToggle,
+  isMobile = false,
+  onClose,
+}) => {
   const navItems = [
-    { id: 'dashboard', label: 'beranda', icon: Home },
-    { id: 'reading', label: 'bacaan', icon: BookOpen },
-    { id: 'calendar', label: 'kalender', icon: CalendarDays },
-    { id: 'journal', label: 'jurnal', icon: BookText },
-    { id: 'habits', label: 'kebiasaan', icon: CheckCircle },
-    { id: 'finance', label: 'keuangan', icon: Wallet },
-    { id: 'pomodoro', label: 'pomodoro', icon: Timer },
-    { id: 'settings', label: 'pengaturan', icon: Settings },
-    { id: 'garden', label: 'taman', icon: Sprout },
-    { id: 'digest', label: 'digest', icon: BookText },
+    { id: "dashboard", label: "beranda", icon: Home },
+    { id: "reading", label: "bacaan", icon: BookOpen },
+    { id: "calendar", label: "kalender", icon: CalendarDays },
+    { id: "journal", label: "jurnal", icon: BookText },
+    { id: "habits", label: "kebiasaan", icon: CheckCircle },
+    { id: "finance", label: "keuangan", icon: Wallet },
+    { id: "pomodoro", label: "pomodoro", icon: Timer },
+    { id: "settings", label: "pengaturan", icon: Settings },
+    { id: "garden", label: "taman", icon: Sprout },
+    { id: "digest", label: "digest", icon: BookText },
   ];
   const { currentView, setCurrentView } = useAppStore();
   const { isDarkMode, toggleTheme } = useThemeStore();
@@ -35,9 +55,11 @@ export const Navigation = ({ isCollapsed = false, onToggle, isMobile = false, on
       {!isCollapsed && (
         <div className="p-6 border-b border-dashed border-(--border-color)">
           <div className="flex items-start justify-between mb-2">
-            <img 
-              src={isDarkMode ? '/dark mode nivra.png' : '/nivra light mode .png'} 
-              alt="Nivra Logo" 
+            <img
+              src={
+                isDarkMode ? "/dark mode nivra.png" : "/nivra light mode .png"
+              }
+              alt="Nivra Logo"
               className="w-32 h-auto opacity-90 transition-opacity duration-300"
             />
             <button
@@ -53,7 +75,7 @@ export const Navigation = ({ isCollapsed = false, onToggle, isMobile = false, on
           </p>
         </div>
       )}
-      
+
       {/* Header - Collapsed */}
       {isCollapsed && (
         <div className="p-4 border-b border-dashed border-(--border-color)">
@@ -78,22 +100,22 @@ export const Navigation = ({ isCollapsed = false, onToggle, isMobile = false, on
           const Icon = item.icon;
           const isActive = currentView === item.id;
           const shortcutKey = (index + 1).toString();
-          
+
           return (
             <button
               key={item.id}
               onClick={() => handleNavClick(item.id)}
-              title={isCollapsed ? item.label : ''}
+              title={isCollapsed ? item.label : ""}
               className={clsx(
-                'w-full flex items-center font-mono text-sm lowercase transition-all duration-300 group relative',
-                'border border-transparent',
-                isCollapsed ? 'justify-center px-3 py-3' : 'gap-3 px-4 py-3',
+                "w-full flex items-center font-mono text-sm lowercase transition-all duration-300 group relative",
+                "border border-transparent",
+                isCollapsed ? "justify-center px-3 py-3" : "gap-3 px-4 py-3",
                 isActive
-                  ? 'text-(--accent) border-(--accent) border-solid bg-(--accent)/5'
-                  : 'text-(--text-muted) hover:text-(--text-main) hover:border-(--text-main) hover:border-dashed'
+                  ? "text-(--accent) border-(--accent) border-solid bg-(--accent)/5"
+                  : "text-(--text-muted) hover:text-(--text-main) hover:border-(--text-main) hover:border-dashed"
               )}
             >
-              <Icon size={18} className={isCollapsed ? '' : 'shrink-0'} />
+              <Icon size={18} className={isCollapsed ? "" : "shrink-0"} />
               {!isCollapsed && (
                 <>
                   <span className="flex-1">{item.label}</span>
@@ -111,16 +133,18 @@ export const Navigation = ({ isCollapsed = false, onToggle, isMobile = false, on
       <div className="p-4 border-t border-dashed border-(--border-color) space-y-3">
         <button
           onClick={toggleTheme}
-          title={isCollapsed ? (isDarkMode ? 'Mode Siang' : 'Mode Malam') : ''}
+          title={isCollapsed ? (isDarkMode ? "Mode Siang" : "Mode Malam") : ""}
           className={clsx(
-            'w-full flex items-center font-mono text-xs uppercase tracking-widest transition-all duration-300 border border-(--text-muted) hover:border-(--text-main) text-(--text-muted) hover:text-(--text-main) group relative',
-            isCollapsed ? 'justify-center px-3 py-3' : 'gap-3 px-4 py-3'
+            "w-full flex items-center font-mono text-xs uppercase tracking-widest transition-all duration-300 border border-(--text-muted) hover:border-(--text-main) text-(--text-muted) hover:text-(--text-main) group relative",
+            isCollapsed ? "justify-center px-3 py-3" : "gap-3 px-4 py-3"
           )}
         >
           {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
           {!isCollapsed && (
             <>
-              <span className="flex-1">{isDarkMode ? 'mode siang' : 'mode malam'}</span>
+              <span className="flex-1">
+                {isDarkMode ? "mode siang" : "mode malam"}
+              </span>
               <span className="font-mono text-xs opacity-0 group-hover:opacity-50 transition-opacity">
                 T
               </span>
@@ -131,10 +155,10 @@ export const Navigation = ({ isCollapsed = false, onToggle, isMobile = false, on
         {/* Keyboard Shortcuts Button */}
         <button
           onClick={() => setShowShortcuts(true)}
-          title={isCollapsed ? 'Shortcuts' : ''}
+          title={isCollapsed ? "Shortcuts" : ""}
           className={clsx(
-            'w-full flex items-center font-mono text-xs uppercase tracking-widest transition-all duration-300 border border-dashed border-(--border-color) hover:border-(--accent) text-(--text-muted) hover:text-(--accent) group',
-            isCollapsed ? 'justify-center px-3 py-3' : 'gap-3 px-4 py-3'
+            "w-full flex items-center font-mono text-xs uppercase tracking-widest transition-all duration-300 border border-dashed border-(--border-color) hover:border-(--accent) text-(--text-muted) hover:text-(--accent) group",
+            isCollapsed ? "justify-center px-3 py-3" : "gap-3 px-4 py-3"
           )}
         >
           <Keyboard size={16} />
@@ -149,12 +173,10 @@ export const Navigation = ({ isCollapsed = false, onToggle, isMobile = false, on
         </button>
       </div>
 
-      {/* Shortcuts Modal */}
-      <ShortcutsModal 
-        isOpen={showShortcuts}
-        onClose={() => setShowShortcuts(false)}
-      />
+      {/* Shortcuts Modal - CONDITIONAL RENDERING */}
+      {showShortcuts && (
+        <ShortcutsModal onClose={() => setShowShortcuts(false)} />
+      )}
     </nav>
   );
 };
-

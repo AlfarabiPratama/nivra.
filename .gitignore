@@ -72,3 +72,31 @@ pnpm-lock.yaml
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
+
+# Internal documentation (not for public repo)
+docs/TROUBLESHOOTING.md
+docs/CHANGELOG.md
+
+# Gemini/AI artifacts
+.gemini/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# ESLint cache
+.eslintcache
+
+# Vite specific
+.vite/
+
+# Storybook
+storybook-static/
+
+# Testing
+*.spec.js.snap
+__snapshots__/
+
+# Misc
+*.pid
+*.seed
+*.pid.lock
