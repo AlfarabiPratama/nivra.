@@ -535,6 +535,96 @@ export const CalendarView = () => {
           </Card>
         )}
 
+        {/* Holiday & Important Days Section */}
+        {monthHolidays.length > 0 && (showHolidays || showIntlHolidays) && (
+          <Card>
+            <div className="p-3 md:p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <MapPin size={16} className="text-(--accent)" />
+                <h3 className="font-serif text-lg text-(--text-main)">
+                  Hari Penting Bulan Ini
+                </h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {monthHolidays
+                  .filter(
+                    (h) =>
+                      (h.type === "national" && showHolidays) ||
+                      (h.type === "international" && showIntlHolidays)
+                  )
+                  .sort((a, b) => new Date(a.date) - new Date(b.date))
+                  .map((holiday, idx) => {
+                    const holidayDate = new Date(holiday.date);
+                    const isToday =
+                      formatDateKey(new Date()) === formatDateKey(holidayDate);
+                    const isPast = holidayDate < new Date() && !isToday;
+
+                    return (
+                      <button
+                        key={`${holiday.date}-${idx}`}
+                        onClick={() => setCursor(holidayDate)}
+                        className={clsx(
+                          "text-left p-3 border rounded-sm transition-all hover:border-(--accent)",
+                          isPast
+                            ? "opacity-60 border-(--border-color)"
+                            : "border-(--accent)/30",
+                          isToday && "bg-(--accent)/10 border-(--accent)"
+                        )}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-mono text-xs text-(--accent) font-semibold">
+                                {holidayDate.toLocaleDateString("id-ID", {
+                                  day: "numeric",
+                                  month: "short",
+                                })}
+                              </span>
+                              {isToday && (
+                                <span className="px-1.5 py-0.5 bg-(--accent) text-(--bg-color) font-mono text-[9px] rounded-sm">
+                                  HARI INI
+                                </span>
+                              )}
+                            </div>
+                            <p className="font-serif text-sm text-(--text-main) mb-1">
+                              {holiday.label}
+                            </p>
+                            <div className="flex items-center gap-1">
+                              <span
+                                className={clsx(
+                                  "px-1.5 py-0.5 font-mono text-[9px] rounded-sm border",
+                                  holiday.type === "national"
+                                    ? "bg-(--accent)/10 text-(--accent) border-(--accent)/30"
+                                    : "bg-(--text-muted)/10 text-(--text-muted) border-(--border-color)"
+                                )}
+                              >
+                                {holiday.type === "national"
+                                  ? "LIBUR NASIONAL"
+                                  : "HARI INTERNASIONAL"}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="text-(--text-muted)">
+                            <CalendarDays size={16} />
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+              </div>
+              {monthHolidays.filter(
+                (h) =>
+                  (h.type === "national" && showHolidays) ||
+                  (h.type === "international" && showIntlHolidays)
+              ).length === 0 && (
+                <p className="font-mono text-xs text-(--text-muted) text-center py-4">
+                  Tidak ada hari libur/penting di bulan ini.
+                </p>
+              )}
+            </div>
+          </Card>
+        )}
+
         <Card>
           <div className="p-3 md:p-4 space-y-3 md:space-y-4">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
