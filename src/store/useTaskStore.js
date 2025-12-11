@@ -7,8 +7,8 @@ import {
   subscribeToCollection,
 } from "../services/firestoreService";
 import { useSyncStore } from "./useSyncStore";
-
-let unsubscribeTasks = null;
+import { useBadgeStore } from "./useBadgeStore";
+import { BADGE_TYPES } from "../config/badges";
 
 export const useTaskStore = create(
   persist(
@@ -121,6 +121,9 @@ export const useTaskStore = create(
               syncDocToFirestore(user.uid, "tasks", newTask.id, newTask);
             }
           }
+
+          // Update badge progress
+          useBadgeStore.getState().incrementProgress(BADGE_TYPES.TASKS);
         } else {
           const updatedTask = {
             ...task,
@@ -144,6 +147,11 @@ export const useTaskStore = create(
                 updatedTask
               );
             }
+          }
+
+          // Update badge progress when completing (not uncompleting)
+          if (updatedTask.completed) {
+            useBadgeStore.getState().incrementProgress(BADGE_TYPES.TASKS);
           }
         }
       },

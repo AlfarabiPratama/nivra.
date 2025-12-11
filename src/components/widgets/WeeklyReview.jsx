@@ -1,11 +1,20 @@
-import { Card } from '../ui/Card';
-import { Button } from '../ui/Button';
-import { useTaskStore } from '../../store/useTaskStore';
-import { useBookStore } from '../../store/useBookStore';
-import { useJournalStore } from '../../store/useJournalStore';
-import { useHabitStore } from '../../store/useHabitStore';
-import { usePomodoroStore } from '../../store/usePomodoroStore';
-import { CheckCircle2, BookOpen, Feather, Flame, Brain, TrendingUp, Calendar } from 'lucide-react';
+import { Card } from "../ui/Card";
+import { CollapsibleSection } from "../ui/CollapsibleSection";
+import { Button } from "../ui/Button";
+import { useTaskStore } from "../../store/useTaskStore";
+import { useBookStore } from "../../store/useBookStore";
+import { useJournalStore } from "../../store/useJournalStore";
+import { useHabitStore } from "../../store/useHabitStore";
+import { usePomodoroStore } from "../../store/usePomodoroStore";
+import {
+  CheckCircle2,
+  BookOpen,
+  Feather,
+  Flame,
+  Brain,
+  TrendingUp,
+  Calendar,
+} from "lucide-react";
 
 export const WeeklyReview = () => {
   const { tasks } = useTaskStore();
@@ -14,58 +23,68 @@ export const WeeklyReview = () => {
   const { getWeeklyStats } = useHabitStore();
   const { getWeekSessions } = usePomodoroStore();
 
+  // Safety checks for undefined arrays
+  const taskList = tasks || [];
+  const bookList = books || [];
+  const entryList = entries || [];
+
   // Calculate weekly stats
   const now = new Date();
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-  const weeklyTasks = tasks.filter(t => {
+  const weeklyTasks = taskList.filter((t) => {
     if (!t.completedAt) return false;
     const completedDate = new Date(t.completedAt);
     return completedDate >= weekAgo && completedDate <= now;
   });
 
-  const weeklyJournals = entries.filter(e => {
+  const weeklyJournals = entryList.filter((e) => {
     const entryDate = new Date(e.createdAt);
     return entryDate >= weekAgo && entryDate <= now;
   });
 
   const weeklyPomodoros = getWeekSessions();
   const weeklyHabits = getWeeklyStats();
-  
-  const totalFocusMinutes = weeklyPomodoros.reduce((sum, s) => sum + s.duration, 0);
+
+  const totalFocusMinutes = weeklyPomodoros.reduce(
+    (sum, s) => sum + s.duration,
+    0
+  );
   const totalFocusHours = Math.floor(totalFocusMinutes / 60);
 
-  const readingBooks = books.filter(b => b.status === 'reading');
-  const finishedBooks = books.filter(b => {
-    if (b.status !== 'finished' || !b.finishedDate) return false;
+  const readingBooks = bookList.filter((b) => b.status === "reading");
+  const finishedBooks = bookList.filter((b) => {
+    if (b.status !== "finished" || !b.finishedDate) return false;
     const finishedDate = new Date(b.finishedDate);
     return finishedDate >= weekAgo && finishedDate <= now;
   });
 
-  const avgHabitCompletion = weeklyHabits.length > 0
-    ? Math.round(weeklyHabits.reduce((sum, h) => sum + h.completionRate, 0) / weeklyHabits.length)
-    : 0;
+  const avgHabitCompletion =
+    weeklyHabits.length > 0
+      ? Math.round(
+          weeklyHabits.reduce((sum, h) => sum + h.completionRate, 0) /
+            weeklyHabits.length
+        )
+      : 0;
 
   const topStreak = weeklyHabits.reduce((max, h) => Math.max(max, h.streak), 0);
 
-  return (
-    <Card>
-      <div className="p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Calendar size={20} className="text-(--accent)" />
-            <h3 className="font-mono text-sm uppercase tracking-wider text-(--text-muted)">
-              ringkasan minggu ini
-            </h3>
-          </div>
-          <div className="text-right">
-            <p className="font-mono text-xs text-(--text-muted)">
-              {weekAgo.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - {now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
-            </p>
-          </div>
-        </div>
+  const dateRange = `${weekAgo.toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "short",
+  })} - ${now.toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "short",
+  })}`;
 
+  return (
+    <CollapsibleSection
+      title="ringkasan minggu ini"
+      icon={<Calendar size={18} />}
+      defaultExpanded={false}
+      rightContent={dateRange}
+    >
+      <div className="p-4 md:p-6 space-y-6">
         {/* Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Tasks */}
@@ -173,7 +192,9 @@ export const WeeklyReview = () => {
 
         {/* Motivational Message */}
         <div className="pt-4 border-t border-dashed border-(--border-color) text-center">
-          {weeklyTasks.length > 10 || totalFocusHours > 10 || avgHabitCompletion > 80 ? (
+          {weeklyTasks.length > 10 ||
+          totalFocusHours > 10 ||
+          avgHabitCompletion > 80 ? (
             <p className="font-serif italic text-sm text-(--text-main)">
               minggu yang produktif! terus pertahankan momentummu. ✨
             </p>
@@ -188,6 +209,6 @@ export const WeeklyReview = () => {
           )}
         </div>
       </div>
-    </Card>
+    </CollapsibleSection>
   );
 };

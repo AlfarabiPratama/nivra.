@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { Card } from './Card';
-import { CheckSquare, BookOpen, PenLine, Sprout } from 'lucide-react';
+import { useState } from "react";
+import { Card } from "./Card";
+import { Button } from "./Button";
+import { CheckSquare, BookOpen, PenLine, Sprout, Plus } from "lucide-react";
 
 const emptyStateIcons = {
   tasks: CheckSquare,
@@ -32,51 +33,76 @@ const emptyStateQuotes = {
   ],
 };
 
-export const EmptyState = ({ 
-  type = 'tasks', 
+export const EmptyState = ({
+  type = "tasks",
   customMessage = null,
-  icon = null 
+  icon = null,
+  onAction = null,
+  actionLabel = null,
 }) => {
   const quotes = emptyStateQuotes[type] || emptyStateQuotes.tasks;
-  const [randomQuote] = useState(() => quotes[Math.floor(Math.random() * quotes.length)]);
+  const [randomQuote] = useState(
+    () => quotes[Math.floor(Math.random() * quotes.length)]
+  );
   const IconComponent = emptyStateIcons[type] || emptyStateIcons.tasks;
 
   return (
     <Card>
-      <div className="text-center py-12 space-y-6">
+      <div className="text-center py-8 md:py-12 space-y-4 md:space-y-6">
         {/* Icon */}
         <div className="flex justify-center">
-          {icon || <IconComponent size={64} className="text-(--text-muted) opacity-30" strokeWidth={1.5} />}
+          {icon || (
+            <IconComponent
+              size={48}
+              className="md:w-16 md:h-16 text-(--text-muted) opacity-30"
+              strokeWidth={1.5}
+            />
+          )}
         </div>
 
         {/* Quote */}
         <div className="space-y-2">
-          <p className="font-serif italic text-base text-(text-main)">
+          <p className="font-serif italic text-sm md:text-base text-(--text-main)">
             "{customMessage || randomQuote}"
           </p>
-          <div className="w-12 h-px bg-(border-color) mx-auto" />
+          <div className="w-12 h-px bg-(--border-color) mx-auto" />
         </div>
 
-        {/* Subtle hint */}
-        <p className="font-mono text-xs text-(text-muted) opacity-60">
-          • • •
-        </p>
+        {/* CTA Button - NEW */}
+        {onAction && actionLabel && (
+          <div className="pt-2">
+            <Button
+              variant="accent"
+              onClick={onAction}
+              className="inline-flex items-center gap-2"
+            >
+              <Plus size={14} />
+              <span>{actionLabel}</span>
+            </Button>
+          </div>
+        )}
+
+        {/* Subtle hint - only show if no CTA */}
+        {!onAction && (
+          <p className="font-mono text-xs text-(--text-muted) opacity-60">
+            • • •
+          </p>
+        )}
 
         {/* Subtle logo watermark */}
-        <div className="pt-6 opacity-20 hover:opacity-40 transition-opacity duration-300">
-          <img 
-            src="/nivra light mode .png" 
-            alt="" 
-            className="w-20 h-auto mx-auto dark:hidden"
+        <div className="pt-4 md:pt-6 opacity-20 hover:opacity-40 transition-opacity duration-300">
+          <img
+            src="/nivra light mode .png"
+            alt=""
+            className="w-16 md:w-20 h-auto mx-auto dark:hidden"
           />
-          <img 
-            src="/dark mode nivra.png" 
-            alt="" 
-            className="w-20 h-auto mx-auto hidden dark:block"
+          <img
+            src="/dark mode nivra.png"
+            alt=""
+            className="w-16 md:w-20 h-auto mx-auto hidden dark:block"
           />
         </div>
       </div>
     </Card>
   );
 };
-

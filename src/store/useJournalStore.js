@@ -61,6 +61,13 @@ export const useJournalStore = create(
             syncDocToFirestore(user.uid, "journals", newEntry.id, newEntry);
           }
         }
+
+        // Update badge progress
+        import("./useBadgeStore").then(({ useBadgeStore }) => {
+          import("../config/badges").then(({ BADGE_TYPES }) => {
+            useBadgeStore.getState().incrementProgress(BADGE_TYPES.JOURNAL);
+          });
+        });
       },
 
       deleteEntry: async (id) => {

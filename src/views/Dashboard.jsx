@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
@@ -8,11 +8,23 @@ import { TaskAnalytics } from "../components/widgets/TaskAnalytics";
 import { PomodoroSummary } from "../components/widgets/PomodoroSummary";
 import { WeeklyReview } from "../components/widgets/WeeklyReview";
 import { WeeklyInsights } from "../components/widgets/WeeklyInsights";
+import { QuickCaptureBar } from "../components/widgets/QuickCaptureBar";
+import { TodayFocusPanel } from "../components/widgets/TodayFocusPanel";
+import { StreakBanner } from "../components/widgets/StreakBanner";
+import { DailyQuests } from "../components/widgets/DailyQuests";
+import { GardenWidget } from "../components/widgets/GardenWidget";
+import { SoundscapesWidget } from "../components/widgets/SoundscapesWidget";
+import { AchievementPanel } from "../components/widgets/AchievementPanel";
+import { BadgeCollection } from "../components/widgets/BadgeCollection";
+import { Confetti } from "../components/ui/Confetti";
 import { useAppStore } from "../store/useAppStore";
+import { useCelebrationStore } from "../store/useCelebrationStore";
 import { useTaskStore } from "../store/useTaskStore";
 import { useBookStore } from "../store/useBookStore";
 import { useToastStore } from "../store/useToastStore";
 import { useLayoutStore } from "../store/useLayoutStore";
+import { getLevelFromXp, getProgressWithinLevel } from "../utils/xp";
+import { buildAchievementStats } from "../utils/achievementStats";
 import {
   CheckCircle2,
   Circle,
@@ -39,6 +51,7 @@ export const Dashboard = () => {
   const { books } = useBookStore();
   const { addToast } = useToastStore();
   const { playSound } = useAudioStore();
+  const { showConfetti, celebrateTask } = useCelebrationStore();
   const { widgetOrder, hiddenWidgets, setWidgetOrder } = useLayoutStore();
   const [newTaskText, setNewTaskText] = useState("");
   const [selectedPriority, setSelectedPriority] = useState("medium");
@@ -46,20 +59,34 @@ export const Dashboard = () => {
   const [dueDate, setDueDate] = useState("");
   const [recurring, setRecurring] = useState(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const taskInputRef = useRef(null);
 
-  const incompleteTasks = tasks.filter((t) => !t.completed);
-  const completedToday = tasks.filter((t) => {
+  // Focus task input handler
+  const focusTaskInput = () => {
+    if (taskInputRef.current) {
+      taskInputRef.current.focus();
+    }
+  };
+
+  // Safety checks for undefined arrays
+  const taskList = tasks || [];
+  const bookList = books || [];
+
+  const incompleteTasks = taskList.filter((t) => !t.completed);
+  const completedToday = taskList.filter((t) => {
     if (!t.completed) return false;
     const today = new Date().toDateString();
     return new Date(t.completedAt).toDateString() === today;
   });
 
-  const xpProgress = user.xp % 100;
-  const readingBooks = books.filter((b) => b.status === "reading").length;
-  const finishedBooks = books.filter((b) => b.status === "finished").length;
+  const levelInfo = getLevelFromXp(user.xp);
+  const xpProgress = Math.round(getProgressWithinLevel(user.xp) * 100);
+  const xpToNext = Math.max(levelInfo.xpForLevel - levelInfo.xpIntoLevel, 0);
+  const readingBooks = bookList.filter((b) => b.status === "reading").length;
+  const finishedBooks = bookList.filter((b) => b.status === "finished").length;
 
   // Calculate average progress
-  const readingBooksWithProgress = books.filter(
+  const readingBooksWithProgress = bookList.filter(
     (b) => b.status === "reading" && b.progress && b.total
   );
   const avgProgress =
@@ -76,8 +103,11 @@ export const Dashboard = () => {
     const required = [
       "weeklyReview",
       "weeklyInsights",
+      "gardenWidget",
       "taskAnalytics",
       "pomodoro",
+      "soundscapes",
+      "badgeCollection",
     ];
     return Array.from(new Set([...widgetOrder, ...required]));
   }, [widgetOrder]);
@@ -89,16 +119,61 @@ export const Dashboard = () => {
     }
   }, [mergedWidgetOrder, widgetOrder, setWidgetOrder]);
 
+  // Track if daily completion celebration was already shown
+  const allTasksCompleteCelebrationRef = useRef(false);
+
+  // Daily completion celebration - when all tasks for today are completed
+  useEffect(() => {
+    const totalTodayTasks = taskList.length;
+    const completedTodayCount = completedToday.length;
+
+    // Check if all tasks are completed AND there are tasks to complete
+    const allCompleted =
+      totalTodayTasks > 0 &&
+      incompleteTasks.length === 0 &&
+      completedTodayCount > 0;
+
+    if (allCompleted && !allTasksCompleteCelebrationRef.current) {
+      // Only celebrate once
+      allTasksCompleteCelebrationRef.current = true;
+
+      // Delay slightly for better UX (after last task completion animation)
+      setTimeout(() => {
+        addToast(
+          `🏆 Luar biasa! Semua ${completedTodayCount} tugas hari ini selesai!`,
+          "success",
+          6000
+        );
+        celebrateTask(); // Extra confetti!
+      }, 500);
+    }
+
+    // Reset flag if there are new incomplete tasks
+    if (incompleteTasks.length > 0) {
+      allTasksCompleteCelebrationRef.current = false;
+    }
+  }, [
+    taskList.length,
+    incompleteTasks.length,
+    completedToday.length,
+    addToast,
+    celebrateTask,
+  ]);
+
   const renderWidget = (id) => {
     if (hiddenWidgets.includes(id)) return null;
     if (id === "weeklyReview") return <WeeklyReview key="weeklyReview" />;
     if (id === "weeklyInsights") return <WeeklyInsights key="weeklyInsights" />;
+    if (id === "gardenWidget") return <GardenWidget key="gardenWidget" />;
     if (id === "taskAnalytics") {
       return tasks.length > 0 ? (
         <TaskAnalytics key="taskAnalytics" tasks={tasks} />
       ) : null;
     }
     if (id === "pomodoro") return <PomodoroSummary key="pomodoro" />;
+    if (id === "soundscapes") return <SoundscapesWidget key="soundscapes" />;
+    if (id === "badgeCollection")
+      return <BadgeCollection key="badgeCollection" />;
     return null;
   };
 
@@ -117,7 +192,10 @@ export const Dashboard = () => {
       setDueDate("");
       setRecurring(null);
       setShowAdvanced(false);
-      addXP(5, useToastStore.getState());
+      addXP(5, useToastStore.getState(), {
+        source: "tugas baru",
+        stats: buildAchievementStats(),
+      });
       addToast("tugas ditambahkan", "success");
     }
   };
@@ -129,9 +207,13 @@ export const Dashboard = () => {
       // Deliberate Interaction: Slow animation + celebration
       setTimeout(() => {
         toggleTask(taskId);
-        addXP(15, useToastStore.getState());
+        addXP(15, useToastStore.getState(), {
+          source: "tugas selesai",
+          stats: buildAchievementStats(),
+        });
         addToast("tugas selesai! 🎉", "success");
         playSound("taskComplete");
+        celebrateTask(); // Trigger confetti!
       }, 300);
     } else {
       toggleTask(taskId);
@@ -140,22 +222,23 @@ export const Dashboard = () => {
 
   return (
     <AnimatedPage>
+      {/* Confetti Celebration */}
+      <Confetti trigger={showConfetti} />
+
       <div className="p-4 md:p-8 space-y-4 md:space-y-6">
         {/* Welcome */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-3 md:gap-0">
           <div>
-            <h2 className="text-2xl md:text-4xl font-serif italic text-(--text-main) mb-2">
+            <h2 className="type-display mb-2">
               {user.name ? `hai, ${user.name}.` : "selamat datang."}
             </h2>
-            <p className="font-mono text-xs md:text-sm text-(--text-muted) border-l-2 border-(--accent) pl-3 md:pl-4 italic">
+            <p className="type-body text-(--text-muted) border-l-2 border-(--accent) pl-3 md:pl-4 italic">
               perlahan tapi pasti.
             </p>
           </div>
           <div className="hidden md:block text-right">
-            <p className="font-mono text-xs text-(--text-muted) uppercase">
-              Hari Ini
-            </p>
-            <p className="font-serif text-xl">
+            <p className="type-label">Hari Ini</p>
+            <p className="type-h2">
               {new Date().toLocaleDateString("id-ID", {
                 weekday: "long",
                 day: "numeric",
@@ -165,43 +248,118 @@ export const Dashboard = () => {
           </div>
         </div>
 
-        {/* Stats Overview Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-          {/* XP Progress Card */}
-          <Card className="md:col-span-2">
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-(--text-muted)">
-                  Pertumbuhan
-                </span>
-                <span className="font-mono text-[10px] md:text-xs text-(--accent)">
-                  Level {user.level} • {user.gardenStage}
-                </span>
+        {/* Streak Banner */}
+        <StreakBanner />
+
+        {/* Main Dashboard Grid - Unified layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Left Column: Quest + Stats + Tasks */}
+          <div className="lg:col-span-2 space-y-4">
+            <QuickCaptureBar />
+            <DailyQuests />
+
+            {/* XP Progress Card - Enhanced */}
+            <Card>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="type-label">Pertumbuhan</span>
+                  <div className="flex items-center gap-2">
+                    <span className="type-caption text-(--accent)">
+                      Level {user.level}
+                    </span>
+                    <span className="type-caption text-(--text-muted)">•</span>
+                    <span className="type-caption text-(--text-muted)">
+                      {user.gardenStage}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Enhanced XP Progress Bar */}
+                <div className="space-y-1">
+                  <div className="h-3 bg-(--bg-color) border border-(--border-color) relative overflow-hidden">
+                    <div
+                      className="h-full bg-(--accent) transition-all duration-700 ease-out"
+                      style={{ width: `${xpProgress}%` }}
+                    />
+                    {/* XP Marker */}
+                    {xpProgress > 10 && (
+                      <span
+                        className="absolute top-1/2 -translate-y-1/2 text-[8px] font-mono text-white font-bold"
+                        style={{ left: `${Math.max(xpProgress - 8, 2)}%` }}
+                      >
+                        {xpProgress}%
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="type-caption text-(--text-muted)">
+                      {levelInfo.xpIntoLevel} XP
+                    </span>
+                    <span className="type-caption text-(--accent) font-semibold">
+                      {xpToNext} XP lagi ke Level {user.level + 1}
+                    </span>
+                  </div>
+                </div>
               </div>
+            </Card>
+          </div>
 
-              {/* Progress Bar */}
-              <div className="h-2 bg-(bg-color) border border-(--border-color)">
-                <div
-                  className="h-full bg-(--accent) transition-all duration-500"
-                  style={{ width: `${xpProgress}%` }}
-                />
+          {/* Right Column: Today's Focus + Quick Stats (Desktop only) */}
+          <div className="hidden lg:flex lg:flex-col gap-4">
+            <TodayFocusPanel />
+
+            {/* Quick Stats - moved to right column */}
+            <Card className="flex-1">
+              <div className="space-y-2 md:space-y-3">
+                <div className="flex items-center gap-2 text-(--text-main)">
+                  <BookOpen
+                    size={14}
+                    className="md:w-4 md:h-4 text-(--accent) shrink-0"
+                  />
+                  <span className="type-caption text-(--text-main)">
+                    {readingBooks} sedang dibaca
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-(--text-main)">
+                  <CheckCircle2
+                    size={14}
+                    className="md:w-4 md:h-4 text-(--accent) shrink-0"
+                  />
+                  <span className="type-caption text-(--text-main)">
+                    {completedToday.length} tugas hari ini
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-(--text-main)">
+                  <BookText
+                    size={14}
+                    className="md:w-4 md:h-4 text-(--accent) shrink-0"
+                  />
+                  <span className="type-caption text-(--text-main)">
+                    {finishedBooks} buku selesai
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-(--text-main) pt-2 border-t border-dashed border-(--border-color)">
+                  <span className="type-caption">avg progres</span>
+                  <span className="type-h2 text-(--accent) ml-auto">
+                    {avgProgress}%
+                  </span>
+                </div>
               </div>
+            </Card>
+          </div>
+        </div>
 
-              <p className="font-mono text-[10px] md:text-xs text-(--text-muted)">
-                {xpProgress} / 100 XP ke level berikutnya
-              </p>
-            </div>
-          </Card>
-
-          {/* Quick Stats */}
-          <Card variant="dashed" className="border-hover-dashed">
+        {/* Mobile: Today's Focus Panel + Quick Stats */}
+        <div className="lg:hidden space-y-4">
+          <TodayFocusPanel />
+          <Card>
             <div className="space-y-2 md:space-y-3">
               <div className="flex items-center gap-2 text-(--text-main)">
                 <BookOpen
                   size={14}
                   className="md:w-4 md:h-4 text-(--accent) shrink-0"
                 />
-                <span className="font-mono text-[10px] md:text-xs">
+                <span className="type-caption text-(--text-main)">
                   {readingBooks} sedang dibaca
                 </span>
               </div>
@@ -210,7 +368,7 @@ export const Dashboard = () => {
                   size={14}
                   className="md:w-4 md:h-4 text-(--accent) shrink-0"
                 />
-                <span className="font-mono text-[10px] md:text-xs">
+                <span className="type-caption text-(--text-main)">
                   {completedToday.length} tugas hari ini
                 </span>
               </div>
@@ -219,15 +377,13 @@ export const Dashboard = () => {
                   size={14}
                   className="md:w-4 md:h-4 text-(--accent) shrink-0"
                 />
-                <span className="font-mono text-[10px] md:text-xs">
+                <span className="type-caption text-(--text-main)">
                   {finishedBooks} buku selesai
                 </span>
               </div>
               <div className="flex items-center gap-2 text-(--text-main) pt-2 border-t border-dashed border-(--border-color)">
-                <span className="font-mono text-[10px] md:text-xs text-(--text-muted)">
-                  avg progres
-                </span>
-                <span className="font-serif text-xl md:text-2xl text-(--accent) ml-auto">
+                <span className="type-caption">avg progres</span>
+                <span className="type-h2 text-(--accent) ml-auto">
                   {avgProgress}%
                 </span>
               </div>
@@ -235,14 +391,15 @@ export const Dashboard = () => {
           </Card>
         </div>
 
+        {/* Achievements */}
+        <AchievementPanel compact />
+
         {/* Task Management */}
-        <Card variant="dashed">
+        <Card>
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="font-mono text-sm uppercase tracking-widest text-(--text-main)">
-                Tugas Hari Ini
-              </h3>
-              <span className="font-mono text-xs text-(--text-muted)">
+              <h3 className="type-label text-(--text-main)">Tugas Hari Ini</h3>
+              <span className="type-caption">
                 {incompleteTasks.length} tersisa
               </span>
             </div>
@@ -251,6 +408,7 @@ export const Dashboard = () => {
             <div className="space-y-3">
               <div className="flex gap-1 md:gap-2">
                 <Input
+                  ref={taskInputRef}
                   placeholder="tambah tugas baru..."
                   value={newTaskText}
                   onChange={(e) => setNewTaskText(e.target.value)}
@@ -388,6 +546,8 @@ export const Dashboard = () => {
                 <EmptyState
                   type="tasks"
                   customMessage="belum ada tugas. mulai dengan menambahkan satu."
+                  onAction={focusTaskInput}
+                  actionLabel="Tambah Tugas Pertama"
                 />
               ) : (
                 <>
@@ -411,32 +571,39 @@ export const Dashboard = () => {
                           return (
                             <div
                               key={task.id}
-                              className="flex items-start gap-2 md:gap-3 p-2 md:p-3 border border-dashed border-(--border-color) hover:border-(--accent) transition-all duration-300 group"
+                              className="flex items-start gap-2 md:gap-3 p-2 md:p-3 border border-dashed border-(--border-color) hover:border-(--accent) transition-all duration-300 group cursor-pointer"
+                              onClick={(e) => {
+                                // Prevent toggle if clicking delete button
+                                if (e.target.closest(".delete-btn")) return;
+                                handleToggleTask(task.id);
+                              }}
+                              role="button"
+                              tabIndex={0}
+                              onKeyDown={(e) =>
+                                e.key === "Enter" && handleToggleTask(task.id)
+                              }
                             >
-                              <button
-                                onClick={() => handleToggleTask(task.id)}
-                                className="text-(--text-muted) hover:text-(--accent) transition-colors mt-0.5 shrink-0"
-                              >
+                              <div className="text-(--text-muted) group-hover:text-(--accent) transition-colors mt-0.5 shrink-0">
                                 <Circle size={16} className="md:w-5 md:h-5" />
-                              </button>
+                              </div>
 
                               <div className="flex-1 space-y-1 min-w-0">
                                 <div className="flex items-center gap-1 md:gap-2">
                                   <span
                                     className={clsx(
-                                      "text-[10px] md:text-xs shrink-0",
+                                      "type-caption shrink-0",
                                       priority.color
                                     )}
                                   >
                                     {priority.emoji}
                                   </span>
-                                  <span className="font-mono text-xs md:text-sm text-(--text-main) truncate">
+                                  <span className="type-body truncate">
                                     {task.text}
                                   </span>
                                 </div>
 
                                 {/* Task Metadata */}
-                                <div className="flex items-center gap-2 md:gap-3 text-[10px] md:text-xs font-mono text-(--text-muted) flex-wrap">
+                                <div className="flex items-center gap-2 md:gap-3 type-caption flex-wrap">
                                   {task.category && (
                                     <span className="px-1.5 md:px-2 py-0.5 border border-(--border-color)">
                                       {task.category}
@@ -464,8 +631,11 @@ export const Dashboard = () => {
                               </div>
 
                               <button
-                                onClick={() => deleteTask(task.id)}
-                                className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-(--text-muted) hover:text-(--text-main) transition-all shrink-0"
+                                className="delete-btn opacity-100 md:opacity-0 md:group-hover:opacity-100 text-(--text-muted) hover:text-(--text-main) transition-all shrink-0"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  deleteTask(task.id);
+                                }}
                               >
                                 <X size={14} className="md:w-4 md:h-4" />
                               </button>
@@ -513,7 +683,7 @@ export const Dashboard = () => {
 
         {/* Widgets */}
         <div className="space-y-4">
-          {mergedWidgetOrder.map((id) => renderWidget(id))}
+          {mergedWidgetOrder.map((id) => renderWidget(id)).filter(Boolean)}
           {mergedWidgetOrder.filter((id) => !hiddenWidgets.includes(id))
             .length === 0 && (
             <Card variant="dashed" className="border-hover-dashed">

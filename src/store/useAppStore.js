@@ -6,6 +6,12 @@ import {
   subscribeToUserProfile,
 } from "../services/firestoreService";
 import { useSyncStore } from "./useSyncStore";
+import {
+  GARDEN_XP_STAGES,
+  getGardenStageByXp,
+  getLevelFromXp,
+} from "../utils/xp";
+import { achievementList, useAchievementStore } from "./useAchievementStore";
 
 export const useAppStore = create(
   persist(
@@ -18,8 +24,8 @@ export const useAppStore = create(
         name: "",
         xp: 0,
         level: 1,
-        gardenStage: "seed", // seed, sprout, flower, forest
-        avatar: null, // base64 image or URL
+        gardenStage: "seed", // seed, sprout, sapling, flower, forest
+        avatar: null, // base64 image atau URL
       },
 
       // Notifications preferences
@@ -30,61 +36,73 @@ export const useAppStore = create(
       },
       reminderTime: "08:00",
 
+      // Monk mode
+      isMonkMode: false,
+      monkModeView: null,
+
       // Firebase sync
       syncUnsubscribe: null,
 
       // Actions
       setCurrentView: (view) => set({ currentView: view }),
 
-      addXP: (amount, toastStore = null) => {
-        const oldLevel = get().user.level;
-        const oldStage = get().user.gardenStage;
-        const currentXP = get().user.xp + amount;
-        const newLevel = Math.floor(currentXP / 100) + 1;
+      addXP: (amount, toastStore = null, options = {}) => {
+        const { source, stats = null, suppressAchievementCheck = false } =
+          options;
+        const oldUser = get().user;
+        const oldLevel = oldUser.level;
+        const oldStage = oldUser.gardenStage;
 
-        // Determine garden stage based on XP
-        let gardenStage = "seed";
-        if (currentXP >= 500) gardenStage = "forest";
-        else if (currentXP >= 250) gardenStage = "flower";
-        else if (currentXP >= 100) gardenStage = "sprout";
+        const currentXP = Math.max(0, oldUser.xp + amount);
+        const levelInfo = getLevelFromXp(currentXP);
+        const newLevel = levelInfo.level;
+        const gardenStage = getGardenStageByXp(currentXP);
 
         set({
           user: {
-            ...get().user,
+            ...oldUser,
             xp: currentXP,
             level: newLevel,
             gardenStage,
           },
         });
 
-        // Trigger notifications if toastStore provided
         if (toastStore) {
-          // Level up notification
           if (newLevel > oldLevel) {
-            toastStore.addToast(`naik ke level ${newLevel}! 🌟`, "levelup");
+            const jump = newLevel - oldLevel;
+            const levelText =
+              jump > 1
+                ? `naik ${jump} level ke level ${newLevel}!`
+                : `naik ke level ${newLevel}!`;
+            toastStore.addToast(levelText, "levelup");
           }
 
-          // Garden stage upgrade notification
           if (gardenStage !== oldStage) {
-            const stageNames = {
-              seed: "benih",
-              sprout: "tunas",
-              flower: "bunga",
-              forest: "hutan",
-            };
+            const stageNames = GARDEN_XP_STAGES.reduce((acc, stage) => {
+              acc[stage.id] = stage.name;
+              return acc;
+            }, {});
             toastStore.addToast(
-              `tamanmu tumbuh menjadi ${stageNames[gardenStage]}! 🌱`,
+              `tamanmu tumbuh menjadi ${stageNames[gardenStage]}!`,
               "levelup"
             );
           }
 
-          // Regular XP notification
           if (newLevel === oldLevel && gardenStage === oldStage) {
-            toastStore.addToast(`+${amount} xp`, "xp");
+            const magnitude =
+              amount >= 50
+                ? "lompatan besar untuk tamanmu."
+                : amount < 10
+                  ? "langkah kecil yang berarti."
+                  : "kemajuan mantap.";
+            const sourceText = source ? ` dari ${source}` : "";
+            toastStore.addToast(
+              `+${amount} xp${sourceText} - ${magnitude}`,
+              "xp"
+            );
           }
         }
 
-        // Sync to Firebase
         if (isSyncEnabled()) {
           const syncUser = useSyncStore.getState().user;
           if (syncUser) {
@@ -98,13 +116,41 @@ export const useAppStore = create(
             });
           }
         }
+
+        if (!suppressAchievementCheck) {
+          const achievementState = useAchievementStore.getState();
+          const unlockStats = stats || {
+            level: newLevel,
+            xp: currentXP,
+          };
+          const newUnlocks = achievementState.checkAchievements(unlockStats);
+          if (newUnlocks.length > 0) {
+            const totalBonus = newUnlocks.reduce(
+              (sum, id) => sum + (achievementList[id]?.xp || 0),
+              0
+            );
+            if (totalBonus > 0) {
+              get().addXP(totalBonus, toastStore, {
+                source: "achievement",
+                suppressAchievementCheck: true,
+                stats: unlockStats,
+              });
+            }
+            if (toastStore) {
+              const label =
+                newUnlocks.length === 1
+                  ? "achievement baru dibuka!"
+                  : `${newUnlocks.length} achievement terbuka!`;
+              toastStore.addToast(label, "success");
+            }
+          }
+        }
       },
 
       setUserName: (name) => {
         set({
           user: { ...get().user, name },
         });
-        // Sync to Firebase
         if (isSyncEnabled()) {
           const syncUser = useSyncStore.getState().user;
           if (syncUser) {
@@ -124,7 +170,6 @@ export const useAppStore = create(
         set({
           user: { ...get().user, avatar },
         });
-        // Sync to Firebase
         if (isSyncEnabled()) {
           const syncUser = useSyncStore.getState().user;
           if (syncUser) {
@@ -171,22 +216,33 @@ export const useAppStore = create(
         const syncUser = useSyncStore.getState().user;
         if (!syncUser) return;
 
-        console.log("🔄 Initializing user profile sync...");
+        console.log("Initializing user profile sync...");
 
         const unsubscribe = subscribeToUserProfile(syncUser.uid, (data) => {
+          const localUser = get().user;
+
           if (data && data.name) {
+            console.log("User profile synced from Firebase:", data.name);
             set({
               user: {
-                ...get().user,
-                name: data.name || get().user.name,
-                xp: data.xp !== undefined ? data.xp : get().user.xp,
-                level: data.level !== undefined ? data.level : get().user.level,
-                gardenStage: data.gardenStage || get().user.gardenStage,
+                ...localUser,
+                name: data.name,
+                xp: data.xp !== undefined ? data.xp : localUser.xp,
+                level: data.level !== undefined ? data.level : localUser.level,
+                gardenStage: data.gardenStage || localUser.gardenStage,
                 avatar:
-                  data.avatar !== undefined ? data.avatar : get().user.avatar,
+                  data.avatar !== undefined ? data.avatar : localUser.avatar,
               },
             });
-            console.log("📥 User profile synced from Firebase");
+          } else if (localUser.name) {
+            console.log("Pushing local profile to Firebase:", localUser.name);
+            syncUserProfile({
+              name: localUser.name,
+              xp: localUser.xp,
+              level: localUser.level,
+              gardenStage: localUser.gardenStage,
+              avatar: localUser.avatar,
+            });
           }
         });
 

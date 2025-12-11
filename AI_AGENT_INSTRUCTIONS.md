@@ -1599,9 +1599,17 @@ firebase hosting:clone nivra-app-581be:previous nivra-app-581be:live
 - ✅ Follow `design_manifesto.md` principles
 - ✅ Use CSS variables via Tailwind custom syntax: `bg-(--bg-color)`
 - ✅ Monospace font for data, Serif for humanis text
-- ✅ Dashed borders for secondary elements
 - ✅ Film grain overlay (noise texture)
 - ✅ Ample whitespace (don't cram UI)
+- ✅ **Card variant="solid"** (DEFAULT) untuk semua konten final:
+  - Widget dengan data/stats (stats grid, progress, analytics)
+  - Card dengan konten lengkap (book card, habit card, journal entry display)
+  - Settings dan konfigurasi panels
+- ✅ **Card variant="dashed"** HANYA untuk:
+  - Empty state (menunggu konten diisi)
+  - Drop zones (file upload, drag-and-drop)
+  - Form/input areas (tulis jurnal, tambah buku baru)
+  - Placeholder ("Add New" buttons)
 
 ---
 
@@ -1641,6 +1649,7 @@ firebase hosting:clone nivra-app-581be:previous nivra-app-581be:live
 - ❌ DON'T use rounded-full everywhere (square corners!)
 - ❌ DON'T ignore the warm, analog aesthetic
 - ❌ DON'T make "Silicon Valley startup" UI (anti-polished!)
+- ❌ DON'T use `variant="dashed"` untuk konten final (terlihat "belum selesai")
 
 ---
 

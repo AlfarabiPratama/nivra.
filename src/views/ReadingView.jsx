@@ -1,16 +1,41 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { AnimatedPage } from "../components/ui/AnimatedPage";
 import { EmptyState } from "../components/ui/EmptyState";
 import { ReadingTimer } from "../components/widgets/ReadingTimer";
-import { ReadingStats } from "../components/widgets/ReadingStats";
 import { useBookStore } from "../store/useBookStore";
 import { useAppStore } from "../store/useAppStore";
+import { buildAchievementStats } from "../utils/achievementStats";
 import { useToastStore } from "../store/useToastStore";
-import { BookOpen, Plus, X, Star, Clock } from "lucide-react";
+import {
+  BookOpen,
+  Plus,
+  X,
+  Star,
+  Clock,
+  Pencil,
+  Filter,
+  Minimize2,
+  Maximize2,
+} from "lucide-react";
 import clsx from "clsx";
+
+const FILTERS = [
+  { id: "all", label: "semua" },
+  { id: "reading", label: "sedang dibaca" },
+  { id: "finished", label: "selesai" },
+  { id: "wishlist", label: "wishlist" },
+];
+
+const defaultForm = {
+  title: "",
+  author: "",
+  total: 100,
+  cover: "",
+  status: "reading",
+};
 
 export const ReadingView = () => {
   const {
@@ -28,65 +53,93 @@ export const ReadingView = () => {
   } = useBookStore();
   const { addXP } = useAppStore();
   const { addToast } = useToastStore();
-  const [filter, setFilter] = useState("all"); // all, reading, finished
-  const [showAddForm, setShowAddForm] = useState(false);
+
+  const [filter, setFilter] = useState("all");
   const [showTimer, setShowTimer] = useState(false);
-  const [showGoalForm, setShowGoalForm] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
   const [goalInput, setGoalInput] = useState(yearlyGoal);
-  const [expandedNotes, setExpandedNotes] = useState({});
+  const [expanded, setExpanded] = useState({});
   const [noteInput, setNoteInput] = useState({});
   const [quoteInput, setQuoteInput] = useState({});
+  const [modeCompact, setModeCompact] = useState(false);
+  const [editingBook, setEditingBook] = useState(null);
+  const [formData, setFormData] = useState(defaultForm);
 
   const yearlyProgress = getYearlyProgress();
-
-  // Form state
-  const [formData, setFormData] = useState({
-    title: "",
-    author: "",
-    total: 100,
-    cover: "",
-  });
-
-  const readingBooks = books.filter((b) => b.status === "reading");
 
   const filteredBooks = books.filter((book) => {
     if (filter === "all") return true;
     return book.status === filter;
   });
 
+  const readingBooks = filteredBooks.filter((b) => b.status === "reading");
+
+  const monthlyCounts = useMemo(() => {
+    const counts = Array(12).fill(0);
+    books.forEach((b) => {
+      if (b.status === "finished" && b.finishedDate) {
+        const d = new Date(b.finishedDate);
+        if (d.getFullYear() === new Date().getFullYear()) {
+          counts[d.getMonth()] += 1;
+        }
+      }
+    });
+    return counts;
+  }, [books]);
+
   const handleAddBook = () => {
-    if (formData.title && formData.author) {
-      addBook(formData);
-      setFormData({ title: "", author: "", total: 100, cover: "" });
-      setShowAddForm(false);
-      addToast("buku ditambahkan ke daftar bacaan", "success");
-    }
+    if (!formData.title.trim() || !formData.author.trim()) return;
+    addBook({
+      title: formData.title.trim(),
+      author: formData.author.trim(),
+      total: parseInt(formData.total) || 100,
+      cover: formData.cover.trim(),
+      status: formData.status || "reading",
+    });
+    setFormData(defaultForm);
+    setShowAddForm(false);
+    addToast("buku ditambahkan", "success");
   };
 
-  const handleUpdateProgress = (bookId, newProgress) => {
-    const book = books.find((b) => b.id === bookId);
-    const isCompleting =
-      book.progress < book.total && newProgress >= book.total;
+  const handleEditSave = () => {
+    if (!editingBook) return;
+    const total = Math.max(1, parseInt(editingBook.total) || 1);
+    const progress = Math.min(editingBook.progress || 0, total);
+    const updates = {
+      title: editingBook.title,
+      author: editingBook.author,
+      total,
+      cover: editingBook.cover,
+      status: editingBook.status,
+      progress,
+    };
+    if (updates.status === "finished" && !editingBook.finishedDate) {
+      updates.finishedDate = new Date().toISOString();
+      updates.progress = total;
+    }
+    updateBook(editingBook.id, updates);
+    setEditingBook(null);
+    addToast("buku diperbarui", "success");
+  };
 
-    updateBook(bookId, {
+  const handleUpdateProgress = (book, increment) => {
+    const newProgress = Math.min(book.progress + increment, book.total);
+    const isCompleting = book.progress < book.total && newProgress >= book.total;
+    updateBook(book.id, {
       progress: newProgress,
       status: newProgress >= book.total ? "finished" : "reading",
       finishedDate:
-        newProgress >= book.total ? new Date().toLocaleDateString() : null,
+        newProgress >= book.total
+          ? new Date().toISOString()
+          : book.finishedDate || null,
     });
-
     if (isCompleting) {
-      addXP(50, useToastStore.getState());
-      addToast("selamat! buku selesai dibaca 📚", "success");
-    } else {
-      addToast("progress diperbarui", "info");
+      addXP(30, useToastStore.getState(), {
+        source: "buku selesai",
+        stats: buildAchievementStats(),
+      });
+      addToast("selamat! buku selesai dibaca", "success");
     }
-  };
-
-  const handleRating = (bookId, rating) => {
-    updateBook(bookId, { rating });
-    addXP(10, useToastStore.getState());
-    addToast("rating tersimpan", "success");
   };
 
   const handleAddNote = (bookId) => {
@@ -94,7 +147,6 @@ export const ReadingView = () => {
     if (text && text.trim()) {
       addNote(bookId, text.trim());
       setNoteInput({ ...noteInput, [bookId]: "" });
-      addXP(5, useToastStore.getState());
       addToast("catatan tersimpan", "success");
     }
   };
@@ -104,557 +156,584 @@ export const ReadingView = () => {
     if (text && text.trim()) {
       addQuote(bookId, text.trim());
       setQuoteInput({ ...quoteInput, [bookId]: "" });
-      addXP(5, useToastStore.getState());
       addToast("kutipan tersimpan", "success");
     }
   };
 
-  const toggleNotesSection = (bookId) => {
-    setExpandedNotes({ ...expandedNotes, [bookId]: !expandedNotes[bookId] });
+  const renderBarChart = () => {
+    const max = Math.max(...monthlyCounts, 1);
+    const months = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+    return (
+      <div className="grid grid-cols-12 gap-2">
+        {monthlyCounts.map((val, idx) => (
+          <div key={idx} className="flex flex-col items-center gap-1">
+            <div className="text-[10px] font-mono text-(--text-muted)">
+              {months[idx]}
+            </div>
+            <div className="w-full h-20 bg-(--bg-color) border border-(--border-color) flex items-end">
+              <div
+                className="w-full bg-(--accent)/80 transition-all"
+                style={{ height: `${(val / max) * 100}%` }}
+              />
+            </div>
+            <div className="text-[10px] font-mono text-(--text-main)">
+              {val}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderReadingCard = (book) => {
+    const percent = Math.min(
+      100,
+      Math.round((book.progress / Math.max(book.total, 1)) * 100)
+    );
+    return (
+      <Card key={book.id} className="flex gap-4 p-4 items-center">
+        {book.cover ? (
+          <img
+            src={book.cover}
+            alt={book.title}
+            className="w-20 h-28 object-cover border border-(--border-color)"
+          />
+        ) : (
+          <div className="w-20 h-28 border border-dashed border-(--border-color) flex items-center justify-center text-(--text-muted)">
+            <BookOpen size={20} />
+          </div>
+        )}
+        <div className="flex-1 space-y-2">
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <h3 className="type-h3">{book.title}</h3>
+              <p className="type-caption text-(--text-muted)">{book.author}</p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setEditingBook(book)}
+              >
+                <Pencil size={14} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => deleteBook(book.id)}
+              >
+                <X size={14} />
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs font-mono text-(--text-muted)">
+              <span>{percent}%</span>
+              <span>
+                {book.progress} / {book.total} halaman
+              </span>
+            </div>
+            <div className="h-3 bg-(--bg-color) border border-(--border-color) rounded-sm overflow-hidden">
+              <div
+                className="h-full bg-(--accent) transition-all duration-700"
+                style={{ width: `${percent}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              variant="accent"
+              size="sm"
+              onClick={() => handleUpdateProgress(book, 10)}
+            >
+              +10 halaman
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleUpdateProgress(book, Math.ceil(book.total * 0.05))}
+            >
+              +1 sesi
+            </Button>
+          </div>
+        </div>
+      </Card>
+    );
+  };
+
+  const renderBookCard = (book) => {
+    const percent = Math.min(
+      100,
+      Math.round((book.progress / Math.max(book.total, 1)) * 100)
+    );
+    const isExpanded = expanded[book.id];
+    return (
+      <Card key={book.id} className="p-4 space-y-3">
+        <div className="flex gap-3 items-start">
+          {book.cover ? (
+            <img
+              src={book.cover}
+              alt={book.title}
+              className="w-16 h-22 object-cover border border-(--border-color)"
+            />
+          ) : (
+            <div className="w-16 h-22 border border-dashed border-(--border-color) flex items-center justify-center text-(--text-muted)">
+              <BookOpen size={18} />
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <h3 className="type-h4 truncate">{book.title}</h3>
+                <p className="type-caption text-(--text-muted) truncate">
+                  {book.author}
+                </p>
+              </div>
+              <div className="flex gap-2 shrink-0">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setEditingBook(book)}
+                >
+                  <Pencil size={14} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => deleteBook(book.id)}
+                >
+                  <X size={14} />
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-1 mt-2">
+              <div className="flex justify-between text-[11px] font-mono text-(--text-muted)">
+                <span className="uppercase">{book.status}</span>
+                <span>
+                  {percent}% • {book.progress}/{book.total} hlm
+                </span>
+              </div>
+              <div className="h-2.5 bg-(--bg-color) border border-(--border-color)">
+                <div
+                  className="h-full bg-(--accent) transition-all duration-700"
+                  style={{ width: `${percent}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center mt-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() =>
+                  setExpanded((prev) => ({ ...prev, [book.id]: !prev[book.id] }))
+                }
+              >
+                {isExpanded ? "tutup" : "lihat catatan"}
+              </Button>
+              {book.status === "reading" && (
+                <div className="flex gap-2">
+                  <Button
+                    variant="accent"
+                    size="sm"
+                    onClick={() => handleUpdateProgress(book, 10)}
+                  >
+                    +10 hlm
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      handleUpdateProgress(book, Math.ceil(book.total * 0.05))
+                    }
+                  >
+                    +1 sesi
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {isExpanded && (
+              <div className="mt-3 space-y-3 border-t border-dashed border-(--border-color) pt-3">
+                <div className="space-y-1">
+                  <div className="type-caption text-(--text-muted)">Catatan</div>
+                  {(book.notes || []).length === 0 ? (
+                    <p className="type-caption text-(--text-muted)">
+                      belum ada catatan
+                    </p>
+                  ) : (
+                    (book.notes || []).map((note) => (
+                      <div
+                        key={note.id}
+                        className="p-2 border border-dashed border-(--border-color) text-sm flex justify-between gap-2"
+                      >
+                        <span className="font-mono">{note.text}</span>
+                        <button
+                          onClick={() => deleteNote(book.id, note.id)}
+                          className="text-(--text-muted) hover:text-(--text-main)"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))
+                  )}
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="tambah catatan..."
+                      value={noteInput[book.id] || ""}
+                      onChange={(e) =>
+                        setNoteInput({ ...noteInput, [book.id]: e.target.value })
+                      }
+                      onKeyDown={(e) =>
+                        e.key === "Enter" && handleAddNote(book.id)
+                      }
+                      variant="box"
+                    />
+                    <Button
+                      variant="accent"
+                      onClick={() => handleAddNote(book.id)}
+                      disabled={!noteInput[book.id]?.trim()}
+                    >
+                      <Plus size={14} />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="type-caption text-(--text-muted)">Kutipan</div>
+                  {(book.quotes || []).length === 0 ? (
+                    <p className="type-caption text-(--text-muted)">
+                      belum ada kutipan
+                    </p>
+                  ) : (
+                    (book.quotes || []).map((quote) => (
+                      <div
+                        key={quote.id}
+                        className="p-2 border-l-2 border-(--accent) bg-(--accent)/5 text-sm flex justify-between gap-2"
+                      >
+                        <span className="font-serif italic">
+                          "{quote.text}"
+                        </span>
+                        <button
+                          onClick={() => deleteQuote(book.id, quote.id)}
+                          className="text-(--text-muted) hover:text-(--text-main)"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))
+                  )}
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="tambah kutipan..."
+                      value={quoteInput[book.id] || ""}
+                      onChange={(e) =>
+                        setQuoteInput({
+                          ...quoteInput,
+                          [book.id]: e.target.value,
+                        })
+                      }
+                      onKeyDown={(e) =>
+                        e.key === "Enter" && handleAddQuote(book.id)
+                      }
+                      variant="box"
+                    />
+                    <Button
+                      variant="accent"
+                      onClick={() => handleAddQuote(book.id)}
+                      disabled={!quoteInput[book.id]?.trim()}
+                    >
+                      <Plus size={14} />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </Card>
+    );
   };
 
   return (
     <AnimatedPage>
       <div className="p-4 md:p-8 space-y-4 md:space-y-6">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-3">
+        <div className="flex flex-col md:flex-row justify-between gap-3">
           <div>
-            <h2 className="text-2xl md:text-4xl font-serif italic text-(--text-main) mb-2">
-              bacaan.
-            </h2>
-            <p className="font-mono text-xs text-(--text-muted) lowercase">
+            <h2 className="type-h1 mb-1">bacaan.</h2>
+            <p className="type-caption text-(--text-muted)">
               satu halaman pada satu waktu.
             </p>
           </div>
-
-          <div className="flex gap-2 md:gap-3 w-full md:w-auto">
+          <div className="flex gap-2 items-center">
+            <Button variant="ghost" onClick={() => setModeCompact(!modeCompact)}>
+              {modeCompact ? (
+                <>
+                  <Maximize2 size={14} className="mr-1" /> mode detail
+                </>
+              ) : (
+                <>
+                  <Minimize2 size={14} className="mr-1" /> mode ringkas
+                </>
+              )}
+            </Button>
             <Button variant="ghost" onClick={() => setShowTimer(!showTimer)}>
-              <Clock size={14} className="inline mr-1" />
+              <Clock size={14} className="mr-1" />
               timer
             </Button>
-            <Button
-              variant="accent"
-              onClick={() => setShowAddForm(!showAddForm)}
-            >
-              <Plus size={14} className="inline mr-1" />
+            <Button variant="accent" onClick={() => setShowAddForm(true)}>
+              <Plus size={14} className="mr-1" />
               tambah buku
             </Button>
           </div>
         </div>
 
-        {/* Yearly Reading Goal */}
-        <Card>
-          <div className="p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-mono text-sm uppercase tracking-wider text-(--text-muted)">
-                  target bacaan {new Date().getFullYear()}
-                </h3>
-                <p className="font-serif text-3xl text-(--text-main) mt-2">
-                  {yearlyProgress.finished} / {yearlyProgress.goal} buku
-                </p>
-              </div>
-              <Button
-                variant="ghost"
-                onClick={() => setShowGoalForm(!showGoalForm)}
-                className="text-xs"
-              >
-                {showGoalForm ? "tutup" : "ubah target"}
-              </Button>
-            </div>
-
-            {/* Goal Form */}
-            {showGoalForm && (
-              <div className="p-4 border border-dashed border-(--border-color) space-y-3">
-                <div className="space-y-2">
-                  <label className="font-mono text-xs text-(--text-muted) uppercase">
-                    Target Buku per Tahun
-                  </label>
-                  <Input
-                    type="number"
-                    min="1"
-                    max="365"
-                    value={goalInput}
-                    onChange={(e) => setGoalInput(e.target.value)}
-                  />
-                </div>
-                <Button
-                  variant="accent"
-                  onClick={() => {
-                    setYearlyGoal(goalInput);
-                    setShowGoalForm(false);
-                    addToast("target bacaan diperbarui", "success");
-                  }}
-                  className="w-full"
-                >
-                  simpan target
-                </Button>
-              </div>
-            )}
-
-            {/* Progress Bar */}
+        <Card className="p-5 md:p-6 bg-(--card-color) border border-(--border-color)">
+          <div className="flex flex-col md:flex-row justify-between gap-4 items-end">
             <div className="space-y-2">
-              <div className="h-3 bg-(--bg-color) border border-(--border-color)">
+              <p className="font-mono text-xs uppercase text-(--text-muted)">
+                goal tahunan
+              </p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl md:text-4xl font-serif">
+                  {yearlyProgress.finished}/{yearlyProgress.goal}
+                </span>
+                <span className="font-mono text-xs text-(--text-muted)">
+                  buku {new Date().getFullYear()}
+                </span>
+              </div>
+              <div className="h-3 bg-(--bg-color) border border-(--border-color) rounded-sm overflow-hidden">
                 <div
-                  className={`h-full transition-all duration-500 ${
-                    yearlyProgress.onTrack ? "bg-(--accent)" : "bg-yellow-500"
-                  }`}
+                  className="h-full bg-(--accent) transition-all duration-700"
                   style={{ width: `${yearlyProgress.percentage}%` }}
                 />
               </div>
-              <div className="flex justify-between font-mono text-xs text-(--text-muted)">
-                <span>{yearlyProgress.percentage.toFixed(0)}% tercapai</span>
-                <span>{yearlyProgress.remaining} buku lagi</span>
-              </div>
-            </div>
-
-            {/* Stats Grid */}
-            <div className="grid grid-cols-3 gap-4 pt-3 border-t border-dashed border-(--border-color)">
-              <div className="text-center">
-                <div className="text-xl font-serif text-(--text-main)">
-                  {yearlyProgress.averagePerMonth}
-                </div>
-                <div className="font-mono text-xs text-(--text-muted) mt-1">
-                  per bulan
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="text-xl font-serif text-(--text-main)">
-                  {yearlyProgress.projectedTotal}
-                </div>
-                <div className="font-mono text-xs text-(--text-muted) mt-1">
-                  proyeksi
-                </div>
-              </div>
-              <div className="text-center">
-                <div
-                  className={`text-xl font-serif ${
-                    yearlyProgress.onTrack
-                      ? "text-(--accent)"
-                      : "text-yellow-500"
-                  }`}
-                >
-                  {yearlyProgress.onTrack ? "✓" : "⚠"}
-                </div>
-                <div className="font-mono text-xs text-(--text-muted) mt-1">
-                  {yearlyProgress.onTrack ? "on track" : "perlu usaha"}
-                </div>
-              </div>
-            </div>
-
-            {!yearlyProgress.onTrack && yearlyProgress.finished > 0 && (
-              <p className="font-mono text-xs text-yellow-500 text-center italic pt-2 border-t border-dashed border-(--border-color)">
-                tingkatkan kecepatan membaca untuk mencapai target!
+              <p className="font-mono text-[11px] text-(--text-muted)">
+                {yearlyProgress.remaining} buku lagi • proyeksi {yearlyProgress.projectedTotal}
               </p>
-            )}
+            </div>
+            <div className="flex gap-2 items-center">
+              <Input
+                type="number"
+                min="1"
+                value={goalInput}
+                onChange={(e) => setGoalInput(e.target.value)}
+                className="w-24"
+              />
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setYearlyGoal(goalInput);
+                  addToast("target diperbarui", "success");
+                }}
+              >
+                simpan target
+              </Button>
+            </div>
           </div>
         </Card>
 
-        {/* Reading Statistics */}
-        {books.length > 0 && <ReadingStats books={books} />}
+        {!modeCompact && (
+          <Card className="p-4 space-y-4">
+            <div className="flex items-center gap-2">
+              <Filter size={14} />
+              <span className="type-label">Aktivitas bulan ini</span>
+            </div>
+            {renderBarChart()}
+          </Card>
+        )}
 
-        {/* Reading Timer */}
+        <div className="flex flex-wrap gap-2">
+          {FILTERS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setFilter(tab.id)}
+              className={clsx(
+                "px-3 py-1 font-mono text-xs uppercase border",
+                filter === tab.id
+                  ? "border-(--accent) bg-(--accent)/10 text-(--accent)"
+                  : "border-(--border-color) text-(--text-muted) hover:text-(--text-main)"
+              )}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {!modeCompact && readingBooks.length > 0 && (
+          <div className="space-y-3">
+            <div className="type-label">Sedang dibaca</div>
+            <div className="grid gap-3">
+              {readingBooks.map((book) => renderReadingCard(book))}
+            </div>
+          </div>
+        )}
+
+        {filteredBooks.length === 0 ? (
+          <EmptyState
+            type="books"
+            customMessage="belum ada buku. mulai tambah buku pertama?"
+          >
+            <Button variant="accent" onClick={() => setShowAddForm(true)}>
+              tambah buku pertama
+            </Button>
+          </EmptyState>
+        ) : (
+          <div className="space-y-3">
+            <div className="type-label">Daftar buku</div>
+            <div className="space-y-3">
+              {filteredBooks.map((book) => renderBookCard(book))}
+            </div>
+          </div>
+        )}
+
         {showTimer && (
           <ReadingTimer
             onComplete={(xp) => {
-              addXP(xp, useToastStore.getState());
-              addToast(`sesi selesai! +${xp} xp 📚`, "success");
+              addXP(xp, useToastStore.getState(), {
+                source: "timer baca",
+                stats: buildAchievementStats(),
+              });
+              addToast(`sesi selesai! +${xp} xp`, "success");
             }}
             bookTitle={readingBooks[0]?.title}
           />
         )}
 
-        {/* Add Book Form */}
         {showAddForm && (
-          <Card variant="dashed">
-            <div className="space-y-4">
-              <h3 className="font-mono text-sm uppercase tracking-widest text-(text-main)">
-                Buku Baru
-              </h3>
-
-              <div className="space-y-3">
-                <Input
-                  placeholder="judul buku..."
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
-                  variant="box"
-                />
-
-                <Input
-                  placeholder="nama penulis..."
-                  value={formData.author}
-                  onChange={(e) =>
-                    setFormData({ ...formData, author: e.target.value })
-                  }
-                  variant="box"
-                />
-
-                <Input
-                  type="number"
-                  placeholder="total halaman..."
-                  value={formData.total}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      total: parseInt(e.target.value) || 100,
-                    })
-                  }
-                  variant="box"
-                />
-
-                <div>
-                  <label className="block text-(text-muted) font-mono text-xs mb-2 uppercase">
-                    Sampul Buku
-                  </label>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="https://..."
-                      value={formData.cover}
-                      onChange={(e) =>
-                        setFormData({ ...formData, cover: e.target.value })
-                      }
-                      className="flex-1"
-                      variant="box"
-                    />
-                    <button
-                      type="button"
-                      className="px-3 border border-dashed border-(border-color) hover:bg-(border-color) transition-colors text-(text-muted)"
-                      title="Simulasi Upload"
-                    >
-                      <Plus size={16} />
-                    </button>
-                  </div>
-                  <p className="text-[10px] mt-1 text-(text-muted) font-mono">
-                    *Tempel link gambar atau biarkan kosong.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-3">
-                <Button onClick={handleAddBook}>simpan</Button>
-                <Button variant="ghost" onClick={() => setShowAddForm(false)}>
-                  batal
-                </Button>
-              </div>
+          <Card variant="dashed" className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="type-label">Buku Baru</h3>
+              <Button variant="ghost" onClick={() => setShowAddForm(false)}>
+                tutup
+              </Button>
+            </div>
+            <Input
+              placeholder="judul buku"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              variant="box"
+            />
+            <Input
+              placeholder="penulis"
+              value={formData.author}
+              onChange={(e) =>
+                setFormData({ ...formData, author: e.target.value })
+              }
+              variant="box"
+            />
+            <Input
+              type="number"
+              placeholder="total halaman"
+              value={formData.total}
+              onChange={(e) =>
+                setFormData({ ...formData, total: parseInt(e.target.value) || 100 })
+              }
+              variant="box"
+            />
+            <Input
+              placeholder="tautan cover (opsional)"
+              value={formData.cover}
+              onChange={(e) =>
+                setFormData({ ...formData, cover: e.target.value })
+              }
+              variant="box"
+            />
+            <div className="flex gap-2">
+              <Button variant="accent" onClick={handleAddBook}>
+                simpan
+              </Button>
+              <Button variant="ghost" onClick={() => setShowAddForm(false)}>
+                batal
+              </Button>
             </div>
           </Card>
         )}
 
-        {/* Filter Tabs */}
-        <div className="flex gap-3">
-          {["all", "reading", "finished"].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setFilter(tab)}
-              className={clsx(
-                "font-mono text-xs uppercase tracking-widest px-4 py-2 border transition-all duration-300",
-                filter === tab
-                  ? "border-(accent) text-(accent) bg-(accent)/5"
-                  : "border-(border-color) text-(text-muted) hover:text-(text-main) hover:border-(text-main)"
-              )}
-            >
-              {tab === "all"
-                ? "semua"
-                : tab === "reading"
-                ? "dibaca"
-                : "selesai"}
-            </button>
-          ))}
-        </div>
-
-        {/* Books List */}
-        <div className="space-y-4">
-          {filteredBooks.length === 0 ? (
-            <EmptyState
-              type="books"
-              icon={
-                <BookOpen size={48} className="text-(text-muted) opacity-50" />
-              }
-            />
-          ) : (
-            filteredBooks.map((book) => (
-              <Card key={book.id}>
-                <div className="space-y-4">
-                  {/* Book Header with Cover */}
-                  <div className="flex gap-6 items-start">
-                    {/* Book Cover */}
-                    {book.cover && (
-                      <div className="w-24 h-32 bg-(bg-color) border border-(border-color) flex items-center justify-center shadow-lg relative rotate-subtle group overflow-hidden shrink-0">
-                        <img
-                          src={book.cover}
-                          alt={book.title}
-                          onError={(e) => {
-                            e.target.style.display = "none";
-                            e.target.parentElement.innerHTML =
-                              '<svg class="w-8 h-8 text-(text-muted) opacity-30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>';
-                          }}
-                          className="w-full h-full object-cover grayscale group-hover:grayscale-0 mix-blend-multiply group-hover:mix-blend-normal transition-all duration-500"
-                        />
-                        <div className="book-spine"></div>
-                      </div>
-                    )}
-
-                    <div className="flex-1">
-                      <h3 className="text-xl font-serif text-(text-main) mb-1">
-                        {book.title}
-                      </h3>
-                      <p className="font-mono text-xs text-(text-muted)">
-                        oleh {book.author}
-                      </p>
-                    </div>
-
-                    <button
-                      onClick={() => deleteBook(book.id)}
-                      className="text-(text-muted) hover:text-(text-main) transition-colors"
-                    >
-                      <X size={18} />
-                    </button>
-                  </div>
-
-                  {/* Progress for reading books */}
-                  {book.status === "reading" && (
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="font-mono text-xs text-(text-muted)">
-                          halaman {book.progress} / {book.total}
-                        </span>
-                        <span className="font-mono text-xs text-(accent)">
-                          {Math.round((book.progress / book.total) * 100)}%
-                        </span>
-                      </div>
-
-                      {/* Progress Bar */}
-                      <div className="h-2 bg-(bg-color) border border-(border-color)">
-                        <div
-                          className="h-full bg-(accent) transition-all duration-500"
-                          style={{
-                            width: `${(book.progress / book.total) * 100}%`,
-                          }}
-                        />
-                      </div>
-
-                      {/* Update Progress */}
-                      <div className="flex gap-2 items-center pt-2">
-                        <Input
-                          type="number"
-                          placeholder="halaman saat ini..."
-                          defaultValue={book.progress}
-                          onBlur={(e) => {
-                            const val = parseInt(e.target.value);
-                            if (val >= 0 && val <= book.total) {
-                              handleUpdateProgress(book.id, val);
-                            }
-                          }}
-                          className="flex-1"
-                          variant="box"
-                        />
-                        <Button
-                          variant="accent"
-                          onClick={() =>
-                            handleUpdateProgress(book.id, book.total)
-                          }
-                        >
-                          selesai
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Rating for finished books */}
-                  {book.status === "finished" && (
-                    <div className="border-t border-dashed border-(border-color) pt-4 space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="font-mono text-xs text-(text-muted)">
-                          selesai: {book.finishedDate}
-                        </span>
-
-                        {/* Star Rating */}
-                        <div className="flex gap-1">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <button
-                              key={star}
-                              onClick={() => handleRating(book.id, star)}
-                              className="transition-colors"
-                            >
-                              <Star
-                                size={16}
-                                className={clsx(
-                                  book.rating >= star
-                                    ? "fill-(accent) text-(accent)"
-                                    : "text-(text-muted)"
-                                )}
-                              />
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Notes & Quotes Section */}
-                  <div className="border-t border-dashed border-(border-color) pt-4 space-y-3">
-                    <button
-                      onClick={() => toggleNotesSection(book.id)}
-                      className="w-full flex items-center justify-between font-mono text-xs text-(text-muted) uppercase tracking-widest hover:text-(text-main) transition-colors"
-                    >
-                      <span>catatan & kutipan</span>
-                      <span className="text-(accent)">
-                        {(book.notes || []).length +
-                          (book.quotes || []).length || "+"}
-                      </span>
-                    </button>
-
-                    {expandedNotes[book.id] && (
-                      <div className="space-y-4 pt-2">
-                        {/* Notes Section */}
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="font-mono text-xs text-(text-muted) uppercase">
-                              📝 Catatan
-                            </span>
-                          </div>
-
-                          {/* Notes List */}
-                          {(book.notes || []).map((note) => (
-                            <div
-                              key={note.id}
-                              className="p-3 border border-dashed border-(border-color) bg-(bg-color)/50 space-y-1"
-                            >
-                              <p className="font-mono text-sm text-(text-main)">
-                                {note.text}
-                              </p>
-                              <div className="flex items-center justify-between">
-                                <span className="font-mono text-xs text-(text-muted)">
-                                  hal. {note.page}
-                                </span>
-                                <button
-                                  onClick={() => deleteNote(book.id, note.id)}
-                                  className="text-(text-muted) hover:text-(text-main) transition-colors"
-                                >
-                                  <X size={14} />
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-
-                          {/* Add Note Input */}
-                          <div className="flex gap-2">
-                            <Input
-                              placeholder="tambah catatan..."
-                              value={noteInput[book.id] || ""}
-                              onChange={(e) =>
-                                setNoteInput({
-                                  ...noteInput,
-                                  [book.id]: e.target.value,
-                                })
-                              }
-                              onKeyDown={(e) =>
-                                e.key === "Enter" && handleAddNote(book.id)
-                              }
-                              variant="box"
-                              className="flex-1"
-                            />
-                            <Button
-                              variant="accent"
-                              onClick={() => handleAddNote(book.id)}
-                              disabled={
-                                !(
-                                  noteInput[book.id] &&
-                                  noteInput[book.id].trim()
-                                )
-                              }
-                            >
-                              <Plus size={14} />
-                            </Button>
-                          </div>
-                        </div>
-
-                        {/* Quotes Section */}
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="font-mono text-xs text-(text-muted) uppercase">
-                              💭 Kutipan
-                            </span>
-                          </div>
-
-                          {/* Quotes List */}
-                          {(book.quotes || []).map((quote) => (
-                            <div
-                              key={quote.id}
-                              className="p-3 border-l-2 border-(accent) bg-(accent)/5 space-y-1"
-                            >
-                              <p className="font-serif italic text-sm text-(text-main)">
-                                "{quote.text}"
-                              </p>
-                              <div className="flex items-center justify-between">
-                                <span className="font-mono text-xs text-(text-muted)">
-                                  hal. {quote.page}
-                                </span>
-                                <button
-                                  onClick={() => deleteQuote(book.id, quote.id)}
-                                  className="text-(text-muted) hover:text-(text-main) transition-colors"
-                                >
-                                  <X size={14} />
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-
-                          {/* Add Quote Input */}
-                          <div className="flex gap-2">
-                            <Input
-                              placeholder="tambah kutipan..."
-                              value={quoteInput[book.id] || ""}
-                              onChange={(e) =>
-                                setQuoteInput({
-                                  ...quoteInput,
-                                  [book.id]: e.target.value,
-                                })
-                              }
-                              onKeyDown={(e) =>
-                                e.key === "Enter" && handleAddQuote(book.id)
-                              }
-                              variant="box"
-                              className="flex-1"
-                            />
-                            <Button
-                              variant="accent"
-                              onClick={() => handleAddQuote(book.id)}
-                              disabled={
-                                !(
-                                  quoteInput[book.id] &&
-                                  quoteInput[book.id].trim()
-                                )
-                              }
-                            >
-                              <Plus size={14} />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </Card>
-            ))
-          )}
-
-          {/* Empty Slot Placeholder */}
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="w-full p-8 border border-dashed border-(border-color) hover:bg-(card-color) transition-all opacity-50 hover:opacity-100 group flex flex-col items-center justify-center gap-3"
-          >
-            <Plus
-              size={32}
-              className="text-(text-muted) group-hover:text-(accent) transition-colors"
-            />
-            <span className="font-hand text-sm text-(text-muted) -rotate-2">
-              slot kosong, tambah buku baru?
-            </span>
-          </button>
-        </div>
+        {editingBook && (
+          <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+            <Card className="w-full max-w-md space-y-3">
+              <div className="flex justify-between items-center">
+                <h3 className="type-label">Edit Buku</h3>
+                <Button variant="ghost" onClick={() => setEditingBook(null)}>
+                  <X size={16} />
+                </Button>
+              </div>
+              <Input
+                value={editingBook.title}
+                onChange={(e) =>
+                  setEditingBook({ ...editingBook, title: e.target.value })
+                }
+                placeholder="judul"
+                variant="box"
+              />
+              <Input
+                value={editingBook.author}
+                onChange={(e) =>
+                  setEditingBook({ ...editingBook, author: e.target.value })
+                }
+                placeholder="penulis"
+                variant="box"
+              />
+              <Input
+                type="number"
+                value={editingBook.total}
+                onChange={(e) =>
+                  setEditingBook({
+                    ...editingBook,
+                    total: parseInt(e.target.value) || 1,
+                  })
+                }
+                placeholder="total halaman"
+                variant="box"
+              />
+              <Input
+                value={editingBook.cover || ""}
+                onChange={(e) =>
+                  setEditingBook({ ...editingBook, cover: e.target.value })
+                }
+                placeholder="tautan cover (opsional)"
+                variant="box"
+              />
+              <div className="flex gap-2">
+                <select
+                  value={editingBook.status}
+                  onChange={(e) =>
+                    setEditingBook({ ...editingBook, status: e.target.value })
+                  }
+                  className="border border-(--border-color) bg-transparent px-3 py-2 text-sm"
+                >
+                  <option value="reading">sedang dibaca</option>
+                  <option value="finished">selesai</option>
+                  <option value="wishlist">wishlist</option>
+                </select>
+                <Input
+                  type="number"
+                  value={editingBook.progress}
+                  onChange={(e) =>
+                    setEditingBook({
+                      ...editingBook,
+                      progress: parseInt(e.target.value) || 0,
+                    })
+                  }
+                  placeholder="progres"
+                  variant="box"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button variant="accent" onClick={handleEditSave}>
+                  simpan
+                </Button>
+                <Button variant="ghost" onClick={() => setEditingBook(null)}>
+                  batal
+                </Button>
+              </div>
+            </Card>
+          </div>
+        )}
       </div>
     </AnimatedPage>
   );

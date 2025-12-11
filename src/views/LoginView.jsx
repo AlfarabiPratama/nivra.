@@ -1,4 +1,5 @@
 import { useState } from "react";
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
@@ -11,7 +12,7 @@ import {
 } from "../services/authService";
 import { useToastStore } from "../store/useToastStore";
 import { useThemeStore } from "../store/useThemeStore";
-import { Sprout, LogIn, Mail } from "lucide-react";
+import { LogIn, Mail } from "lucide-react";
 
 export const LoginView = () => {
   const { addToast } = useToastStore();
@@ -54,12 +55,11 @@ export const LoginView = () => {
 
     setIsLoading(true);
     try {
-      let result;
       if (mode === "signup") {
-        result = await signUpWithEmail(email, password);
+        await signUpWithEmail(email, password);
         addToast("akun berhasil dibuat! 🎉", "success");
       } else {
-        result = await signInWithEmail(email, password);
+        await signInWithEmail(email, password);
         addToast("berhasil masuk", "success");
       }
     } catch (error) {
@@ -114,16 +114,17 @@ export const LoginView = () => {
           <Card className="p-8 md:p-12" variant="solid">
             {/* Logo & Branding */}
             <div className="text-center mb-10 md:mb-12">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-(--accent)/5 border-2 border-dashed border-(--accent)/30 mb-6">
-                <Sprout
-                  size={40}
-                  className="text-(--accent)"
-                  strokeWidth={1.5}
+              <div className="flex justify-center mb-6">
+                <img
+                  src={
+                    isDarkMode
+                      ? "/dark mode nivra.png"
+                      : "/nivra light mode .png"
+                  }
+                  alt="Nivra Logo"
+                  className="w-48 md:w-56 h-auto opacity-90 hover:opacity-100 transition-opacity duration-300"
                 />
               </div>
-              <h1 className="font-serif text-4xl md:text-5xl text-(--text-main) mb-3 tracking-tight">
-                nivra.
-              </h1>
               <p className="font-mono text-xs md:text-sm text-(--text-muted) lowercase tracking-wider border-l-2 border-(--accent) pl-4 inline-block">
                 ruang digital tenang
               </p>

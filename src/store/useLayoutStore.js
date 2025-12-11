@@ -1,11 +1,35 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-const DEFAULT_WIDGET_ORDER = ['weeklyReview', 'weeklyInsights', 'taskAnalytics', 'pomodoro'];
+const DEFAULT_WIDGET_ORDER = [
+  "soundscapes",
+  "weeklyReview",
+  "weeklyInsights",
+  "taskAnalytics",
+  "pomodoro",
+];
 const PRESETS = {
-  focus: ['weeklyReview', 'taskAnalytics', 'pomodoro', 'weeklyInsights'],
-  balance: ['weeklyReview', 'weeklyInsights', 'taskAnalytics', 'pomodoro'],
-  analytics: ['taskAnalytics', 'weeklyInsights', 'weeklyReview', 'pomodoro'],
+  focus: [
+    "soundscapes",
+    "weeklyReview",
+    "taskAnalytics",
+    "pomodoro",
+    "weeklyInsights",
+  ],
+  balance: [
+    "soundscapes",
+    "weeklyReview",
+    "weeklyInsights",
+    "taskAnalytics",
+    "pomodoro",
+  ],
+  analytics: [
+    "taskAnalytics",
+    "weeklyInsights",
+    "weeklyReview",
+    "pomodoro",
+    "soundscapes",
+  ],
 };
 
 export const useLayoutStore = create(
@@ -19,7 +43,7 @@ export const useLayoutStore = create(
         const index = order.indexOf(id);
         if (index === -1) return;
 
-        const targetIndex = direction === 'up' ? index - 1 : index + 1;
+        const targetIndex = direction === "up" ? index - 1 : index + 1;
         if (targetIndex < 0 || targetIndex >= order.length) return;
 
         [order[index], order[targetIndex]] = [order[targetIndex], order[index]];
@@ -38,10 +62,11 @@ export const useLayoutStore = create(
 
       setWidgetOrder: (order) => set({ widgetOrder: order }),
 
-      resetLayout: () => set({
-        widgetOrder: DEFAULT_WIDGET_ORDER,
-        hiddenWidgets: [],
-      }),
+      resetLayout: () =>
+        set({
+          widgetOrder: DEFAULT_WIDGET_ORDER,
+          hiddenWidgets: [],
+        }),
 
       applyPreset: (preset) => {
         if (PRESETS[preset]) {
@@ -49,7 +74,7 @@ export const useLayoutStore = create(
         }
       },
     }),
-    { name: 'nivra-layout' }
+    { name: "nivra-layout" }
   )
 );
 

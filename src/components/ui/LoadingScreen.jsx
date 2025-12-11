@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useThemeStore } from "../../store/useThemeStore";
@@ -38,6 +39,11 @@ export const LoadingScreen = ({ onComplete }) => {
       <div className={isDarkMode ? "bg-noise-dark" : "bg-noise-light"}></div>
 
       <div className="relative z-10 flex flex-col items-center">
+        <img
+          src={isDarkMode ? "/dark mode nivra.png" : "/nivra light mode .png"}
+          alt="Nivra"
+          className="w-24 md:w-32 h-auto mb-6 opacity-80"
+        />
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

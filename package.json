@@ -10,6 +10,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "analyze": "ANALYZE=true vite build",
     "deploy": "npm run build && firebase deploy --only hosting",
     "deploy:preview": "npm run build && firebase hosting:channel:deploy preview"
   },
@@ -36,6 +37,7 @@
     "globals": "^16.5.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.17",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "rollup-plugin-visualizer": "^5.11.0"
   }
 }

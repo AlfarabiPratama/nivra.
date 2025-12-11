@@ -8,6 +8,9 @@ import { useBookStore } from "../../store/useBookStore";
 import { useJournalStore } from "../../store/useJournalStore";
 import { AchievementModal } from "../modals/AchievementModal";
 import { SyncStatusBadge } from "../sync/SyncStatusIndicator";
+import { GlobalAudioPlayer } from "../audio/GlobalAudioPlayer";
+import { SoundscapesPopup } from "../audio/SoundscapesPopup";
+import { RewardOverlay } from "../ui/RewardOverlay";
 import { User, Trophy, Menu, X } from "lucide-react";
 
 export const AppShell = ({ children }) => {
@@ -45,11 +48,15 @@ export const AppShell = ({ children }) => {
   }, []);
 
   // Calculate stats for achievements
+  const bookList = books || [];
+  const taskList = tasks || [];
+  const entryList = entries || [];
+
   const stats = {
     level: user.level || 0,
-    booksFinished: books.filter((b) => b.status === "finished").length,
-    tasksCompleted: tasks.filter((t) => t.completed).length,
-    journalEntries: entries.length,
+    booksFinished: bookList.filter((b) => b.status === "finished").length,
+    tasksCompleted: taskList.filter((t) => t.completed).length,
+    journalEntries: entryList.length,
     maxTasksInDay: 0, // Could be calculated from task completedAt dates
     taskStreak: 0, // Could be calculated from consecutive days
     journalStreak: 0, // Could be calculated from consecutive days
@@ -196,6 +203,11 @@ export const AppShell = ({ children }) => {
         unlockedAchievements={unlockedAchievements}
         stats={stats}
       />
+
+      {/* Global Persistent Audio */}
+      <GlobalAudioPlayer />
+      <SoundscapesPopup />
+      <RewardOverlay />
     </div>
   );
 };

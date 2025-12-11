@@ -36,7 +36,7 @@ export const useAudioStore = create(
           audio.play().catch(() => {
             // Silently fail if autoplay is blocked
           });
-        } catch (error) {
+        } catch {
           // Silently fail
         }
       },

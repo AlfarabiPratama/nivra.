@@ -34,9 +34,9 @@ export const Navigation = ({
     { id: "habits", label: "kebiasaan", icon: CheckCircle },
     { id: "finance", label: "keuangan", icon: Wallet },
     { id: "pomodoro", label: "pomodoro", icon: Timer },
-    { id: "settings", label: "pengaturan", icon: Settings },
     { id: "garden", label: "taman", icon: Sprout },
     { id: "digest", label: "digest", icon: BookText },
+    { id: "settings", label: "pengaturan", icon: Settings },
   ];
   const { currentView, setCurrentView } = useAppStore();
   const { isDarkMode, toggleTheme } = useThemeStore();

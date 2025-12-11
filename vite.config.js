@@ -1,9 +1,27 @@
+/* eslint-env node */
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { visualizer } from "rollup-plugin-visualizer";
 
 // https://vite.dev/config/
+const plugins = [react()];
+// eslint-disable-next-line no-undef
+const isAnalyze = process.env.ANALYZE === "true";
+
+if (isAnalyze) {
+  plugins.push(
+    visualizer({
+      filename: "dist/stats.html",
+      template: "treemap",
+      gzipSize: true,
+      brotliSize: true,
+      open: false,
+    })
+  );
+}
+
 export default defineConfig({
-  plugins: [react()],
+  plugins,
   server: {
     hmr: {
       overlay: true,
