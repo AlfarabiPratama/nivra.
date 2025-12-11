@@ -413,53 +413,65 @@ export const CalendarView = () => {
                           </div>
                         </div>
 
-                        <div className="hidden md:block mt-2 space-y-1">
-                          {info ? (
-                            <>
-                              {info.tasks.length > 0 && (
-                                <div className="flex items-center gap-1 text-[11px] text-(--text-main) truncate">
-                                  <ListChecks
-                                    size={12}
-                                    className="text-(--accent) shrink-0"
-                                  />
-                                  <span className="truncate">
-                                    {info.tasks.length} tugas
-                                  </span>
-                                </div>
-                              )}
-                              {info.journals.length > 0 && (
-                                <div className="flex items-center gap-1 text-[11px] text-(--text-main) truncate">
-                                  <NotebookPen
-                                    size={12}
-                                    className="text-(--accent)"
-                                  />
-                                  <span className="truncate">
-                                    {info.journals.length} jurnal
-                                  </span>
-                                </div>
-                              )}
-                              {info.habits.length > 0 && (
-                                <div className="flex items-center gap-1 text-[11px] text-(--text-main) truncate">
-                                  <CheckCircle2
-                                    size={12}
-                                    className="text-(--accent)"
-                                  />
-                                  <span className="truncate">
-                                    {info.habits.length} habit
-                                  </span>
-                                </div>
-                              )}
-                            </>
-                          ) : (
-                            <p className="text-[11px] text-(--text-muted)">
-                              tenang.
-                            </p>
-                          )}
-                          {holiday && (showHolidays || showIntlHolidays) && (
-                            <p className="text-[10px] text-(--accent) truncate">
-                              {holiday.label}
-                            </p>
-                          )}
+                        <div className="mt-2 space-y-1">
+                          {/* Holiday label - always show if active */}
+                          {holiday &&
+                            ((holiday.type === "national" && showHolidays) ||
+                              (holiday.type === "international" &&
+                                showIntlHolidays)) && (
+                              <div className="bg-(--accent)/5 px-1.5 py-0.5 rounded-sm">
+                                <p className="text-[9px] md:text-[10px] text-(--accent) truncate font-mono font-semibold">
+                                  {holiday.label}
+                                </p>
+                              </div>
+                            )}
+
+                          {/* Desktop: Show activity details */}
+                          <div className="hidden md:block space-y-1">
+                            {info ? (
+                              <>
+                                {info.tasks.length > 0 && (
+                                  <div className="flex items-center gap-1 text-[11px] text-(--text-main) truncate">
+                                    <ListChecks
+                                      size={12}
+                                      className="text-(--accent) shrink-0"
+                                    />
+                                    <span className="truncate">
+                                      {info.tasks.length} tugas
+                                    </span>
+                                  </div>
+                                )}
+                                {info.journals.length > 0 && (
+                                  <div className="flex items-center gap-1 text-[11px] text-(--text-main) truncate">
+                                    <NotebookPen
+                                      size={12}
+                                      className="text-(--accent)"
+                                    />
+                                    <span className="truncate">
+                                      {info.journals.length} jurnal
+                                    </span>
+                                  </div>
+                                )}
+                                {info.habits.length > 0 && (
+                                  <div className="flex items-center gap-1 text-[11px] text-(--text-main) truncate">
+                                    <CheckCircle2
+                                      size={12}
+                                      className="text-(--accent)"
+                                    />
+                                    <span className="truncate">
+                                      {info.habits.length} habit
+                                    </span>
+                                  </div>
+                                )}
+                              </>
+                            ) : (
+                              !holiday && (
+                                <p className="text-[11px] text-(--text-muted)">
+                                  tenang.
+                                </p>
+                              )
+                            )}
+                          </div>
                         </div>
                       </button>
                       <Button
@@ -537,6 +549,22 @@ export const CalendarView = () => {
                     month: "short",
                   })}
                 </p>
+                {(() => {
+                  const selectedHoliday = monthHolidays.find(
+                    (h) => new Date(h.date).toDateString() === selectedDateKey
+                  );
+                  return selectedHoliday &&
+                    ((selectedHoliday.type === "national" && showHolidays) ||
+                      (selectedHoliday.type === "international" &&
+                        showIntlHolidays)) ? (
+                    <div className="mt-1 flex items-center gap-1.5">
+                      <MapPin size={12} className="text-(--accent)" />
+                      <p className="font-mono text-xs text-(--accent)">
+                        {selectedHoliday.label}
+                      </p>
+                    </div>
+                  ) : null;
+                })()}
               </div>
               <div className="flex gap-1.5 flex-wrap">
                 <span className="px-2 py-0.5 border border-(--border-color) font-mono text-[10px] text-(--text-muted)">
