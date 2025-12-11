@@ -21,7 +21,11 @@ import { useHabitStore } from "../store/useHabitStore";
 import { useJournalStore } from "../store/useJournalStore";
 import { useToastStore } from "../store/useToastStore";
 import clsx from "clsx";
-import { HOLIDAY_COUNTRIES } from "../constants/holidays";
+import {
+  HOLIDAY_COUNTRIES,
+  HOLIDAY_YEARS,
+  getHolidaysForYear,
+} from "../constants/holidays";
 import { useCalendarStore } from "../store/useCalendarStore";
 
 const dayNames = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
@@ -62,6 +66,13 @@ export const CalendarView = () => {
     date: null,
     text: "",
   });
+  const [dateDetailModal, setDateDetailModal] = useState({
+    open: false,
+    date: null,
+  });
+  const [holidayYearFilter, setHolidayYearFilter] = useState(
+    new Date().getFullYear()
+  );
 
   const monthLabel = cursor.toLocaleDateString("id-ID", {
     month: "long",
@@ -373,7 +384,10 @@ export const CalendarView = () => {
                   return (
                     <div key={key} className="relative group">
                       <button
-                        onClick={() => setCursor(date)}
+                        onClick={() => {
+                          setCursor(date);
+                          setDateDetailModal({ open: true, date });
+                        }}
                         className={clsx(
                           "text-left p-2 md:p-3 rounded-sm transition-all w-full h-full focus:outline-none",
                           isSelected
@@ -536,23 +550,45 @@ export const CalendarView = () => {
         )}
 
         {/* Holiday & Important Days Section */}
-        {monthHolidays.length > 0 && (showHolidays || showIntlHolidays) && (
+        {(showHolidays || showIntlHolidays) && (
           <Card>
             <div className="p-3 md:p-4 space-y-3">
-              <div className="flex items-center gap-2">
-                <MapPin size={16} className="text-(--accent)" />
-                <h3 className="font-serif text-lg text-(--text-main)">
-                  Hari Penting Bulan Ini
-                </h3>
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-3">
+                <div className="flex items-center gap-2">
+                  <MapPin size={16} className="text-(--accent)" />
+                  <h3 className="font-serif text-lg text-(--text-main)">
+                    Hari Penting {holidayYearFilter}
+                  </h3>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs text-(--text-muted)">
+                    Tahun:
+                  </span>
+                  <select
+                    value={holidayYearFilter}
+                    onChange={(e) =>
+                      setHolidayYearFilter(Number(e.target.value))
+                    }
+                    className="border border-(--border-color) bg-(--card-color) px-3 py-1.5 text-sm font-mono text-(--text-main) rounded-sm"
+                  >
+                    {HOLIDAY_YEARS.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {monthHolidays
+                {getHolidaysForYear(holidayYearFilter, [
+                  holidayCountry,
+                  "global",
+                ])
                   .filter(
                     (h) =>
                       (h.type === "national" && showHolidays) ||
                       (h.type === "international" && showIntlHolidays)
                   )
-                  .sort((a, b) => new Date(a.date) - new Date(b.date))
                   .map((holiday, idx) => {
                     const holidayDate = new Date(holiday.date);
                     const isToday =
@@ -612,13 +648,16 @@ export const CalendarView = () => {
                     );
                   })}
               </div>
-              {monthHolidays.filter(
+              {getHolidaysForYear(holidayYearFilter, [
+                holidayCountry,
+                "global",
+              ]).filter(
                 (h) =>
                   (h.type === "national" && showHolidays) ||
                   (h.type === "international" && showIntlHolidays)
               ).length === 0 && (
                 <p className="font-mono text-xs text-(--text-muted) text-center py-4">
-                  Tidak ada hari libur/penting di bulan ini.
+                  Tidak ada hari libur/penting di tahun {holidayYearFilter}.
                 </p>
               )}
             </div>
@@ -843,6 +882,215 @@ export const CalendarView = () => {
                 >
                   simpan
                 </Button>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* Date Detail Modal */}
+        {dateDetailModal.open && dateDetailModal.date && (
+          <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+            <Card className="w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+              <div className="p-4 md:p-6 space-y-4">
+                {/* Header */}
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-serif text-xl md:text-2xl text-(--text-main) mb-1">
+                      {dateDetailModal.date.toLocaleDateString("id-ID", {
+                        weekday: "long",
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </h3>
+                    {(() => {
+                      const detailKey = formatDateKey(dateDetailModal.date);
+                      const detailHoliday = monthHolidays.find(
+                        (h) => new Date(h.date).toDateString() === detailKey
+                      );
+                      return detailHoliday &&
+                        ((detailHoliday.type === "national" && showHolidays) ||
+                          (detailHoliday.type === "international" &&
+                            showIntlHolidays)) ? (
+                        <div className="flex items-center gap-2 mt-2">
+                          <MapPin size={14} className="text-(--accent)" />
+                          <span className="font-mono text-sm text-(--accent)">
+                            {detailHoliday.label}
+                          </span>
+                          <span
+                            className={clsx(
+                              "px-1.5 py-0.5 font-mono text-[9px] rounded-sm border",
+                              detailHoliday.type === "national"
+                                ? "bg-(--accent)/10 text-(--accent) border-(--accent)/30"
+                                : "bg-(--text-muted)/10 text-(--text-muted) border-(--border-color)"
+                            )}
+                          >
+                            {detailHoliday.type === "national"
+                              ? "LIBUR NASIONAL"
+                              : "HARI INTERNASIONAL"}
+                          </span>
+                        </div>
+                      ) : null;
+                    })()}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      setDateDetailModal({ open: false, date: null })
+                    }
+                  >
+                    <X size={16} />
+                  </Button>
+                </div>
+
+                {(() => {
+                  const detailKey = formatDateKey(dateDetailModal.date);
+                  const detailData = dayData.get(detailKey) || {
+                    tasks: [],
+                    journals: [],
+                    habits: [],
+                  };
+                  const hasAnyData =
+                    detailData.tasks.length > 0 ||
+                    detailData.journals.length > 0 ||
+                    detailData.habits.length > 0;
+
+                  return hasAnyData ? (
+                    <div className="space-y-4">
+                      {/* Tasks */}
+                      {detailData.tasks.length > 0 && (
+                        <div className="border border-(--border-color) rounded-sm p-4">
+                          <div className="flex items-center gap-2 mb-3">
+                            <ListChecks size={18} className="text-(--accent)" />
+                            <h4 className="font-mono text-sm text-(--text-main) uppercase font-semibold">
+                              Tugas ({detailData.tasks.length})
+                            </h4>
+                          </div>
+                          <ul className="space-y-2">
+                            {detailData.tasks.map((task) => (
+                              <li
+                                key={task.id}
+                                className="flex items-start gap-3 p-2 bg-(--bg-color) rounded-sm"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={task.completed}
+                                  readOnly
+                                  className="mt-0.5 w-4 h-4"
+                                  style={{ accentColor: "var(--accent)" }}
+                                />
+                                <div className="flex-1">
+                                  <p
+                                    className={clsx(
+                                      "font-mono text-sm",
+                                      task.completed
+                                        ? "line-through text-(--text-muted)"
+                                        : "text-(--text-main)"
+                                    )}
+                                  >
+                                    {task.text}
+                                  </p>
+                                  {task.priority && (
+                                    <span className="inline-block mt-1 px-2 py-0.5 text-[10px] font-mono border border-(--border-color) rounded-sm">
+                                      {task.priority}
+                                    </span>
+                                  )}
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Habits */}
+                      {detailData.habits.length > 0 && (
+                        <div className="border border-(--border-color) rounded-sm p-4">
+                          <div className="flex items-center gap-2 mb-3">
+                            <CheckCircle2
+                              size={18}
+                              className="text-(--accent)"
+                            />
+                            <h4 className="font-mono text-sm text-(--text-main) uppercase font-semibold">
+                              Kebiasaan ({detailData.habits.length})
+                            </h4>
+                          </div>
+                          <ul className="space-y-2">
+                            {detailData.habits.map((habit) => (
+                              <li
+                                key={habit.id || habit}
+                                className="flex items-center gap-3 p-2 bg-(--bg-color) rounded-sm"
+                              >
+                                <CheckCircle2
+                                  size={16}
+                                  className="text-(--accent)"
+                                />
+                                <span className="font-mono text-sm text-(--text-main)">
+                                  {habit.name || "Habit"}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Journals */}
+                      {detailData.journals.length > 0 && (
+                        <div className="border border-(--border-color) rounded-sm p-4">
+                          <div className="flex items-center gap-2 mb-3">
+                            <NotebookPen
+                              size={18}
+                              className="text-(--accent)"
+                            />
+                            <h4 className="font-mono text-sm text-(--text-main) uppercase font-semibold">
+                              Jurnal ({detailData.journals.length})
+                            </h4>
+                          </div>
+                          <div className="space-y-3">
+                            {detailData.journals.map((entry) => (
+                              <div
+                                key={entry.id}
+                                className="p-3 bg-(--bg-color) rounded-sm"
+                              >
+                                {entry.mood && (
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <span className="text-lg">
+                                      {entry.mood}
+                                    </span>
+                                    <span className="font-mono text-xs text-(--text-muted)">
+                                      {new Date(
+                                        entry.createdAt
+                                      ).toLocaleTimeString("id-ID", {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      })}
+                                    </span>
+                                  </div>
+                                )}
+                                <p className="font-mono text-sm text-(--text-main) whitespace-pre-wrap">
+                                  {entry.content}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="border border-dashed border-(--border-color) rounded-sm p-8 text-center">
+                      <CalendarDays
+                        size={32}
+                        className="mx-auto mb-3 text-(--text-muted)"
+                      />
+                      <p className="font-mono text-sm text-(--text-muted)">
+                        Tidak ada aktivitas di tanggal ini.
+                      </p>
+                      <p className="font-mono text-xs text-(--text-muted) mt-1">
+                        Mulai tambahkan tugas, habit, atau jurnal.
+                      </p>
+                    </div>
+                  );
+                })()}
               </div>
             </Card>
           </div>
