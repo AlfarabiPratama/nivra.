@@ -1,5 +1,44 @@
-// Simple static holiday dataset (can be replaced with API-driven list later)
-// Structure: { country: "id", year: 2025, date: "YYYY-MM-DD", label: string, type: "national" | "international" }
+/**
+ * PANDUAN UPDATE HARI LIBUR & HARI PENTING
+ * ==========================================
+ *
+ * File ini berisi data hari libur nasional Indonesia dan hari penting internasional.
+ *
+ * CARA UPDATE UNTUK TAHUN BARU:
+ * 1. Tambahkan data holiday baru di array HOLIDAYS dengan format yang sama
+ * 2. HOLIDAY_YEARS akan otomatis update (auto-generated dari data)
+ * 3. Deploy aplikasi, tidak perlu update code lain
+ *
+ * FORMAT DATA:
+ * {
+ *   country: "id" | "global",      // id = Indonesia, global = Internasional
+ *   year: 2027,                     // Tahun (YYYY)
+ *   date: "2027-01-01",            // Format: YYYY-MM-DD
+ *   label: "Tahun Baru Masehi",    // Nama hari libur/penting
+ *   type: "national" | "international"  // Jenis (libur nasional atau hari internasional)
+ * }
+ *
+ * SUMBER DATA:
+ * - Indonesia: https://dayoffapi.vercel.app/ (auto-fetch jika API aktif)
+ * - Fallback: Data manual di file ini
+ * - International: https://www.un.org/en/observances/international-days
+ *
+ * HARI INTERNASIONAL YANG SUDAH ADA:
+ * - New Year's Day (1 Jan)
+ * - Valentine's Day (14 Feb)
+ * - International Women's Day (8 Mar) - Hari Perempuan Sedunia
+ * - World Poetry Day (21 Mar) - Hari Puisi Sedunia
+ * - Earth Day (22 Apr) - Hari Bumi
+ * - Labour Day (1 Mei) - Hari Buruh Sedunia
+ * - World Environment Day (5 Jun) - Hari Lingkungan Hidup Sedunia
+ * - World Population Day (11 Jul) - Hari Kependudukan Sedunia
+ * - International Youth Day (12 Ags) - Hari Pemuda Internasional
+ * - International Literacy Day (8 Sep) - Hari Aksara Internasional
+ * - World Teachers' Day (5 Okt) - Hari Guru Sedunia
+ * - World Food Day (16 Okt) - Hari Pangan Sedunia
+ * - International Day for Tolerance (16 Nov) - Hari Toleransi Internasional
+ * - Human Rights Day (10 Des) - Hari HAM Sedunia
+ */
 
 export const HOLIDAYS = [
   // Indonesia National Holidays 2025
@@ -366,7 +405,12 @@ export const HOLIDAY_COUNTRIES = [
   { id: "global", label: "Internasional" },
 ];
 
-export const HOLIDAY_YEARS = [2025, 2026];
+// Auto-generate available years from HOLIDAYS data
+const uniqueYears = [...new Set(HOLIDAYS.map((h) => h.year))].sort(
+  (a, b) => a - b
+);
+export const HOLIDAY_YEARS =
+  uniqueYears.length > 0 ? uniqueYears : [new Date().getFullYear()];
 
 export const getHolidaysForMonth = (year, month, countryIds = ["id"]) => {
   return HOLIDAYS.filter(

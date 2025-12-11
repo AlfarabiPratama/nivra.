@@ -12,6 +12,8 @@ import {
   MapPin,
   CalendarSearch,
   X,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { AnimatedPage } from "../components/ui/AnimatedPage";
 import { Card } from "../components/ui/Card";
@@ -73,6 +75,7 @@ export const CalendarView = () => {
   const [holidayYearFilter, setHolidayYearFilter] = useState(
     new Date().getFullYear()
   );
+  const [holidaySectionCollapsed, setHolidaySectionCollapsed] = useState(false);
 
   const monthLabel = cursor.toLocaleDateString("id-ID", {
     month: "long",
@@ -552,14 +555,25 @@ export const CalendarView = () => {
         {/* Holiday & Important Days Section */}
         {(showHolidays || showIntlHolidays) && (
           <Card>
-            <div className="p-3 md:p-4 space-y-3">
+            <div className="p-3 md:p-4">
+              {/* Header with collapse button */}
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-3">
-                <div className="flex items-center gap-2">
+                <button
+                  onClick={() =>
+                    setHolidaySectionCollapsed(!holidaySectionCollapsed)
+                  }
+                  className="flex items-center gap-2 hover:opacity-70 transition-opacity"
+                >
                   <MapPin size={16} className="text-(--accent)" />
                   <h3 className="font-serif text-lg text-(--text-main)">
                     Hari Penting {holidayYearFilter}
                   </h3>
-                </div>
+                  {holidaySectionCollapsed ? (
+                    <ChevronDown size={18} className="text-(--text-muted)" />
+                  ) : (
+                    <ChevronUp size={18} className="text-(--text-muted)" />
+                  )}
+                </button>
                 <div className="flex items-center gap-2">
                   <span className="font-mono text-xs text-(--text-muted)">
                     Tahun:
@@ -579,86 +593,93 @@ export const CalendarView = () => {
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {getHolidaysForYear(holidayYearFilter, [
-                  holidayCountry,
-                  "global",
-                ])
-                  .filter(
+
+              {/* Collapsible content */}
+              {!holidaySectionCollapsed && (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {getHolidaysForYear(holidayYearFilter, [
+                      holidayCountry,
+                      "global",
+                    ])
+                      .filter(
+                        (h) =>
+                          (h.type === "national" && showHolidays) ||
+                          (h.type === "international" && showIntlHolidays)
+                      )
+                      .map((holiday, idx) => {
+                        const holidayDate = new Date(holiday.date);
+                        const isToday =
+                          formatDateKey(new Date()) ===
+                          formatDateKey(holidayDate);
+                        const isPast = holidayDate < new Date() && !isToday;
+
+                        return (
+                          <button
+                            key={`${holiday.date}-${idx}`}
+                            onClick={() => setCursor(holidayDate)}
+                            className={clsx(
+                              "text-left p-3 border rounded-sm transition-all hover:border-(--accent)",
+                              isPast
+                                ? "opacity-60 border-(--border-color)"
+                                : "border-(--accent)/30",
+                              isToday && "bg-(--accent)/10 border-(--accent)"
+                            )}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="font-mono text-xs text-(--accent) font-semibold">
+                                    {holidayDate.toLocaleDateString("id-ID", {
+                                      day: "numeric",
+                                      month: "short",
+                                    })}
+                                  </span>
+                                  {isToday && (
+                                    <span className="px-1.5 py-0.5 bg-(--accent) text-(--bg-color) font-mono text-[9px] rounded-sm">
+                                      HARI INI
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="font-serif text-sm text-(--text-main) mb-1">
+                                  {holiday.label}
+                                </p>
+                                <div className="flex items-center gap-1">
+                                  <span
+                                    className={clsx(
+                                      "px-1.5 py-0.5 font-mono text-[9px] rounded-sm border",
+                                      holiday.type === "national"
+                                        ? "bg-(--accent)/10 text-(--accent) border-(--accent)/30"
+                                        : "bg-(--text-muted)/10 text-(--text-muted) border-(--border-color)"
+                                    )}
+                                  >
+                                    {holiday.type === "national"
+                                      ? "LIBUR NASIONAL"
+                                      : "HARI INTERNASIONAL"}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="text-(--text-muted)">
+                                <CalendarDays size={16} />
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                  </div>
+                  {getHolidaysForYear(holidayYearFilter, [
+                    holidayCountry,
+                    "global",
+                  ]).filter(
                     (h) =>
                       (h.type === "national" && showHolidays) ||
                       (h.type === "international" && showIntlHolidays)
-                  )
-                  .map((holiday, idx) => {
-                    const holidayDate = new Date(holiday.date);
-                    const isToday =
-                      formatDateKey(new Date()) === formatDateKey(holidayDate);
-                    const isPast = holidayDate < new Date() && !isToday;
-
-                    return (
-                      <button
-                        key={`${holiday.date}-${idx}`}
-                        onClick={() => setCursor(holidayDate)}
-                        className={clsx(
-                          "text-left p-3 border rounded-sm transition-all hover:border-(--accent)",
-                          isPast
-                            ? "opacity-60 border-(--border-color)"
-                            : "border-(--accent)/30",
-                          isToday && "bg-(--accent)/10 border-(--accent)"
-                        )}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-mono text-xs text-(--accent) font-semibold">
-                                {holidayDate.toLocaleDateString("id-ID", {
-                                  day: "numeric",
-                                  month: "short",
-                                })}
-                              </span>
-                              {isToday && (
-                                <span className="px-1.5 py-0.5 bg-(--accent) text-(--bg-color) font-mono text-[9px] rounded-sm">
-                                  HARI INI
-                                </span>
-                              )}
-                            </div>
-                            <p className="font-serif text-sm text-(--text-main) mb-1">
-                              {holiday.label}
-                            </p>
-                            <div className="flex items-center gap-1">
-                              <span
-                                className={clsx(
-                                  "px-1.5 py-0.5 font-mono text-[9px] rounded-sm border",
-                                  holiday.type === "national"
-                                    ? "bg-(--accent)/10 text-(--accent) border-(--accent)/30"
-                                    : "bg-(--text-muted)/10 text-(--text-muted) border-(--border-color)"
-                                )}
-                              >
-                                {holiday.type === "national"
-                                  ? "LIBUR NASIONAL"
-                                  : "HARI INTERNASIONAL"}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="text-(--text-muted)">
-                            <CalendarDays size={16} />
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-              </div>
-              {getHolidaysForYear(holidayYearFilter, [
-                holidayCountry,
-                "global",
-              ]).filter(
-                (h) =>
-                  (h.type === "national" && showHolidays) ||
-                  (h.type === "international" && showIntlHolidays)
-              ).length === 0 && (
-                <p className="font-mono text-xs text-(--text-muted) text-center py-4">
-                  Tidak ada hari libur/penting di tahun {holidayYearFilter}.
-                </p>
+                  ).length === 0 && (
+                    <p className="font-mono text-xs text-(--text-muted) text-center py-4">
+                      Tidak ada hari libur/penting di tahun {holidayYearFilter}.
+                    </p>
+                  )}
+                </div>
               )}
             </div>
           </Card>
